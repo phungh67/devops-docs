@@ -35,6 +35,7 @@ int main() {
     // Exec the new program in background
     char *args[] = {"/bin/sleep", "60", NULL};
     execvp(args[0], args);
+    printf("This line will not be printed if exec is successful.\n");
 
     // If execvp fails
     perror("exec failed");
