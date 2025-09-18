@@ -182,19 +182,36 @@ int main( int argc, char* argv[] )
 		// NOTE: check for FD_SET() in the man page of select().
 
 		FD_SET( listenfd, &readfds );
+		int max_connects = listenfd;
 
 		// TODO: loop through all open connections (which you have stored in data structre, e.g. a vector) 
 		// and add them in readfds or writefds.
 		// NOTE: How to know if a socket should be added in readfds or writefds? Check the "state"
 		// field of ConnectionData for that socket.
 
+		// for the beginning, the code will start with the case the list is empty and the below block of code
+		// does nothing
 		
+		for (auto &cd: connections){
+			if (cd.sock == -1){
+				continue;
+			}
+			if (cd.state == eConnStateReceiving){
+				FD_SET(cd.sock, &readfds);
+			}
+			else if (cd.state == eConnStateSending){
+				FD_SET(cd.sock, &writefds);
+			}
+			if (cd.sock > max_connects){
+				max_connects = cd.sock;
+			}
+		}
 		
 		// wait for an event using select()
 		// NOTE 1: we only need one call to select() throughout our program.
 		// NOTE 2: pay attention to the first arguement of select. It should be the 
 		// maximum VALUE of all tracked file descriptors + 1.
-		int ret = select( MAX_CONNECTIONS + 1, &readfds, &writefds, NULL, &connection_timeout);
+		int ret = select( max_connects + 1, &readfds, &writefds, NULL, &connection_timeout);
 		
 
 		if( -1 == ret )
@@ -202,7 +219,6 @@ int main( int argc, char* argv[] )
 			perror( "select() failed" );
 			return -1;
 		}
-
 
 		// NOTE: if listenfd is in the readfds set after the return of select(), 
 		// it means we have a new incomming connection, which we need to serve, just as we did in Lab 1.2. 
