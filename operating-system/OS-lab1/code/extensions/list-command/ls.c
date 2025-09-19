@@ -251,20 +251,21 @@ void list(char directory[], int arguments[]){
             }
         }
     }
-
-    // normal behavior, print just filename in one line
-    for(int i = 0; i < size_of_entries; i++){   
-        if (arguments[OPT_ALL] == 1){
-            // printf("Show hidden files...\n");
-            printf("%s ", entries[i].name);
+    else{
+        // normal behavior, print just filename in one line
+        for(int i = 0; i < size_of_entries; i++){   
+            if (arguments[OPT_ALL] == 1){
+                // printf("Show hidden files...\n");
+                printf("%s ", entries[i].name);
+            }
+            else{
+                if(entries[i].is_hidden == 1)
+                    continue;
+                printf("%s ", entries[i].name);
+            }
         }
-        else{
-            if(entries[i].is_hidden == 1)
-                continue;
-            printf("%s ", entries[i].name);
-        }
+        printf("\n");
     }
-    printf("\n");
 
     free(entries);
 

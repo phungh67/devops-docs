@@ -1,5 +1,5 @@
 CMakeFiles/lsh.dir/lsh.c.o: \
- /chalmers/users/huyhoang/devops-docs/operating-system/OS-lab1/code/lsh.c \
+ /home/huyhoang-ph/msc-cybersecurity/operating-system/OS-lab1/code/lsh.c \
  /usr/include/stdc-predef.h /usr/include/assert.h /usr/include/features.h \
  /usr/include/features-time64.h \
  /usr/include/x86_64-linux-gnu/bits/wordsize.h \
@@ -17,14 +17,15 @@ CMakeFiles/lsh.dir/lsh.c.o: \
  /usr/include/x86_64-linux-gnu/bits/types/__locale_t.h \
  /usr/include/stdio.h \
  /usr/include/x86_64-linux-gnu/bits/libc-header-start.h \
- /usr/lib/gcc/x86_64-linux-gnu/10/include/stddef.h \
- /usr/lib/gcc/x86_64-linux-gnu/10/include/stdarg.h \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/stddef.h \
+ /usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h \
  /usr/include/x86_64-linux-gnu/bits/types/__fpos_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__mbstate_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__fpos64_t.h \
  /usr/include/x86_64-linux-gnu/bits/types/__FILE.h \
  /usr/include/x86_64-linux-gnu/bits/types/FILE.h \
  /usr/include/x86_64-linux-gnu/bits/types/struct_FILE.h \
+ /usr/include/x86_64-linux-gnu/bits/types/cookie_io_functions_t.h \
  /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
  /usr/include/x86_64-linux-gnu/bits/floatn.h \
  /usr/include/x86_64-linux-gnu/bits/floatn-common.h /usr/include/stdlib.h \
@@ -64,4 +65,26 @@ CMakeFiles/lsh.dir/lsh.c.o: \
  /usr/include/x86_64-linux-gnu/bits/getopt_posix.h \
  /usr/include/x86_64-linux-gnu/bits/getopt_core.h \
  /usr/include/x86_64-linux-gnu/bits/unistd_ext.h \
- /chalmers/users/huyhoang/devops-docs/operating-system/OS-lab1/code/parse.h
+ /usr/include/x86_64-linux-gnu/sys/wait.h /usr/include/signal.h \
+ /usr/include/x86_64-linux-gnu/bits/signum-generic.h \
+ /usr/include/x86_64-linux-gnu/bits/signum-arch.h \
+ /usr/include/x86_64-linux-gnu/bits/types/sig_atomic_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/siginfo_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/__sigval_t.h \
+ /usr/include/x86_64-linux-gnu/bits/siginfo-arch.h \
+ /usr/include/x86_64-linux-gnu/bits/siginfo-consts.h \
+ /usr/include/x86_64-linux-gnu/bits/types/sigval_t.h \
+ /usr/include/x86_64-linux-gnu/bits/types/sigevent_t.h \
+ /usr/include/x86_64-linux-gnu/bits/sigevent-consts.h \
+ /usr/include/x86_64-linux-gnu/bits/sigaction.h \
+ /usr/include/x86_64-linux-gnu/bits/sigcontext.h \
+ /usr/include/x86_64-linux-gnu/bits/types/stack_t.h \
+ /usr/include/x86_64-linux-gnu/sys/ucontext.h \
+ /usr/include/x86_64-linux-gnu/bits/sigstack.h \
+ /usr/include/x86_64-linux-gnu/bits/sigstksz.h \
+ /usr/include/x86_64-linux-gnu/bits/ss_flags.h \
+ /usr/include/x86_64-linux-gnu/bits/types/struct_sigstack.h \
+ /usr/include/x86_64-linux-gnu/bits/sigthread.h \
+ /usr/include/x86_64-linux-gnu/bits/signal_ext.h \
+ /usr/include/x86_64-linux-gnu/bits/types/idtype_t.h \
+ /home/huyhoang-ph/msc-cybersecurity/operating-system/OS-lab1/code/parse.h

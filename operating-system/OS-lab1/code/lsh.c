@@ -27,6 +27,10 @@
 // The <unistd.h> header is your gateway to the OS's process management facilities.
 #include <unistd.h>
 
+// Allow the used of several system-related calls
+#include <sys/types.h>
+#include <sys/wait.h>
+
 #include "parse.h"
 
 #define MAX_LEN 256
@@ -41,8 +45,7 @@ int main(void)
   // const char* env_path;
   // env_path = getenv("PATH");
   // printf("PATH :%s\n", (env_path != NULL) ? env_path : "getenv returned NULL");
-  Command cmd_list[MAX_LEN + 1];
-  int command_len = 0;
+  Command to_process;
 
   for (;;)
   {
@@ -68,9 +71,8 @@ int main(void)
       if (parse(line, &cmd) == 1)
       {
         // Just prints cmd
-        print_cmd(&cmd);
-        cmd_list[command_len] = cmd;
-        command_len += 1;
+        // print_cmd(&cmd);
+        to_process = cmd;
       }
       else
       {
@@ -79,16 +81,51 @@ int main(void)
     }
 
     // begin to process the command
-    // first if for built-in function like cd and exit
-    for(int i = 0; i < command_len; i++){
-      printf("%s \n", (*cmd_list[i].pgm->pgmlist));
+    Pgm *p = to_process.pgm;
+    while (p != NULL){
+      printf("Current command to execute: %s\n", *(p->pgmlist));
+
+      // handle exit first
+      if (strcmp(*(p->pgmlist), "exit") == 0){
+        // printf("Exit command detected, terminating the shell.\n");
+        free(line);
+        return 0;
+      }
+
+      // handle built-in command of clear
+      if (strcmp(*(p->pgmlist), "clear") == 0){
+        // system("clear"); // use system call to clear the terminal
+        // Or use ANSI escape codes to clear the terminal
+        printf("\033[H\033[J");
+        p = p->next;
+        continue;
+      }
+
+      pid_t pid = fork();
+      
+      if (pid < 0){
+        perror("Fork failed");
+        free(line);
+        return -1;
+      }
+
+      if(pid == 0){
+        execvp(p->pgmlist[0], p->pgmlist);
+        perror("exec failed");
+        exit(EXIT_FAILURE);
+      }
+      else{
+        printf("Parent process, child PID = %d\n", pid);
+        waitpid(pid, NULL, 0);
+      }
+
+      p = p->next;
     }
-    // for exit function
+    
 
     // Clear memory
     free(line);
   }
-
   return 0;
 }
 
