@@ -47,6 +47,7 @@ void fg_handler();
 void child_handler();
 
 void check_job();
+void kill_bg_jobs();
 
 typedef struct t_job{
   pid_t job_pid;
@@ -278,6 +279,7 @@ void cd_builtin(char *path)
  */
 void exit_builtin(char *line)
 {
+  kill_bg_jobs();
   free(line);
   exit(0);
 }
@@ -323,4 +325,10 @@ void check_job(){
   for(int i = 0; i < background_jobs_count; i++){
     printf("Job %d - pid: %d\n", i, background_jobs[i].job_pid);
   }
+}
+
+void kill_bg_jobs(){
+  for(int i = 0; i < background_jobs_count; i++){
+    kill(background_jobs[i].job_pid, SIGTERM);
+  } 
 }
