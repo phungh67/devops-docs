@@ -83,7 +83,7 @@ void print_job(job *j) {
     print_pgm(p);
 }
 
-void signal_child_handler(int singal_number){
+void signal_child_handler(){
   int child_status;
   pid_t child_pid;
 
@@ -104,7 +104,7 @@ void signal_child_handler(int singal_number){
   fflush(stdout);
 }
 
-void foreground_sig_handler(int signal_number){
+void foreground_sig_handler(){
     if (fg_pid > 0) {
         kill(fg_pid, SIGINT);
         printf("\n[FG] Process %d terminated by Ctrl+C\n", fg_pid);
@@ -163,7 +163,6 @@ int main(void){
 
     // handle EOF - Ctrl + D signal
     if(line == NULL){
-      printf("Invoked by EOF signal.\n");
       exit_builtin(line);
     }
 
@@ -189,6 +188,12 @@ int main(void){
 
     // begin to process the command
     Pgm *p = to_process.pgm;
+    int bg_flag = to_process.background;
+    // create the pipe
+    int fd[2];
+    int prev_fd = -1;
+    pid_t pipe_gid = 0;
+
     while (p != NULL){
       // handle exit first
       if (strcmp(*(p->pgmlist), "exit") == 0){
@@ -202,6 +207,14 @@ int main(void){
         continue;
       }
 
+      if (p->next) {
+        if (pipe(fd) < 0) {
+          perror("Pipe creation failed");
+          free(line);
+          return -1;
+        }
+      }
+    
       pid_t pid = fork();
       
       if (pid < 0){
@@ -211,47 +224,88 @@ int main(void){
       }
 
       if(pid == 0){ // child
-        setpgid(0, 0); // set the child to be the leader of its tree
-        if(!to_process.background){
-          tcsetpgrp(STDIN_FILENO, getpid());
+        setpgid(0, pipe_gid ? pipe_gid : getpid()); // set the child to be the leader of its tree
+        if(prev_fd != -1){
+            dup2(prev_fd, STDIN_FILENO);
+            close(prev_fd);
+        }
+
+        if(p->next){
+            dup2(fd[1], STDOUT_FILENO);
+            close(fd[0]);
+            close(fd[1]);
         }
 
         if(execvp(*(p->pgmlist), p->pgmlist) == -1){
           perror("lsh, exec failed");
           _exit(1);
-        };
+        }
       }
 
       else{
         // handle with parent, add the child to the list and tracking its progress
         // should point to the BEGINNING of the array pgmlist
-        setpgid(pid, pid);
+        setpgid(pid, pipe_gid ? pipe_gid : pid);
+        if(!pipe_gid)
+          pipe_gid = pid;
+
         job* new_job = create_job(pid, p);
 
         if(to_process.background == 1){
           printf("[BG] Job started: pid=%d, cmd=", pid);
           print_pgm(p);
         }
-
-        else{ //foreground process
-          tcsetpgrp(STDIN_FILENO, pid);
-          // set the group to, both FG and BG should be like that
-          int status;
-          waitpid(pid, &status, WUNTRACED);
-
-          tcsetpgrp(STDIN_FILENO, shell_pid);
-
-          if(WIFEXITED(status) || WIFSIGNALED(status)){
-            new_job->status = 2;
-          }
-          else if (WIFSTOPPED(status))
-            new_job->status = 1;
+        else{
+          tcsetpgrp(STDIN_FILENO, pipe_gid);
+        }
+        // else{ //foreground process
+        //   // print_pgm(p);
+          
+        //   tcsetpgrp(STDIN_FILENO, pipe_gid);
+        //   // set the group to, both FG and BG should be like that
+        //   int status;
+        //   pid_t wpid;
+          
+        //   while((wpid = waitpid(-pipe_gid, &status, WUNTRACED)) > 0){
+        //     if(WIFEXITED(status) || WIFSIGNALED(status)){
+        //       new_job->status = 2;
+        //     }
+        //     else if (WIFSTOPPED(status))
+        //       new_job->status = 1;
+        //   }
+          
+        //   tcsetpgrp(STDIN_FILENO, shell_pid);
+        // }
+        if (prev_fd != -1) close(prev_fd);
+        
+        if (p->next) {
+          close(fd[1]);
+          prev_fd = fd[0];
         }
       }
-
       p = p->next;
     }
-    // Clear memory
+
+    // After pipeline: wait for foreground jobs
+    if (!bg_flag && pipe_gid != 0) {
+        int status;
+        pid_t wpid;
+        while ((wpid = waitpid(-pipe_gid, &status, WUNTRACED)) > 0) {
+            for (int i = 0; i < job_count; i++) {
+                if (job_table[i]->pid == wpid) {
+                    if (WIFEXITED(status) || WIFSIGNALED(status))
+                        job_table[i]->status = 2;
+                    else if (WIFSTOPPED(status))
+                        job_table[i]->status = 1;
+                    break;
+                }
+            }
+        }
+        tcsetpgrp(STDIN_FILENO, shell_pid);
+    }
+
+    // Close any remaining pipe ends
+    if (prev_fd != -1) close(prev_fd);
     free(line);
   }
   return 0;
@@ -366,7 +420,6 @@ void cd_builtin(char *path) {
  * @return: void (the program will terminate in the main function after calling this)
  */
 void exit_builtin(char* line){ 
-    printf("Exit command detected, terminating the shell.\n");
     free(line);
     exit(0);
   }
