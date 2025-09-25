@@ -7,6 +7,7 @@ CMakeFiles/lsh.dir/lsh.c.o: /home/huyhoang-ph/msc-cybersecurity/operating-system
   /usr/include/assert.h \
   /usr/include/ctype.h \
   /usr/include/endian.h \
+  /usr/include/fcntl.h \
   /usr/include/features-time64.h \
   /usr/include/features.h \
   /usr/include/readline/chardefs.h \
@@ -22,7 +23,6 @@ CMakeFiles/lsh.dir/lsh.c.o: /home/huyhoang-ph/msc-cybersecurity/operating-system
   /usr/include/stdlib.h \
   /usr/include/string.h \
   /usr/include/strings.h \
-  /usr/include/termios.h \
   /usr/include/time.h \
   /usr/include/unistd.h \
   /usr/include/x86_64-linux-gnu/bits/atomic_wide_counter.h \
@@ -31,6 +31,8 @@ CMakeFiles/lsh.dir/lsh.c.o: /home/huyhoang-ph/msc-cybersecurity/operating-system
   /usr/include/x86_64-linux-gnu/bits/endian.h \
   /usr/include/x86_64-linux-gnu/bits/endianness.h \
   /usr/include/x86_64-linux-gnu/bits/environments.h \
+  /usr/include/x86_64-linux-gnu/bits/fcntl-linux.h \
+  /usr/include/x86_64-linux-gnu/bits/fcntl.h \
   /usr/include/x86_64-linux-gnu/bits/floatn-common.h \
   /usr/include/x86_64-linux-gnu/bits/floatn.h \
   /usr/include/x86_64-linux-gnu/bits/getopt_core.h \
@@ -53,21 +55,13 @@ CMakeFiles/lsh.dir/lsh.c.o: /home/huyhoang-ph/msc-cybersecurity/operating-system
   /usr/include/x86_64-linux-gnu/bits/sigstksz.h \
   /usr/include/x86_64-linux-gnu/bits/sigthread.h \
   /usr/include/x86_64-linux-gnu/bits/ss_flags.h \
+  /usr/include/x86_64-linux-gnu/bits/stat.h \
   /usr/include/x86_64-linux-gnu/bits/stdint-intn.h \
   /usr/include/x86_64-linux-gnu/bits/stdio_lim.h \
   /usr/include/x86_64-linux-gnu/bits/stdlib-float.h \
   /usr/include/x86_64-linux-gnu/bits/struct_mutex.h \
   /usr/include/x86_64-linux-gnu/bits/struct_rwlock.h \
-  /usr/include/x86_64-linux-gnu/bits/termios-baud.h \
-  /usr/include/x86_64-linux-gnu/bits/termios-c_cc.h \
-  /usr/include/x86_64-linux-gnu/bits/termios-c_cflag.h \
-  /usr/include/x86_64-linux-gnu/bits/termios-c_iflag.h \
-  /usr/include/x86_64-linux-gnu/bits/termios-c_lflag.h \
-  /usr/include/x86_64-linux-gnu/bits/termios-c_oflag.h \
-  /usr/include/x86_64-linux-gnu/bits/termios-misc.h \
-  /usr/include/x86_64-linux-gnu/bits/termios-struct.h \
-  /usr/include/x86_64-linux-gnu/bits/termios-tcflow.h \
-  /usr/include/x86_64-linux-gnu/bits/termios.h \
+  /usr/include/x86_64-linux-gnu/bits/struct_stat.h \
   /usr/include/x86_64-linux-gnu/bits/thread-shared-types.h \
   /usr/include/x86_64-linux-gnu/bits/time.h \
   /usr/include/x86_64-linux-gnu/bits/time64.h \
@@ -110,7 +104,6 @@ CMakeFiles/lsh.dir/lsh.c.o: /home/huyhoang-ph/msc-cybersecurity/operating-system
   /usr/include/x86_64-linux-gnu/gnu/stubs.h \
   /usr/include/x86_64-linux-gnu/sys/cdefs.h \
   /usr/include/x86_64-linux-gnu/sys/select.h \
-  /usr/include/x86_64-linux-gnu/sys/ttydefaults.h \
   /usr/include/x86_64-linux-gnu/sys/types.h \
   /usr/include/x86_64-linux-gnu/sys/ucontext.h \
   /usr/include/x86_64-linux-gnu/sys/wait.h \
@@ -171,6 +164,10 @@ CMakeFiles/lsh.dir/parse.c.o: /home/huyhoang-ph/msc-cybersecurity/operating-syst
 
 /usr/include/x86_64-linux-gnu/bits/waitflags.h:
 
+/usr/include/x86_64-linux-gnu/bits/unistd_ext.h:
+
+/usr/include/x86_64-linux-gnu/bits/typesizes.h:
+
 /usr/include/x86_64-linux-gnu/sys/cdefs.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/struct_timeval.h:
@@ -186,8 +183,6 @@ CMakeFiles/lsh.dir/parse.c.o: /home/huyhoang-ph/msc-cybersecurity/operating-syst
 /usr/include/x86_64-linux-gnu/bits/types/sigval_t.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/siginfo_t.h:
-
-/usr/include/x86_64-linux-gnu/bits/types/sigevent_t.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/cookie_io_functions_t.h:
 
@@ -215,33 +210,17 @@ CMakeFiles/lsh.dir/parse.c.o: /home/huyhoang-ph/msc-cybersecurity/operating-syst
 
 /usr/include/x86_64-linux-gnu/bits/time64.h:
 
-/usr/include/x86_64-linux-gnu/bits/thread-shared-types.h:
-
-/usr/include/x86_64-linux-gnu/bits/typesizes.h:
-
-/usr/include/x86_64-linux-gnu/bits/termios-tcflow.h:
-
-/usr/include/x86_64-linux-gnu/bits/unistd_ext.h:
-
-/usr/include/x86_64-linux-gnu/bits/termios-struct.h:
-
-/usr/include/x86_64-linux-gnu/bits/termios-c_lflag.h:
-
-/usr/include/x86_64-linux-gnu/bits/termios-c_iflag.h:
-
-/usr/include/x86_64-linux-gnu/bits/termios-c_cflag.h:
-
-/usr/include/x86_64-linux-gnu/bits/types.h:
-
-/usr/include/x86_64-linux-gnu/bits/atomic_wide_counter.h:
-
 /usr/include/x86_64-linux-gnu/bits/time.h:
 
-/usr/include/termios.h:
+/usr/include/x86_64-linux-gnu/bits/thread-shared-types.h:
 
-/usr/include/alloca.h:
+/usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h:
+
+/usr/include/x86_64-linux-gnu/bits/struct_rwlock.h:
 
 /usr/include/unistd.h:
+
+/usr/include/fcntl.h:
 
 /usr/include/x86_64-linux-gnu/bits/floatn-common.h:
 
@@ -265,11 +244,15 @@ CMakeFiles/lsh.dir/parse.c.o: /home/huyhoang-ph/msc-cybersecurity/operating-syst
 
 /usr/include/x86_64-linux-gnu/bits/confname.h:
 
+/usr/include/x86_64-linux-gnu/bits/fcntl-linux.h:
+
 /usr/include/assert.h:
 
 /usr/include/readline/tilde.h:
 
 /usr/include/readline/readline.h:
+
+/usr/include/alloca.h:
 
 /usr/include/x86_64-linux-gnu/bits/stdio_lim.h:
 
@@ -281,6 +264,8 @@ CMakeFiles/lsh.dir/parse.c.o: /home/huyhoang-ph/msc-cybersecurity/operating-syst
 
 /usr/include/ctype.h:
 
+/usr/include/x86_64-linux-gnu/bits/struct_stat.h:
+
 /home/huyhoang-ph/msc-cybersecurity/operating-system/OS-lab1/code/lsh.c:
 
 /usr/include/x86_64-linux-gnu/bits/types/timer_t.h:
@@ -291,8 +276,6 @@ CMakeFiles/lsh.dir/parse.c.o: /home/huyhoang-ph/msc-cybersecurity/operating-syst
 
 /usr/include/readline/history.h:
 
-/usr/include/features-time64.h:
-
 /home/huyhoang-ph/msc-cybersecurity/operating-system/OS-lab1/code/parse.c:
 
 /usr/include/features.h:
@@ -302,6 +285,16 @@ CMakeFiles/lsh.dir/parse.c.o: /home/huyhoang-ph/msc-cybersecurity/operating-syst
 /usr/include/readline/rlstdc.h:
 
 /usr/include/readline/chardefs.h:
+
+/usr/include/features-time64.h:
+
+/usr/include/x86_64-linux-gnu/bits/types/sigevent_t.h:
+
+/usr/include/x86_64-linux-gnu/bits/fcntl.h:
+
+/usr/include/x86_64-linux-gnu/bits/sigcontext.h:
+
+/usr/include/x86_64-linux-gnu/bits/signum-generic.h:
 
 /usr/include/x86_64-linux-gnu/bits/floatn.h:
 
@@ -321,11 +314,7 @@ CMakeFiles/lsh.dir/parse.c.o: /home/huyhoang-ph/msc-cybersecurity/operating-syst
 
 /usr/include/x86_64-linux-gnu/bits/getopt_posix.h:
 
-/usr/include/x86_64-linux-gnu/bits/termios-misc.h:
-
 /usr/include/x86_64-linux-gnu/bits/libc-header-start.h:
-
-/usr/include/x86_64-linux-gnu/sys/ttydefaults.h:
 
 /usr/include/x86_64-linux-gnu/bits/siginfo-consts.h:
 
@@ -338,8 +327,6 @@ CMakeFiles/lsh.dir/parse.c.o: /home/huyhoang-ph/msc-cybersecurity/operating-syst
 /usr/include/x86_64-linux-gnu/bits/posix_opt.h:
 
 /usr/include/x86_64-linux-gnu/bits/types/time_t.h:
-
-/usr/include/x86_64-linux-gnu/bits/termios.h:
 
 /usr/include/x86_64-linux-gnu/bits/pthreadtypes-arch.h:
 
@@ -361,11 +348,15 @@ CMakeFiles/lsh.dir/parse.c.o: /home/huyhoang-ph/msc-cybersecurity/operating-syst
 
 /usr/include/x86_64-linux-gnu/bits/signal_ext.h:
 
-/usr/include/x86_64-linux-gnu/bits/sigcontext.h:
-
-/usr/include/x86_64-linux-gnu/bits/signum-generic.h:
+/usr/include/x86_64-linux-gnu/bits/sigstack.h:
 
 /usr/include/x86_64-linux-gnu/bits/sigstksz.h:
+
+/usr/include/x86_64-linux-gnu/bits/types.h:
+
+/usr/include/x86_64-linux-gnu/bits/atomic_wide_counter.h:
+
+/usr/include/x86_64-linux-gnu/bits/stat.h:
 
 /usr/include/x86_64-linux-gnu/bits/stdint-intn.h:
 
@@ -376,15 +367,3 @@ CMakeFiles/lsh.dir/parse.c.o: /home/huyhoang-ph/msc-cybersecurity/operating-syst
 /usr/include/x86_64-linux-gnu/bits/types/idtype_t.h:
 
 /usr/include/x86_64-linux-gnu/bits/struct_mutex.h:
-
-/usr/lib/gcc/x86_64-linux-gnu/13/include/stdarg.h:
-
-/usr/include/x86_64-linux-gnu/bits/struct_rwlock.h:
-
-/usr/include/x86_64-linux-gnu/bits/termios-baud.h:
-
-/usr/include/x86_64-linux-gnu/bits/termios-c_oflag.h:
-
-/usr/include/x86_64-linux-gnu/bits/sigstack.h:
-
-/usr/include/x86_64-linux-gnu/bits/termios-c_cc.h:

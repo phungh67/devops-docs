@@ -31,7 +31,7 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <signal.h>
-#include <termios.h>
+#include <fcntl.h>
 
 #include "parse.h"
 
@@ -79,6 +79,7 @@ int main(void)
     stripwhite(line);
 
     Command to_process;
+    int command_number = 0;
     memset(&to_process, 0, sizeof(Command));
 
     if (*line)
@@ -86,9 +87,15 @@ int main(void)
       add_history(line);
 
       Command cmd;
+
       if (parse(line, &cmd) == 1)
       {
         to_process = cmd;
+        Pgm *pointer = to_process.pgm;
+        while(pointer != NULL){
+          command_number ++;
+          pointer = pointer -> next;
+        }
       }
       else
       {
@@ -116,6 +123,15 @@ int main(void)
       }
 
       pid_t pid = fork();
+      int fds[2];
+      int fd_out;
+
+      if(p->next != NULL){
+        if(pipe(fds) == -1){
+          perror("Pipe");
+          _exit(1);
+        }
+      }
 
       if (pid < 0)
       {
@@ -125,6 +141,36 @@ int main(void)
       }
 
       if (pid == 0){ // child
+        if(fd_out != STDOUT_FILENO){
+          dup2(fd_out, STDOUT_FILENO);
+          close(fd_out);
+        }
+
+        if(to_process.rstdout && command_number == 0){
+          int fd = open(to_process.rstdout, O_WRONLY | O_CREAT | O_TRUNC, 0644);
+          if(fd == -1){
+            perror("Cannot output file");
+            _exit(1);
+          }
+          dup2(fd, STDOUT_FILENO);
+          close(fd);
+        }
+
+        if(p->next != NULL){
+          dup2(fds[0], STDOUT_FILENO);
+          close(fds[0]);
+          close(fds[1]);
+        }
+
+        if(to_process.rstdin && to_process.pgm->next !=  NULL){
+          int fd = open(to_process.rstdin, O_RDONLY);
+          if(fd == -1){
+            perror("Error input file");
+            _exit(1);
+          }
+          dup2(fd, STDIN_FILENO);
+          close(fd);
+        }
 
         execvp(*(p->pgmlist), p->pgmlist);
         perror("lsh, exec failed");
@@ -132,6 +178,16 @@ int main(void)
       }
 
       else{ // parent
+        // close the write-end if not needed
+        if(fd_out != STDOUT_FILENO){
+          close(fd_out);
+        }
+
+        if(p->next != NULL){
+          close(fds[1]);
+          fd_out = fds[0];
+        }
+
         if(to_process.background == 1){
           if(background_jobs_count > MAX_LEN){
             perror("Allocated failed for new BG job.\n");
@@ -147,18 +203,22 @@ int main(void)
           printf("[BG] Job started with pid %d, cmd= ", pid);
           print_pgm(p);
 
-          check_job();
+          // check_job();
         }
         else{
+          // printf("Number of command in this chain: %d.\n", command_number);
           fg_pid = pid;
           int execution_status;
           waitpid(pid, &execution_status, 0);
         }
       }
 
+      // close(fd);
       p = p->next;
+      command_number --;
+      // close(fd);
     }
-
+    // printf("Number of commands in this chain: %d.\n", command_number);
     free(line);
   }
   return 0;
