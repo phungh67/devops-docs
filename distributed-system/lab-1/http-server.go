@@ -2,18 +2,20 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"net"
 	"os"
 	"os/signal"
 	"sync"
+	"sync/atomic"
 	"syscall"
 	"time"
 )
 
-const maxConnection = 10
+const MAX_CONNECTION = 10
 
 type server struct {
-	connectionCount int
+	connectionCount atomic.Int32
 	wg              sync.WaitGroup
 	listener        net.Listener
 	shutdown        chan struct{}
@@ -27,10 +29,9 @@ func newServer(address string) (*server, error) {
 	}
 
 	return &server{
-		connectionCount: 0,
-		listener:        listener,
-		shutdown:        make(chan struct{}),
-		connection:      make(chan net.Conn),
+		listener:   listener,
+		shutdown:   make(chan struct{}),
+		connection: make(chan net.Conn, MAX_CONNECTION),
 	}, nil
 }
 
@@ -48,38 +49,37 @@ func (s *server) acceptConnections() {
 				continue
 			}
 			s.connection <- conn
-			s.connectionCount += 1
 		}
 	}
 }
 
-// pick a connection in "Connections" to serve
-func (s *server) handleConnections() {
+func (s *server) worker() {
 	defer s.wg.Done()
 
-	for {
-		select {
-		case <-s.shutdown:
-			return
-		case conn := <-s.connection:
-			go s.handleConnection(conn)
-		}
+	for conn := range s.connection {
+		s.handleConnection(conn)
 	}
 }
 
 func (s *server) handleConnection(conn net.Conn) {
 	defer conn.Close()
 
-	fmt.Fprintf(conn, "TCP server accepted a connection, total connection: %d", s.connectionCount)
+	currentConn := s.connectionCount.Add(1)
+	log.Printf("Total active connection is: %d", currentConn)
+
 	time.Sleep(5 * time.Second)
-	s.connectionCount -= 1
-	fmt.Fprintf(conn, "Handling connection completed, remaining %d", s.connectionCount)
+
+	remainingConn := s.connectionCount.Add(-1)
+	log.Printf("Handling a connection completed, remaining: %d", remainingConn)
 }
 
 func (s *server) Start() {
-	s.wg.Add(2)
+	s.wg.Add(MAX_CONNECTION)
+	for i := 0; i < MAX_CONNECTION; i++ {
+		go s.worker()
+	}
+
 	go s.acceptConnections()
-	go s.handleConnections()
 }
 
 func (s *server) Stop() {
@@ -95,7 +95,7 @@ func (s *server) Stop() {
 	select {
 	case <-done:
 		return
-	case <-time.After(time.Second):
+	case <-time.After(5 * time.Second):
 		fmt.Println("Time out waiting remaining connections to be finished.")
 		return
 	}
