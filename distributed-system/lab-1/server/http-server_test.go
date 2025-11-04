@@ -10,14 +10,13 @@ import (
 )
 
 func TestServerConnectionLimit(t *testing.T) {
-	// 1. Setup: Start the server on a random free port
-	// We use ":0" to let the OS pick an available port.
+	// using a random port for quicky testing
 	s, err := newServer(":0")
 	if err != nil {
 		t.Fatalf("Failed to create server: %v", err)
 	}
 	s.Start()
-	// Ensure the server is stopped when the test finishes
+	// defer function(f), f only executed when all surrounds are completed
 	defer s.Stop()
 
 	// Get the actual address the listener is using

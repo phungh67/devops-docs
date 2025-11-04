@@ -95,7 +95,7 @@ func (s *server) handleConnection(conn net.Conn) {
 		return
 	}
 
-	fmt.Println("Accepted a connection")
+	log.Println("Accepted a connection")
 	reader := bufio.NewReader(conn)
 
 	req, err := http.ReadRequest(reader)
@@ -261,31 +261,35 @@ func (s *server) Stop() {
 		log.Println("All goroutines shut down gracefully.")
 		return
 	case <-time.After(5 * time.Second):
-		fmt.Println("Time out waiting remaining connections to be finished.")
+		log.Println("Time out waiting remaining connections to be finished.")
 		return
 	}
 }
 
 func main() {
 	arguments := os.Args
+	PORT := ""
 	if len(arguments) == 1 {
-		fmt.Println("Input a valid port number!")
-		return
+		log.Println("A port was not specified, using a random port for the server!")
+		PORT += ":0"
+	} else {
+		PORT = PORT + ":" + arguments[1]
 	}
 
-	PORT := ":" + arguments[1]
 	s, error := newServer(PORT)
 	if error != nil {
-		fmt.Println(error)
+		log.Println(error)
 		os.Exit(1)
 	}
+
+	log.Printf("Server was started on PORT: %d", s.listener.Addr().(*net.TCPAddr).Port)
 
 	s.Start()
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	<-sigChan
 
-	fmt.Println("Shutting down the server ...")
+	log.Println("Shutting down the server ...")
 	s.Stop()
-	fmt.Println("Server stopped.")
+	log.Println("Server stopped.")
 }
