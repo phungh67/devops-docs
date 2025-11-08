@@ -95,6 +95,7 @@ func (s *server) handleConnection(conn net.Conn) {
 	if err != nil {
 		log.Printf("Malformed request from the client")
 		s.handleError(conn, http.StatusBadRequest)
+		s.connectionCount.Add(-1)
 		return
 	}
 

@@ -19,6 +19,7 @@ import (
 )
 
 const MAX_CONNECTION = 10
+const MAX_TIMEOUT = 5
 
 var supportedTypes = map[string]string{
 	".html": "text/html",
@@ -75,11 +76,11 @@ func (s *server) acceptConnections() {
 	}
 }
 
-func (s *server) worker() {
+func (s *server) worker(handler func(net.Conn)) {
 	defer s.wg.Done()
 
 	for conn := range s.connection {
-		s.handleConnection(conn)
+		handler(conn)
 	}
 }
 
@@ -231,13 +232,75 @@ func (s *server) handleError(conn net.Conn, statusCode int) {
 	fmt.Fprintln(conn, statusText)
 }
 
-func (s *server) Start() {
+func (s *server) proxyHandleConnection(conn net.Conn) {
+	defer conn.Close()
+
+	currentConn := s.connectionCount.Add(1)
+	log.Printf("Proxy, total active connection: %d", currentConn)
+
+	conn.SetReadDeadline(time.Now().Add(MAX_TIMEOUT * time.Second))
+	reader := bufio.NewReader(conn)
+
+	req, err := http.ReadRequest(reader)
+	if err != nil {
+		log.Printf("Malformed request from client")
+		s.handleError(conn, http.StatusBadRequest)
+		s.connectionCount.Add(-1)
+		return
+	}
+
+	req.Close = true
+
+	conn.SetReadDeadline(time.Time{})
+
+	switch req.Method {
+	case "GET":
+		backendHost := req.Host
+		if _, _, err := net.SplitHostPort(backendHost); err != nil {
+			backendHost = net.JoinHostPort(backendHost, "80")
+		}
+
+		log.Printf("Proxy request for %s to %s", req.URL, backendHost)
+		backendConn, err := net.Dial("tcp", backendHost)
+		if err != nil {
+			log.Printf("Failed to dial the backend '%s', error %v", backendHost, err)
+			s.handleError(conn, http.StatusBadGateway)
+			s.connectionCount.Add(-1)
+			return
+		}
+
+		defer backendConn.Close()
+
+		if err := req.Write(backendConn); err != nil {
+			log.Printf("Failed to write the request to the backend: %v", err)
+			s.connectionCount.Add(-1)
+			return
+		}
+
+		if _, err := io.Copy(conn, backendConn); err != nil {
+			log.Printf("Error while copying response to client: %v", err)
+		}
+
+	default:
+		log.Printf("Method %s is not implemented", req.Method)
+		s.handleError(conn, http.StatusNotImplemented)
+	}
+
+	remainingConn := s.connectionCount.Add(-1)
+	log.Printf("Remaining connection: %d", remainingConn)
+}
+
+func (s *server) Start(isProxyMode bool) {
 	s.wg.Add(1)
 	go s.acceptConnections()
 
 	s.wg.Add(MAX_CONNECTION)
 	for i := 0; i < MAX_CONNECTION; i++ {
-		go s.worker()
+		if isProxyMode {
+			go s.worker(s.proxyHandleConnection)
+		} else {
+			go s.worker(s.handleConnection)
+		}
 	}
 }
 
@@ -283,9 +346,16 @@ func main() {
 		os.Exit(1)
 	}
 
-	log.Printf("Server was started on PORT: %d", s.listener.Addr().(*net.TCPAddr).Port)
+	actualPort := s.listener.Addr().(*net.TCPAddr).Port
 
-	s.Start()
+	if *isProxy {
+		log.Printf("Proxy mode, listening on port %d...", actualPort)
+		s.Start(true)
+	} else {
+		log.Printf("Server mode, listening on port %d...", actualPort)
+		s.Start(false)
+	}
+
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 	<-sigChan
