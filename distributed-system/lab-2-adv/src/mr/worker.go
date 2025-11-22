@@ -115,9 +115,9 @@ func Worker(mapf func(string, string) []KeyValue,
 		case reduceType:
 			err := ExecuteReduceTask(rep.Number, reducef, rep.MapAddresses)
 			if err != nil {
-				CallUpdateTaskStatus(reduceType, rep.Name, "")
-			} else {
 				time.Sleep(1 * time.Second) // simply wait if err, since map must be rerun
+			} else {
+				CallUpdateTaskStatus(reduceType, rep.Name, "")
 			}
 		case waitType: // map worker wait for reduce worker to take the file (to not forcefully exist)
 			time.Sleep(1 * time.Second)
@@ -186,11 +186,26 @@ func ExecuteMapTask(filename string, mapNumber, numberofReduce int, mapf func(st
 		fmt.Fprintf(f, "%s\n", kvj)
 	}
 
-	// rename for the reduce phase
-	for rNum, f := range mp {
-		os.Rename(f.Name(), fmt.Sprintf("mr-%d-%d", mapNumber, rNum))
-		// pwd, _ := os.Getwd()
-		// log.Printf("Store file as %s in %s", f.Name(), pwd)
+	// rename for the reduce phase, this can be caused a false error, with smaller keys than the number of reduce
+	// for rNum, f := range mp {
+	// 	os.Rename(f.Name(), fmt.Sprintf("mr-%d-%d", mapNumber, rNum))
+	// 	// pwd, _ := os.Getwd()
+	// 	// log.Printf("Store file as %s in %s", f.Name(), pwd)
+	// }
+	for i := 0; i < numberofReduce; i++ {
+		finalName := fmt.Sprintf("mr-%d-%d", mapNumber, i)
+		f, ok := mp[i]
+		if ok {
+			f.Close()
+			os.Rename(f.Name(), finalName) // change name if can open file
+		} else {
+			// empty partition because of fewer keys than actual number of reduce workers
+			emptyFile, err := os.Create(finalName)
+			if err != nil {
+				log.Fatal(err)
+			}
+			emptyFile.Close()
+		}
 	}
 }
 
@@ -215,7 +230,8 @@ func ExecuteReduceTask(partitionNumber int, reducef func(string, []string) strin
 			// We got a 404 or 500. Do NOT parse this as JSON! (since it will generate "unexpected" letter p)
 			log.Printf("Worker at %s returned status %d for file %s", workerAddress, resp.StatusCode, filename)
 			resp.Body.Close()
-			continue
+			CallReportFailureMapTask(mapWorkerID)
+			return fmt.Errorf("missing expected data from task %d", mapWorkerID)
 		}
 		defer resp.Body.Close()
 

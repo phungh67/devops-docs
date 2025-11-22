@@ -176,13 +176,17 @@ func (c *Coordinator) UpdateTaskStatus(args *UpdateTaskStatusArgs, reply *Update
 	defer c.cond.L.Unlock()
 
 	if args.Type == mapType { // must collect the information of the map worker first
-		c.mapTasks[args.Name].status = completed
-		c.mapRemaining -= 1
-		currentMapWorkerID := c.mapTasks[args.Name].number
-		c.mapTaskAddresses[currentMapWorkerID] = args.WorkerAddress
+		if c.mapTasks[args.Name].status != completed {
+			c.mapTasks[args.Name].status = completed
+			c.mapRemaining -= 1
+			currentMapWorkerID := c.mapTasks[args.Name].number
+			c.mapTaskAddresses[currentMapWorkerID] = args.WorkerAddress
+		}
 	} else {
-		c.reduceTasks[args.Name].status = completed
-		c.reduceRemaining -= 1
+		if c.reduceTasks[args.Name].status != completed {
+			c.reduceTasks[args.Name].status = completed
+			c.reduceRemaining -= 1
+		}
 	}
 	return nil
 }
