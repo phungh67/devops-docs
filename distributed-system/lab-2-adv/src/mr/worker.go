@@ -16,6 +16,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -83,6 +84,11 @@ func ProbleFileExposed(addr string, filename string) error {
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("[Self-check] Failed, either the file has been moved or insufficent permisison, file %s, error %v", filename, resp.StatusCode)
 	}
+	return nil
+}
+
+func FetchFiles(mapAddress []string, partition int) ([]KeyValue, error) {
+	var wg sync.WaitGroup // protect the shared data
 	return nil
 }
 
@@ -177,14 +183,19 @@ func ExecuteMapTask(filename string, mapNumber, numberofReduce int, mapf func(st
 	initVal := mapf(filename, string(content)) // map the filename with its content
 	mp := map[int]*os.File{}                   // map of output result (cache)
 
+	// In ExecuteMapTask
+	for i := 0; i < numberofReduce; i++ {
+		filename := fmt.Sprintf("mr-%d-%d", mapNumber, i)
+		// Create file immediately, even if we write nothing to it later
+		file, _ := os.Create(filename)
+		mp[i] = file
+	}
+
 	for _, kv := range initVal {
 		// check for each "word"
 		currentParition := ihash(kv.Key) % numberofReduce
 		f, ok := mp[currentParition]
 		if !ok {
-			// create new "bucket" if the word is not existed
-			f, err = os.CreateTemp(".", "tmp")
-			mp[currentParition] = f
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -195,6 +206,7 @@ func ExecuteMapTask(filename string, mapNumber, numberofReduce int, mapf func(st
 
 	// rename for the reduce phase
 	for rNum, f := range mp {
+		f.Close()
 		os.Rename(f.Name(), fmt.Sprintf("mr-%d-%d", mapNumber, rNum))
 	}
 }
