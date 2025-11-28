@@ -153,6 +153,25 @@ func (c *Coordinator) UpdateTaskStatus(args *UpdateTaskStatusArgs, reply *Update
 	return nil
 }
 
+func (c *Coordinator) HealthMonitor() {
+	for {
+		time.Sleep(1 * time.Second)
+		c.cond.L.Lock()
+
+		for addr, worker := range c.workerMap {
+			if worker.WorkerDown {
+				continue
+			}
+			if time.Since(worker.LastReportedTime) > 10*time.Second {
+				HardReset(c, addr)
+				SoftReset(c, addr)
+			}
+		}
+
+		c.cond.L.Unlock()
+	}
+}
+
 // if a task is dead, a worker is down, something needs to be rearranged, we call this
 func (c *Coordinator) Rescheduler() {
 	for {
@@ -221,13 +240,12 @@ func (c *Coordinator) HealthCheck(args *HealthCheckArgs, reply *HealthCheckReply
 	return nil
 }
 
-func (c *Coordinator) ReportFailure(args *FailedTaskReportArgs, reply *FailedTaskReportReply) error {
-	c.cond.L.Lock()
-	defer c.cond.L.Unlock()
+func HardReset(c *Coordinator, failedWorker string) {
+	/**This function is to reset the map task, which must
+	  be handled carefully depends on its status
 
-	failedWorker := args.WorkerAddress
+	*/
 	for _, task := range c.mapTasks {
-		// map first
 		if task.assignedWorker == failedWorker {
 			prevStatus := task.status
 			task.status = unstarted
@@ -238,6 +256,9 @@ func (c *Coordinator) ReportFailure(args *FailedTaskReportArgs, reply *FailedTas
 			}
 		}
 	}
+}
+
+func SoftReset(c *Coordinator, failedWorker string) {
 	for _, task := range c.reduceTasks {
 		if task.assignedWorker == failedWorker {
 			task.status = unstarted
@@ -245,6 +266,20 @@ func (c *Coordinator) ReportFailure(args *FailedTaskReportArgs, reply *FailedTas
 			task.startTime = time.Time{}
 		}
 	}
+}
+
+func (c *Coordinator) ReportFailure(args *FailedTaskReportArgs, reply *FailedTaskReportReply) error {
+	c.cond.L.Lock()
+	defer c.cond.L.Unlock()
+
+	failedWorker := args.WorkerAddress
+
+	if w, ok := c.workerMap[failedWorker]; ok {
+		w.WorkerDown = true
+	}
+
+	HardReset(c, failedWorker) // for map task
+	SoftReset(c, failedWorker)
 
 	c.cond.Broadcast()
 	return nil
@@ -314,6 +349,7 @@ func MakeCoordinator(files []string, nReduce int) *Coordinator {
 
 	// start a new rountine for the rescheduler (constanly check for exceeded time task independently)
 	go c.Rescheduler()
+	go c.HealthMonitor()
 
 	c.server()
 	return &c

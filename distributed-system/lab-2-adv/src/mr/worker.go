@@ -107,16 +107,23 @@ func FetchData(mapWorkerAddress []string, partition int) ([]KeyValue, error) {
 			}
 			resp, err := client.Get(fileurl)
 			if err != nil {
-				log.Printf("[ERROR][Reduce worker] Worker %s is not reachable: %v", addr, err)
-				// call report failure
-				errChan <- fmt.Errorf("map worker %d is unreachable", index)
+				// log.Printf("[ERROR][Reduce worker] Worker %s is not reachable: %v", addr, err)
+				ok, err := CallFailureTask(addr)
+				if !ok {
+					errChan <- err
+				}
+				// errChan <- fmt.Errorf("map worker %d is unreachable", index)
 				return
 			}
 			defer resp.Body.Close()
 			if resp.StatusCode != http.StatusOK {
-				log.Printf("[ERROR][HTTP] Code %d from %s", resp.StatusCode, addr)
+				// log.Printf("[ERROR][HTTP] Code %d from %s", resp.StatusCode, addr)
 				// call report failure
-				errChan <- fmt.Errorf("map worker %d is missing", index)
+				ok, err := CallFailureTask(addr)
+				if !ok {
+					errChan <- err
+				}
+				// errChan <- fmt.Errorf("map worker %d is missing", index)
 				return
 			}
 			var localData []KeyValue
@@ -128,9 +135,13 @@ func FetchData(mapWorkerAddress []string, partition int) ([]KeyValue, error) {
 					if err == io.EOF {
 						break
 					}
-					log.Printf("[ERROR][JSON] Corrupt data from file %s: %v", fileurl, err)
+					// log.Printf("[ERROR][JSON] Corrupt data from file %s: %v", fileurl, err)
 					// report
-					errChan <- fmt.Errorf("corrupt data map %d", index)
+					ok, err := CallFailureTask(addr)
+					if !ok {
+						errChan <- err
+					}
+					// errChan <- fmt.Errorf("corrupt data map %d", index)
 					return
 				}
 				localData = append(localData, kv)
@@ -339,6 +350,20 @@ func ExecuteReduceTask(partitionNumber int, reducef func(string, []string) strin
 		i = j
 	}
 	ofile.Close()
+}
+
+// failure call
+func CallFailureTask(addr string) (bool, error) {
+	args := FailedTaskReportArgs{
+		WorkerAddress: addr,
+	}
+	reply := FailedTaskReportReply{}
+	ok := call("Coordinator.ReportFailure", &args, &reply)
+	if ok {
+		return reply.Acknowledge, nil
+	} else {
+		return false, errors.New("call failed")
+	}
 }
 
 // health report
