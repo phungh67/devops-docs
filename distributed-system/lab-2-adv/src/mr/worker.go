@@ -81,28 +81,28 @@ func ihash(key string) int {
 func Worker(mapf func(string, string) []KeyValue,
 	reducef func(string, []string) string) {
 
-	for {
+	workerAddress := StartHTTPFileServer(".")
+	if workerAddress == "" {
+		return
+	}
 
-		workerAddress := StartHTTPFileServer(".")
-		if workerAddress == "" {
-			log.Fatal("error in setting up a server")
-		}
-		log.Printf("server was setup at %s", workerAddress)
-
-		go func() {
-			ticker := time.NewTicker(500 * time.Millisecond)
-			defer ticker.Stop()
-			for range ticker.C {
-				_, err := CallHealthCheck(workerAddress)
-				if err != nil {
-					log.Fatal(err)
-				}
+	go func() {
+		ticker := time.NewTicker(500 * time.Millisecond)
+		defer ticker.Stop()
+		for range ticker.C {
+			_, err := CallHealthCheck(workerAddress)
+			if err != nil {
+				log.Fatal(err)
 			}
-		}()
+		}
+	}()
 
-		rep, err := CallGetTask()
+	for {
+		rep, err := CallGetTask(workerAddress)
 		if err != nil {
-			log.Fatal(err)
+			// log.Fatal(err)
+			time.Sleep(1 * time.Second)
+			continue
 		}
 		if rep.Type == mapType {
 			// if get a map task, execute then call update
@@ -157,7 +157,7 @@ func ExecuteMapTask(filename string, mapNumber, numberofReduce int, mapf func(st
 		f, ok := mp[currentParition]
 		if !ok {
 			// create new "bucket" if the word is not existed
-			f, err = os.CreateTemp("", "tmp")
+			f, err = os.CreateTemp(".", "tmp")
 			mp[currentParition] = f
 			if err != nil {
 				log.Fatal(err)
@@ -176,6 +176,10 @@ func ExecuteMapTask(filename string, mapNumber, numberofReduce int, mapf func(st
 // function for reduce worker
 func ExecuteReduceTask(partitionNumber int, reducef func(string, []string) string) {
 	// fetch the filename
+	// client := http.Client{
+	// 	Timeout: 2 * time.Second,
+	// }
+
 	filenames, _ := WalkDir("./", partitionNumber) // look for current directory of all file with reduceNumber pattern
 	data := make([]KeyValue, 0)
 	for _, filename := range filenames {
@@ -247,8 +251,10 @@ func CallHealthCheck(addr string) (bool, error) {
 }
 
 // function call to get a task from coordinator
-func CallGetTask() (*GetTaskReply, error) {
-	args := GetTaskArgs{}
+func CallGetTask(addr string) (*GetTaskReply, error) {
+	args := GetTaskArgs{
+		WorkerAddress: addr,
+	}
 	reply := GetTaskReply{}
 
 	ok := call("Coordinator.GetTask", &args, &reply)
@@ -273,7 +279,7 @@ func CallUpdateTaskStatus(tasktype TaskType, name string, workeraddress string) 
 	reply := UpdateTaskStatusReply{}
 	ok := call("Coordinator.UpdateTaskStatus", &args, &reply)
 	if ok {
-		log.Printf("call with these args: %s, %s, %s", name, tasktype, workeraddress)
+		// log.Printf("call with these args: %s, %s, %s", name, tasktype, workeraddress)
 		return nil
 	} else {
 		return errors.New("call failed")

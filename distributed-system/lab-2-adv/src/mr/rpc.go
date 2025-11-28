@@ -47,6 +47,7 @@ type HealthCheckReply struct {
 var (
 	mapType    TaskType = "map"
 	reduceType TaskType = "reduce"
+	waitType   TaskType = "wait"
 )
 
 // Add your RPC definitions here.

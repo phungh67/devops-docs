@@ -72,6 +72,14 @@ func (c *Coordinator) GetReduceTask() (string, int) {
 // get task reply (for worker called to coordinator)
 func (c *Coordinator) GetTask(args *GetTaskArgs, reply *GetTaskReply) error {
 	c.cond.L.Lock() // lock the conditional variable when accessing shared variable
+	// in the get task, include a map of dictonary book
+	locations := make([]string, len(c.mapTasks))
+	for name, taskMetaData := range c.mapTasks {
+		if name != "" && taskMetaData.assignedWorker != "" {
+			locations[taskMetaData.number] = taskMetaData.assignedWorker
+		}
+	}
+
 	// check map task
 	if c.mapRemaining != 0 {
 		// check if we still have map task in the queue
@@ -89,6 +97,7 @@ func (c *Coordinator) GetTask(args *GetTaskArgs, reply *GetTaskReply) error {
 			reply.Number = numberOfMapTask                          // total number of tasks
 			reply.Type = mapType                                    // type of task, of course it is map
 			reply.PartitionNumber = c.numbeOfReduce                 // number of partition to assign
+			reply.MapAddresses = locations                          // address book
 			c.mapTasks[mapTask].assignedWorker = args.WorkerAddress //
 			c.cond.L.Unlock()                                       // complete the critical selection
 			return nil
@@ -99,8 +108,12 @@ func (c *Coordinator) GetTask(args *GetTaskArgs, reply *GetTaskReply) error {
 		reduceTask, numberOfReduceTask := c.GetReduceTask()
 		for reduceTask == "" {
 			if c.reduceRemaining == 0 {
+				reply.Name = ""
+				reply.Number = -1
+				reply.Type = waitType
+				reply.MapAddresses = locations
 				c.cond.L.Unlock()
-				return errors.New("all tasks are completed, no more remaining")
+				return nil
 			}
 			c.cond.Wait()
 			reduceTask, numberOfReduceTask = c.GetReduceTask()
@@ -108,6 +121,7 @@ func (c *Coordinator) GetTask(args *GetTaskArgs, reply *GetTaskReply) error {
 		// dont have to fetch the queue because reduce task can be taken from output of map
 		reply.Name = reduceTask
 		reply.Number = numberOfReduceTask
+		reply.MapAddresses = locations
 		reply.Type = reduceType
 		c.cond.L.Unlock()
 		return nil
@@ -122,13 +136,19 @@ func (c *Coordinator) UpdateTaskStatus(args *UpdateTaskStatusArgs, reply *Update
 	c.cond.L.Lock()
 	defer c.cond.L.Unlock()
 
-	if args.Type == mapType { // must collect the information of the map worker first
-		c.mapTasks[args.Name].status = completed
+	if args.Type == mapType {
+		task, ok := c.mapTasks[args.Name]
+		if !ok {
+			return nil
+		}
+		task.status = completed
 		c.mapRemaining -= 1
-		// currentMapWorkerID := c.mapTasks[args.Name].number
-		// c.mapTaskAddresses[currentMapWorkerID] = args.WorkerAddress
 	} else {
-		c.reduceTasks[args.Name].status = completed
+		task, ok := c.reduceTasks[args.Name]
+		if !ok {
+			return nil
+		}
+		task.status = completed
 		c.reduceRemaining -= 1
 	}
 	return nil
