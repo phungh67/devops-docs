@@ -12,6 +12,7 @@ import (
 	"net/rpc"
 	"os"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 )
@@ -363,12 +364,37 @@ func CallUpdateTaskStatus(tasktype TaskType, name string, workeraddress string) 
 // usually returns true.
 // returns false if something goes wrong.
 func call(rpcname string, args interface{}, reply interface{}) bool {
-	// c, err := rpc.DialHTTP("tcp", "127.0.0.1"+":1234")
+	// // c, err := rpc.DialHTTP("tcp", "127.0.0.1"+":1234")
+	// sockname := coordinatorSock()
+	// c, err := rpc.DialHTTP("unix", sockname)
+	// if err != nil {
+	// 	log.Fatal("dialing:", err)
+	// }
+	// defer c.Close()
+
+	// err = c.Call(rpcname, args, reply)
+	// if err == nil {
+	// 	return true
+	// }
+
+	// fmt.Println(err)
+	// // log.Fatalf(err.Error())
+	// return false
 	sockname := coordinatorSock()
-	c, err := rpc.DialHTTP("unix", sockname)
-	if err != nil {
-		log.Fatal("dialing:", err)
+
+	var c *rpc.Client
+	var err error
+
+	if strings.Contains(sockname, ":") {
+		c, err = rpc.DialHTTP("tcp", sockname)
+	} else {
+		c, err = rpc.DialHTTP("unix", sockname)
 	}
+
+	if err != nil {
+		log.Fatal("[ERROR] Dialing error:", err)
+	}
+
 	defer c.Close()
 
 	err = c.Call(rpcname, args, reply)
@@ -377,6 +403,6 @@ func call(rpcname string, args interface{}, reply interface{}) bool {
 	}
 
 	fmt.Println(err)
-	// log.Fatalf(err.Error())
+
 	return false
 }

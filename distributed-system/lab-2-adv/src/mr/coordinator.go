@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/rpc"
 	"os"
+	"strings"
 	"sync"
 	"time"
 )
@@ -308,14 +309,36 @@ func (c *Coordinator) Done() bool {
 
 // start a thread that listens for RPCs from worker.go
 func (c *Coordinator) server() {
+	// rpc.Register(c)
+	// rpc.HandleHTTP()
+	// l, e := net.Listen("tcp", ":30080")
+	// sockname := coordinatorSock()
+	// os.Remove(sockname)
+	// // l, e := net.Listen("unix", sockname)
+	// if e != nil {
+	// 	log.Fatal("listen error:", e)
+	// }
+	// go http.Serve(l, nil)
 	rpc.Register(c)
 	rpc.HandleHTTP()
-	//l, e := net.Listen("tcp", ":1234")
+
 	sockname := coordinatorSock()
-	os.Remove(sockname)
-	l, e := net.Listen("unix", sockname)
+
+	var l net.Listener
+	var e error
+
+	if strings.Contains(sockname, ":") {
+		_, port, _ := net.SplitHostPort(sockname)
+		l, e = net.Listen("tcp", ":"+port)
+		log.Printf("[LOG] Coordinator has been started on port %s", port)
+	} else {
+		os.Remove(sockname)
+		l, e = net.Listen("unix", sockname)
+		log.Printf("[LOG] Coordinator has been listened on socket %s", sockname)
+	}
+
 	if e != nil {
-		log.Fatal("listen error:", e)
+		log.Fatalf("[ERROR] Cannot listen: %v", e)
 	}
 	go http.Serve(l, nil)
 }
