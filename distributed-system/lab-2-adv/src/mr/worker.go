@@ -12,11 +12,14 @@ import (
 	"net/rpc"
 	"os"
 	"sort"
+	"strings"
 	"sync"
 	"time"
 )
 
 // for advance feature
+const WorkerCommonPort = 30022
+
 // borrow from mrapps
 type ByKey []KeyValue
 
@@ -33,7 +36,7 @@ type KeyValue struct {
 // helper function to start a fileserver
 func StartHTTPFileServer(rootDirectory string) string {
 	// change to dynamicall assigned port (for local test)
-	listener, err := net.Listen("tcp", ":0")
+	listener, err := net.Listen("tcp", fmt.Sprintf(":%d", WorkerCommonPort))
 	if err != nil {
 		log.Fatalf("Error encountered: %v", err)
 	}
@@ -291,6 +294,15 @@ func ExecuteReduceTask(partitionNumber int, reducef func(string, []string) strin
 	}
 	ofile.Close()
 
+	coordinatorAddr := os.Getenv("COORDINATOR_HOST")
+	if coordinatorAddr != "" {
+		err := PushWork(coordinatorAddr, oname)
+		if err != nil {
+			log.Printf("[ERROR][WORKER] Failed to upload output: %v", err)
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -359,16 +371,45 @@ func CallUpdateTaskStatus(tasktype TaskType, name string, workeraddress string) 
 	}
 }
 
+func PushWork(coordinatorAddr string, filename string) error {
+	file, err := os.Open(filename)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	url := fmt.Sprintf("http://%s/upload?name=%s", coordinatorAddr, filename)
+	resp, err := http.Post(url, "text/plain", file)
+	if err != nil {
+		return fmt.Errorf("upload failed: %v", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("upload rejected: %v", resp.Status)
+	}
+	return nil
+}
+
 // send an RPC request to the coordinator, wait for the response.
 // usually returns true.
 // returns false if something goes wrong.
 func call(rpcname string, args interface{}, reply interface{}) bool {
-	// c, err := rpc.DialHTTP("tcp", "127.0.0.1"+":1234")
 	sockname := coordinatorSock()
-	c, err := rpc.DialHTTP("unix", sockname)
-	if err != nil {
-		log.Fatal("dialing:", err)
+
+	var c *rpc.Client
+	var err error
+
+	if strings.Contains(sockname, ":") {
+		c, err = rpc.DialHTTP("tcp", sockname)
+	} else {
+		c, err = rpc.DialHTTP("unix", sockname)
 	}
+
+	if err != nil {
+		log.Fatal("[ERROR] Dialing error:", err)
+	}
+
 	defer c.Close()
 
 	err = c.Call(rpcname, args, reply)
@@ -377,6 +418,6 @@ func call(rpcname string, args interface{}, reply interface{}) bool {
 	}
 
 	fmt.Println(err)
-	// log.Fatalf(err.Error())
+
 	return false
 }

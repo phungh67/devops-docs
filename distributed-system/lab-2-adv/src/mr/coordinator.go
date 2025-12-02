@@ -3,11 +3,14 @@ package mr
 import (
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net"
 	"net/http"
 	"net/rpc"
 	"os"
+	"os/exec"
+	"strings"
 	"sync"
 	"time"
 )
@@ -28,6 +31,7 @@ type Coordinator struct {
 	reduceRemaining int
 	numbeOfReduce   int // number of "reduce" workes, used in pair with partition key
 	workerMap       map[string]*WorkerInfor
+	mergedOutput    bool
 }
 
 type Status string // indicate the status, done, undone,...
@@ -295,12 +299,50 @@ func (c *Coordinator) ReportFailure(args *FailedTaskReportArgs, reply *FailedTas
 	return nil
 }
 
+func (c *Coordinator) UploadWork(w http.ResponseWriter, r *http.Request) {
+	filename := r.URL.Query().Get("name")
+	if filename == "" {
+		http.Error(w, "Missing filename", http.StatusBadRequest)
+		return
+	}
+	log.Printf("[LOG][COORDINATOR] Receiving file %s", filename)
+	outFile, err := os.Create(filename)
+	if err != nil {
+		http.Error(w, "Failed to create the file on the coordinator", http.StatusInternalServerError)
+		return
+	}
+	defer outFile.Close()
+
+	_, err = io.Copy(outFile, r.Body)
+	if err != nil {
+		http.Error(w, "Failed to write the file with content", http.StatusInternalServerError)
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+}
+
+func (c *Coordinator) MergeOutput() {
+	log.Println("[INFO][COORDINATOR] All tasks were done, merging the output...")
+	cmd := exec.Command("bash", "-c", "sort mr-out* | grep . > mr-wc-all")
+	if output, err := cmd.CombinedOutput(); err != nil {
+		log.Printf("[ERROR][COORDINATOR] Merge failed: %v\nOutput: %s", err, output)
+	} else {
+		log.Printf("[INFO] Final output created: mr-wc-all")
+	}
+}
+
 // main/mrcoordinator.go calls Done() periodically to find out
 // if the entire job has finished.
 func (c *Coordinator) Done() bool {
 	c.cond.L.Lock()
 	defer c.cond.L.Unlock()
 	if c.reduceRemaining == 0 {
+		if !c.mergedOutput {
+			c.cond.L.Unlock()
+			c.MergeOutput()
+			c.cond.L.Lock()
+			c.mergedOutput = true
+		}
 		return true
 	}
 	return c.mapRemaining == 0 && c.reduceRemaining == 0
@@ -310,13 +352,28 @@ func (c *Coordinator) Done() bool {
 func (c *Coordinator) server() {
 	rpc.Register(c)
 	rpc.HandleHTTP()
-	//l, e := net.Listen("tcp", ":1234")
+
+	http.HandleFunc("/upload", c.UploadWork)
+
 	sockname := coordinatorSock()
-	os.Remove(sockname)
-	l, e := net.Listen("unix", sockname)
-	if e != nil {
-		log.Fatal("listen error:", e)
+
+	var l net.Listener
+	var e error
+
+	if strings.Contains(sockname, ":") {
+		_, port, _ := net.SplitHostPort(sockname)
+		l, e = net.Listen("tcp", ":"+port)
+		log.Printf("[LOG] Coordinator has been started on port %s", port)
+	} else {
+		os.Remove(sockname)
+		l, e = net.Listen("unix", sockname)
+		log.Printf("[LOG] Coordinator has been listened on socket %s", sockname)
 	}
+
+	if e != nil {
+		log.Fatalf("[ERROR] Cannot listen: %v", e)
+	}
+
 	go http.Serve(l, nil)
 }
 
