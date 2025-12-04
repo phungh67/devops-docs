@@ -19,11 +19,13 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	Chord_Ping_FullMethodName   = "/chord.Chord/Ping"
-	Chord_Put_FullMethodName    = "/chord.Chord/Put"
-	Chord_Get_FullMethodName    = "/chord.Chord/Get"
-	Chord_Delete_FullMethodName = "/chord.Chord/Delete"
-	Chord_GetAll_FullMethodName = "/chord.Chord/GetAll"
+	Chord_Ping_FullMethodName                 = "/chord.Chord/Ping"
+	Chord_Put_FullMethodName                  = "/chord.Chord/Put"
+	Chord_Get_FullMethodName                  = "/chord.Chord/Get"
+	Chord_Delete_FullMethodName               = "/chord.Chord/Delete"
+	Chord_GetAll_FullMethodName               = "/chord.Chord/GetAll"
+	Chord_FindClosestPreceding_FullMethodName = "/chord.Chord/FindClosestPreceding"
+	Chord_FindSuccessor_FullMethodName        = "/chord.Chord/FindSuccessor"
 )
 
 // ChordClient is the client API for Chord service.
@@ -42,6 +44,10 @@ type ChordClient interface {
 	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*DeleteResponse, error)
 	// GetAll retrieves all key-value pairs
 	GetAll(ctx context.Context, in *GetAllRequest, opts ...grpc.CallOption) (*GetAllResponse, error)
+	// FindClosestPrecedingNode to find the closet precedessor node
+	FindClosestPreceding(ctx context.Context, in *FindClosestPrecedingRequest, opts ...grpc.CallOption) (*FindClosestPrecedingResponse, error)
+	// FindSuccessor
+	FindSuccessor(ctx context.Context, in *FindSuccessorRequest, opts ...grpc.CallOption) (*FindSuccessorResponse, error)
 }
 
 type chordClient struct {
@@ -102,6 +108,26 @@ func (c *chordClient) GetAll(ctx context.Context, in *GetAllRequest, opts ...grp
 	return out, nil
 }
 
+func (c *chordClient) FindClosestPreceding(ctx context.Context, in *FindClosestPrecedingRequest, opts ...grpc.CallOption) (*FindClosestPrecedingResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(FindClosestPrecedingResponse)
+	err := c.cc.Invoke(ctx, Chord_FindClosestPreceding_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *chordClient) FindSuccessor(ctx context.Context, in *FindSuccessorRequest, opts ...grpc.CallOption) (*FindSuccessorResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(FindSuccessorResponse)
+	err := c.cc.Invoke(ctx, Chord_FindSuccessor_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ChordServer is the server API for Chord service.
 // All implementations must embed UnimplementedChordServer
 // for forward compatibility.
@@ -118,6 +144,10 @@ type ChordServer interface {
 	Delete(context.Context, *DeleteRequest) (*DeleteResponse, error)
 	// GetAll retrieves all key-value pairs
 	GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error)
+	// FindClosestPrecedingNode to find the closet precedessor node
+	FindClosestPreceding(context.Context, *FindClosestPrecedingRequest) (*FindClosestPrecedingResponse, error)
+	// FindSuccessor
+	FindSuccessor(context.Context, *FindSuccessorRequest) (*FindSuccessorResponse, error)
 	mustEmbedUnimplementedChordServer()
 }
 
@@ -142,6 +172,12 @@ func (UnimplementedChordServer) Delete(context.Context, *DeleteRequest) (*Delete
 }
 func (UnimplementedChordServer) GetAll(context.Context, *GetAllRequest) (*GetAllResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetAll not implemented")
+}
+func (UnimplementedChordServer) FindClosestPreceding(context.Context, *FindClosestPrecedingRequest) (*FindClosestPrecedingResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method FindClosestPreceding not implemented")
+}
+func (UnimplementedChordServer) FindSuccessor(context.Context, *FindSuccessorRequest) (*FindSuccessorResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method FindSuccessor not implemented")
 }
 func (UnimplementedChordServer) mustEmbedUnimplementedChordServer() {}
 func (UnimplementedChordServer) testEmbeddedByValue()               {}
@@ -254,6 +290,42 @@ func _Chord_GetAll_Handler(srv interface{}, ctx context.Context, dec func(interf
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Chord_FindClosestPreceding_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindClosestPrecedingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChordServer).FindClosestPreceding(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Chord_FindClosestPreceding_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChordServer).FindClosestPreceding(ctx, req.(*FindClosestPrecedingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _Chord_FindSuccessor_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FindSuccessorRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ChordServer).FindSuccessor(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: Chord_FindSuccessor_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ChordServer).FindSuccessor(ctx, req.(*FindSuccessorRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Chord_ServiceDesc is the grpc.ServiceDesc for Chord service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -280,6 +352,14 @@ var Chord_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAll",
 			Handler:    _Chord_GetAll_Handler,
+		},
+		{
+			MethodName: "FindClosestPreceding",
+			Handler:    _Chord_FindClosestPreceding_Handler,
+		},
+		{
+			MethodName: "FindSuccessor",
+			Handler:    _Chord_FindSuccessor_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

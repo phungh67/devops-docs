@@ -123,6 +123,36 @@ func (n *Node) GetAll(ctx context.Context, req *pb.GetAllRequest) (*pb.GetAllRes
 	return &pb.GetAllResponse{KeyValues: keyValues}, nil
 }
 
+// FindClosestPreceding
+func (n *Node) FindClosestPreceding(ctx context.Context, req *pb.FindClosestPrecedingRequest) (*pb.FindClosestPrecedingResponse, error) {
+	n.mu.Lock()
+	defer n.mu.RUnlock()
+
+	targetID := new(big.Int)
+	targetID.SetString(req.Id, 10)
+
+	closestAddr := n.findClosetPredecessor(targetID)
+	return &pb.FindClosestPrecedingResponse{
+		Address: closestAddr,
+	}, nil
+}
+
+// Find the successor of id, performed by node n
+
+func (n *Node) findClosetPredecessor(id *big.Int) string {
+	for i := keySize; i >= 1; i-- {
+		fingerAddr := n.FingerTable[i]
+		if fingerAddr == "" {
+			continue
+		}
+
+		if between(hash(n.Address), hash(fingerAddr), id, false) {
+			return fingerAddr
+		}
+	}
+	return n.Address
+}
+
 func (n *Node) checkPredecessor() {
 	// TODO: Student will implement this
 }

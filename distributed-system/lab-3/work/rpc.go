@@ -106,3 +106,21 @@ func GetAllKeyValues(ctx context.Context, address string) (map[string]string, er
 
 	return resp.KeyValues, nil
 }
+
+func FindClosetPredecessor(ctx context.Context, remoteAddr string, lookupID string) (string, error) {
+	remoteAddr = resolveAddress(remoteAddr)
+	conn, err := grpc.NewClient(remoteAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return "", fmt.Errorf("failed to connect: %v", err)
+	}
+	defer conn.Close()
+
+	client := pb.NewChordClient(conn)
+	resp, err := client.FindClosestPreceding(ctx, &pb.FindClosestPrecedingRequest{Id: lookupID})
+
+	if err != nil {
+		return "", err
+	}
+
+	return resp.Address, nil
+}

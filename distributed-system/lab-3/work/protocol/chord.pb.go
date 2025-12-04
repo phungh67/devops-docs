@@ -439,6 +439,184 @@ func (x *GetAllResponse) GetKeyValues() map[string]string {
 	return nil
 }
 
+// The request message for FindClosestPreceding
+type FindClosestPrecedingRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FindClosestPrecedingRequest) Reset() {
+	*x = FindClosestPrecedingRequest{}
+	mi := &file_protocol_chord_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FindClosestPrecedingRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FindClosestPrecedingRequest) ProtoMessage() {}
+
+func (x *FindClosestPrecedingRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_protocol_chord_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FindClosestPrecedingRequest.ProtoReflect.Descriptor instead.
+func (*FindClosestPrecedingRequest) Descriptor() ([]byte, []int) {
+	return file_protocol_chord_proto_rawDescGZIP(), []int{10}
+}
+
+func (x *FindClosestPrecedingRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type FindClosestPrecedingResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Address       string                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FindClosestPrecedingResponse) Reset() {
+	*x = FindClosestPrecedingResponse{}
+	mi := &file_protocol_chord_proto_msgTypes[11]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FindClosestPrecedingResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FindClosestPrecedingResponse) ProtoMessage() {}
+
+func (x *FindClosestPrecedingResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_protocol_chord_proto_msgTypes[11]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FindClosestPrecedingResponse.ProtoReflect.Descriptor instead.
+func (*FindClosestPrecedingResponse) Descriptor() ([]byte, []int) {
+	return file_protocol_chord_proto_rawDescGZIP(), []int{11}
+}
+
+func (x *FindClosestPrecedingResponse) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+// The request message for FindSuccessor
+type FindSuccessorRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FindSuccessorRequest) Reset() {
+	*x = FindSuccessorRequest{}
+	mi := &file_protocol_chord_proto_msgTypes[12]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FindSuccessorRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FindSuccessorRequest) ProtoMessage() {}
+
+func (x *FindSuccessorRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_protocol_chord_proto_msgTypes[12]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FindSuccessorRequest.ProtoReflect.Descriptor instead.
+func (*FindSuccessorRequest) Descriptor() ([]byte, []int) {
+	return file_protocol_chord_proto_rawDescGZIP(), []int{12}
+}
+
+func (x *FindSuccessorRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+type FindSuccessorResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Address       string                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FindSuccessorResponse) Reset() {
+	*x = FindSuccessorResponse{}
+	mi := &file_protocol_chord_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FindSuccessorResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FindSuccessorResponse) ProtoMessage() {}
+
+func (x *FindSuccessorResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_protocol_chord_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FindSuccessorResponse.ProtoReflect.Descriptor instead.
+func (*FindSuccessorResponse) Descriptor() ([]byte, []int) {
+	return file_protocol_chord_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *FindSuccessorResponse) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
 var File_protocol_chord_proto protoreflect.FileDescriptor
 
 const file_protocol_chord_proto_rawDesc = "" +
@@ -465,13 +643,23 @@ const file_protocol_chord_proto_rawDesc = "" +
 	"key_values\x18\x01 \x03(\v2$.chord.GetAllResponse.KeyValuesEntryR\tkeyValues\x1a<\n" +
 	"\x0eKeyValuesEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x012\x8c\x02\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"-\n" +
+	"\x1bFindClosestPrecedingRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"8\n" +
+	"\x1cFindClosestPrecedingResponse\x12\x18\n" +
+	"\aaddress\x18\x01 \x01(\tR\aaddress\"&\n" +
+	"\x14FindSuccessorRequest\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\"1\n" +
+	"\x15FindSuccessorResponse\x12\x18\n" +
+	"\aaddress\x18\x01 \x01(\tR\aaddress2\xbd\x03\n" +
 	"\x05Chord\x121\n" +
 	"\x04Ping\x12\x12.chord.PingRequest\x1a\x13.chord.PingResponse\"\x00\x12.\n" +
 	"\x03Put\x12\x11.chord.PutRequest\x1a\x12.chord.PutResponse\"\x00\x12.\n" +
 	"\x03Get\x12\x11.chord.GetRequest\x1a\x12.chord.GetResponse\"\x00\x127\n" +
 	"\x06Delete\x12\x14.chord.DeleteRequest\x1a\x15.chord.DeleteResponse\"\x00\x127\n" +
-	"\x06GetAll\x12\x14.chord.GetAllRequest\x1a\x15.chord.GetAllResponse\"\x00B\x10Z\x0echord/protocolb\x06proto3"
+	"\x06GetAll\x12\x14.chord.GetAllRequest\x1a\x15.chord.GetAllResponse\"\x00\x12a\n" +
+	"\x14FindClosestPreceding\x12\".chord.FindClosestPrecedingRequest\x1a#.chord.FindClosestPrecedingResponse\"\x00\x12L\n" +
+	"\rFindSuccessor\x12\x1b.chord.FindSuccessorRequest\x1a\x1c.chord.FindSuccessorResponse\"\x00B\x10Z\x0echord/protocolb\x06proto3"
 
 var (
 	file_protocol_chord_proto_rawDescOnce sync.Once
@@ -485,34 +673,42 @@ func file_protocol_chord_proto_rawDescGZIP() []byte {
 	return file_protocol_chord_proto_rawDescData
 }
 
-var file_protocol_chord_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
+var file_protocol_chord_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_protocol_chord_proto_goTypes = []any{
-	(*PingRequest)(nil),    // 0: chord.PingRequest
-	(*PingResponse)(nil),   // 1: chord.PingResponse
-	(*PutRequest)(nil),     // 2: chord.PutRequest
-	(*PutResponse)(nil),    // 3: chord.PutResponse
-	(*GetRequest)(nil),     // 4: chord.GetRequest
-	(*GetResponse)(nil),    // 5: chord.GetResponse
-	(*DeleteRequest)(nil),  // 6: chord.DeleteRequest
-	(*DeleteResponse)(nil), // 7: chord.DeleteResponse
-	(*GetAllRequest)(nil),  // 8: chord.GetAllRequest
-	(*GetAllResponse)(nil), // 9: chord.GetAllResponse
-	nil,                    // 10: chord.GetAllResponse.KeyValuesEntry
+	(*PingRequest)(nil),                  // 0: chord.PingRequest
+	(*PingResponse)(nil),                 // 1: chord.PingResponse
+	(*PutRequest)(nil),                   // 2: chord.PutRequest
+	(*PutResponse)(nil),                  // 3: chord.PutResponse
+	(*GetRequest)(nil),                   // 4: chord.GetRequest
+	(*GetResponse)(nil),                  // 5: chord.GetResponse
+	(*DeleteRequest)(nil),                // 6: chord.DeleteRequest
+	(*DeleteResponse)(nil),               // 7: chord.DeleteResponse
+	(*GetAllRequest)(nil),                // 8: chord.GetAllRequest
+	(*GetAllResponse)(nil),               // 9: chord.GetAllResponse
+	(*FindClosestPrecedingRequest)(nil),  // 10: chord.FindClosestPrecedingRequest
+	(*FindClosestPrecedingResponse)(nil), // 11: chord.FindClosestPrecedingResponse
+	(*FindSuccessorRequest)(nil),         // 12: chord.FindSuccessorRequest
+	(*FindSuccessorResponse)(nil),        // 13: chord.FindSuccessorResponse
+	nil,                                  // 14: chord.GetAllResponse.KeyValuesEntry
 }
 var file_protocol_chord_proto_depIdxs = []int32{
-	10, // 0: chord.GetAllResponse.key_values:type_name -> chord.GetAllResponse.KeyValuesEntry
+	14, // 0: chord.GetAllResponse.key_values:type_name -> chord.GetAllResponse.KeyValuesEntry
 	0,  // 1: chord.Chord.Ping:input_type -> chord.PingRequest
 	2,  // 2: chord.Chord.Put:input_type -> chord.PutRequest
 	4,  // 3: chord.Chord.Get:input_type -> chord.GetRequest
 	6,  // 4: chord.Chord.Delete:input_type -> chord.DeleteRequest
 	8,  // 5: chord.Chord.GetAll:input_type -> chord.GetAllRequest
-	1,  // 6: chord.Chord.Ping:output_type -> chord.PingResponse
-	3,  // 7: chord.Chord.Put:output_type -> chord.PutResponse
-	5,  // 8: chord.Chord.Get:output_type -> chord.GetResponse
-	7,  // 9: chord.Chord.Delete:output_type -> chord.DeleteResponse
-	9,  // 10: chord.Chord.GetAll:output_type -> chord.GetAllResponse
-	6,  // [6:11] is the sub-list for method output_type
-	1,  // [1:6] is the sub-list for method input_type
+	10, // 6: chord.Chord.FindClosestPreceding:input_type -> chord.FindClosestPrecedingRequest
+	12, // 7: chord.Chord.FindSuccessor:input_type -> chord.FindSuccessorRequest
+	1,  // 8: chord.Chord.Ping:output_type -> chord.PingResponse
+	3,  // 9: chord.Chord.Put:output_type -> chord.PutResponse
+	5,  // 10: chord.Chord.Get:output_type -> chord.GetResponse
+	7,  // 11: chord.Chord.Delete:output_type -> chord.DeleteResponse
+	9,  // 12: chord.Chord.GetAll:output_type -> chord.GetAllResponse
+	11, // 13: chord.Chord.FindClosestPreceding:output_type -> chord.FindClosestPrecedingResponse
+	13, // 14: chord.Chord.FindSuccessor:output_type -> chord.FindSuccessorResponse
+	8,  // [8:15] is the sub-list for method output_type
+	1,  // [1:8] is the sub-list for method input_type
 	1,  // [1:1] is the sub-list for extension type_name
 	1,  // [1:1] is the sub-list for extension extendee
 	0,  // [0:1] is the sub-list for field type_name
@@ -529,7 +725,7 @@ func file_protocol_chord_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_protocol_chord_proto_rawDesc), len(file_protocol_chord_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   11,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

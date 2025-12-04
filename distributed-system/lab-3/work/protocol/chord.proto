@@ -20,6 +20,12 @@ service Chord {
   
   // GetAll retrieves all key-value pairs
   rpc GetAll(GetAllRequest) returns (GetAllResponse) {}
+
+  // FindClosestPrecedingNode to find the closet precedessor node
+  rpc FindClosestPreceding(FindClosestPrecedingRequest) returns (FindClosestPrecedingResponse) {}
+
+  // FindSuccessor
+  rpc FindSuccessor(FindSuccessorRequest) returns (FindSuccessorResponse) {}
 }
 
 // The request message for Ping, containing no fields
@@ -61,4 +67,22 @@ message GetAllRequest {}
 // The response message for GetAll
 message GetAllResponse {
   map<string, string> key_values = 1;
+}
+
+// The request message for FindClosestPreceding
+message FindClosestPrecedingRequest {
+  string id = 1;
+}
+
+message FindClosestPrecedingResponse {
+  string address = 1;
+}
+
+// The request message for FindSuccessor
+message FindSuccessorRequest {
+  string id = 1;
+}
+
+message FindSuccessorResponse {
+  string address = 1;
 }
