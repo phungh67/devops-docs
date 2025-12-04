@@ -229,6 +229,15 @@ func (n *Node) fixFingers(nextFinger int) int {
 	if nextFinger > keySize {
 		nextFinger = 1
 	}
+	nextID := jump(n.Address, nextFinger)
+
+	succAddr, err := n.FindSuccessor(nextID)
+
+	if err == nil {
+		n.mu.Lock()
+		n.FingerTable[nextFinger] = succAddr
+		n.mu.Unlock()
+	}
 	return nextFinger
 }
 
