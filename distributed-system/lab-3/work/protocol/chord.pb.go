@@ -698,6 +698,167 @@ func (x *GetSuccessorListResponse) GetSuccessors() []string {
 	return nil
 }
 
+type NotifyRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Address       string                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NotifyRequest) Reset() {
+	*x = NotifyRequest{}
+	mi := &file_protocol_chord_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NotifyRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NotifyRequest) ProtoMessage() {}
+
+func (x *NotifyRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_protocol_chord_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NotifyRequest.ProtoReflect.Descriptor instead.
+func (*NotifyRequest) Descriptor() ([]byte, []int) {
+	return file_protocol_chord_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *NotifyRequest) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
+type NotifyResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *NotifyResponse) Reset() {
+	*x = NotifyResponse{}
+	mi := &file_protocol_chord_proto_msgTypes[17]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *NotifyResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*NotifyResponse) ProtoMessage() {}
+
+func (x *NotifyResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_protocol_chord_proto_msgTypes[17]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use NotifyResponse.ProtoReflect.Descriptor instead.
+func (*NotifyResponse) Descriptor() ([]byte, []int) {
+	return file_protocol_chord_proto_rawDescGZIP(), []int{17}
+}
+
+// message for get precedessor
+type GetPredecessorRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPredecessorRequest) Reset() {
+	*x = GetPredecessorRequest{}
+	mi := &file_protocol_chord_proto_msgTypes[18]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPredecessorRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPredecessorRequest) ProtoMessage() {}
+
+func (x *GetPredecessorRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_protocol_chord_proto_msgTypes[18]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPredecessorRequest.ProtoReflect.Descriptor instead.
+func (*GetPredecessorRequest) Descriptor() ([]byte, []int) {
+	return file_protocol_chord_proto_rawDescGZIP(), []int{18}
+}
+
+type GetPredecessorResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Address       string                 `protobuf:"bytes,1,opt,name=address,proto3" json:"address,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetPredecessorResponse) Reset() {
+	*x = GetPredecessorResponse{}
+	mi := &file_protocol_chord_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetPredecessorResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetPredecessorResponse) ProtoMessage() {}
+
+func (x *GetPredecessorResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_protocol_chord_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetPredecessorResponse.ProtoReflect.Descriptor instead.
+func (*GetPredecessorResponse) Descriptor() ([]byte, []int) {
+	return file_protocol_chord_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *GetPredecessorResponse) GetAddress() string {
+	if x != nil {
+		return x.Address
+	}
+	return ""
+}
+
 var File_protocol_chord_proto protoreflect.FileDescriptor
 
 const file_protocol_chord_proto_rawDesc = "" +
@@ -737,7 +898,13 @@ const file_protocol_chord_proto_rawDesc = "" +
 	"\x18GetSuccessorListResponse\x12\x1e\n" +
 	"\n" +
 	"successors\x18\x01 \x03(\tR\n" +
-	"successors2\x94\x04\n" +
+	"successors\")\n" +
+	"\rNotifyRequest\x12\x18\n" +
+	"\aaddress\x18\x01 \x01(\tR\aaddress\"\x10\n" +
+	"\x0eNotifyResponse\"\x17\n" +
+	"\x15GetPredecessorRequest\"2\n" +
+	"\x16GetPredecessorResponse\x12\x18\n" +
+	"\aaddress\x18\x01 \x01(\tR\aaddress2\x9e\x05\n" +
 	"\x05Chord\x121\n" +
 	"\x04Ping\x12\x12.chord.PingRequest\x1a\x13.chord.PingResponse\"\x00\x12.\n" +
 	"\x03Put\x12\x11.chord.PutRequest\x1a\x12.chord.PutResponse\"\x00\x12.\n" +
@@ -746,7 +913,9 @@ const file_protocol_chord_proto_rawDesc = "" +
 	"\x06GetAll\x12\x14.chord.GetAllRequest\x1a\x15.chord.GetAllResponse\"\x00\x12a\n" +
 	"\x14FindClosestPreceding\x12\".chord.FindClosestPrecedingRequest\x1a#.chord.FindClosestPrecedingResponse\"\x00\x12L\n" +
 	"\rFindSuccessor\x12\x1b.chord.FindSuccessorRequest\x1a\x1c.chord.FindSuccessorResponse\"\x00\x12U\n" +
-	"\x10GetSuccessorList\x12\x1e.chord.GetSuccessorListRequest\x1a\x1f.chord.GetSuccessorListResponse\"\x00B\x10Z\x0echord/protocolb\x06proto3"
+	"\x10GetSuccessorList\x12\x1e.chord.GetSuccessorListRequest\x1a\x1f.chord.GetSuccessorListResponse\"\x00\x127\n" +
+	"\x06Notify\x12\x14.chord.NotifyRequest\x1a\x15.chord.NotifyResponse\"\x00\x12O\n" +
+	"\x0eGetPredecessor\x12\x1c.chord.GetPredecessorRequest\x1a\x1d.chord.GetPredecessorResponse\"\x00B\x10Z\x0echord/protocolb\x06proto3"
 
 var (
 	file_protocol_chord_proto_rawDescOnce sync.Once
@@ -760,7 +929,7 @@ func file_protocol_chord_proto_rawDescGZIP() []byte {
 	return file_protocol_chord_proto_rawDescData
 }
 
-var file_protocol_chord_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
+var file_protocol_chord_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
 var file_protocol_chord_proto_goTypes = []any{
 	(*PingRequest)(nil),                  // 0: chord.PingRequest
 	(*PingResponse)(nil),                 // 1: chord.PingResponse
@@ -778,10 +947,14 @@ var file_protocol_chord_proto_goTypes = []any{
 	(*FindSuccessorResponse)(nil),        // 13: chord.FindSuccessorResponse
 	(*GetSuccessorListRequest)(nil),      // 14: chord.GetSuccessorListRequest
 	(*GetSuccessorListResponse)(nil),     // 15: chord.GetSuccessorListResponse
-	nil,                                  // 16: chord.GetAllResponse.KeyValuesEntry
+	(*NotifyRequest)(nil),                // 16: chord.NotifyRequest
+	(*NotifyResponse)(nil),               // 17: chord.NotifyResponse
+	(*GetPredecessorRequest)(nil),        // 18: chord.GetPredecessorRequest
+	(*GetPredecessorResponse)(nil),       // 19: chord.GetPredecessorResponse
+	nil,                                  // 20: chord.GetAllResponse.KeyValuesEntry
 }
 var file_protocol_chord_proto_depIdxs = []int32{
-	16, // 0: chord.GetAllResponse.key_values:type_name -> chord.GetAllResponse.KeyValuesEntry
+	20, // 0: chord.GetAllResponse.key_values:type_name -> chord.GetAllResponse.KeyValuesEntry
 	0,  // 1: chord.Chord.Ping:input_type -> chord.PingRequest
 	2,  // 2: chord.Chord.Put:input_type -> chord.PutRequest
 	4,  // 3: chord.Chord.Get:input_type -> chord.GetRequest
@@ -790,16 +963,20 @@ var file_protocol_chord_proto_depIdxs = []int32{
 	10, // 6: chord.Chord.FindClosestPreceding:input_type -> chord.FindClosestPrecedingRequest
 	12, // 7: chord.Chord.FindSuccessor:input_type -> chord.FindSuccessorRequest
 	14, // 8: chord.Chord.GetSuccessorList:input_type -> chord.GetSuccessorListRequest
-	1,  // 9: chord.Chord.Ping:output_type -> chord.PingResponse
-	3,  // 10: chord.Chord.Put:output_type -> chord.PutResponse
-	5,  // 11: chord.Chord.Get:output_type -> chord.GetResponse
-	7,  // 12: chord.Chord.Delete:output_type -> chord.DeleteResponse
-	9,  // 13: chord.Chord.GetAll:output_type -> chord.GetAllResponse
-	11, // 14: chord.Chord.FindClosestPreceding:output_type -> chord.FindClosestPrecedingResponse
-	13, // 15: chord.Chord.FindSuccessor:output_type -> chord.FindSuccessorResponse
-	15, // 16: chord.Chord.GetSuccessorList:output_type -> chord.GetSuccessorListResponse
-	9,  // [9:17] is the sub-list for method output_type
-	1,  // [1:9] is the sub-list for method input_type
+	16, // 9: chord.Chord.Notify:input_type -> chord.NotifyRequest
+	18, // 10: chord.Chord.GetPredecessor:input_type -> chord.GetPredecessorRequest
+	1,  // 11: chord.Chord.Ping:output_type -> chord.PingResponse
+	3,  // 12: chord.Chord.Put:output_type -> chord.PutResponse
+	5,  // 13: chord.Chord.Get:output_type -> chord.GetResponse
+	7,  // 14: chord.Chord.Delete:output_type -> chord.DeleteResponse
+	9,  // 15: chord.Chord.GetAll:output_type -> chord.GetAllResponse
+	11, // 16: chord.Chord.FindClosestPreceding:output_type -> chord.FindClosestPrecedingResponse
+	13, // 17: chord.Chord.FindSuccessor:output_type -> chord.FindSuccessorResponse
+	15, // 18: chord.Chord.GetSuccessorList:output_type -> chord.GetSuccessorListResponse
+	17, // 19: chord.Chord.Notify:output_type -> chord.NotifyResponse
+	19, // 20: chord.Chord.GetPredecessor:output_type -> chord.GetPredecessorResponse
+	11, // [11:21] is the sub-list for method output_type
+	1,  // [1:11] is the sub-list for method input_type
 	1,  // [1:1] is the sub-list for extension type_name
 	1,  // [1:1] is the sub-list for extension extendee
 	0,  // [0:1] is the sub-list for field type_name
@@ -816,7 +993,7 @@ func file_protocol_chord_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_protocol_chord_proto_rawDesc), len(file_protocol_chord_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   17,
+			NumMessages:   21,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

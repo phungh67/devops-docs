@@ -125,6 +125,37 @@ func FindClosetPredecessor(ctx context.Context, remoteAddr string, lookupID stri
 	return resp.Address, nil
 }
 
+func Notify(address string, currentAddress string) error {
+	address = resolveAddress(address)
+	conn, err := grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return fmt.Errorf("failed to connect: %v", err)
+	}
+	defer conn.Close()
+
+	client := pb.NewChordClient(conn)
+	_, err = client.Notify(context.Background(), &pb.NotifyRequest{
+		Address: currentAddress,
+	})
+	return err
+}
+
+func GetPredecessor(address string) (string, error) {
+	address = resolveAddress(address)
+	conn, err := grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return "", fmt.Errorf("failed to connect: %v", err)
+	}
+	defer conn.Close()
+
+	client := pb.NewChordClient(conn)
+	resp, err := client.GetPredecessor(context.Background(), &pb.GetPredecessorRequest{})
+	if err != nil {
+		return "", err
+	}
+	return resp.Address, nil
+}
+
 func GetSuccessorList(address string) (string, error) {
 	address = resolveAddress(address)
 	conn, err := grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))

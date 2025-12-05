@@ -124,7 +124,7 @@ func (n *Node) GetAll(ctx context.Context, req *pb.GetAllRequest) (*pb.GetAllRes
 	return &pb.GetAllResponse{KeyValues: keyValues}, nil
 }
 
-// FindClosestPreceding
+// Find the closest (clockwise) predecessor node for an ID, this is called function.
 func (n *Node) FindClosestPreceding(ctx context.Context, req *pb.FindClosestPrecedingRequest) (*pb.FindClosestPrecedingResponse, error) {
 	n.mu.Lock()
 	defer n.mu.RUnlock()
@@ -174,6 +174,9 @@ func (n *Node) FindSuccessor(id *big.Int) (string, error) {
 	}
 }
 
+// find closet predecessor logic
+// check the finger table, if an entry i is between n and id, return that entry
+// else retrun n itself
 func (n *Node) findClosetPredecessor(id *big.Int) string {
 	n.mu.Lock()
 	defer n.mu.RUnlock()
@@ -219,8 +222,63 @@ func (n *Node) checkPredecessor() {
 	}
 }
 
+func (n *Node) Notify(ctx context.Context, req *pb.NotifyRequest) (*pb.NotifyResponse, error) {
+	n.mu.Lock()
+	defer n.mu.Unlock()
+
+	predNode := req.Address
+
+	if n.Predecessor == "" {
+		n.Predecessor = predNode
+		return &pb.NotifyResponse{}, nil
+	}
+
+	hashID := hash(n.Address)
+	currentPredNodeID := hash(n.Predecessor)
+	predNodeID := hash(predNode)
+
+	if between(currentPredNodeID, predNodeID, hashID, false) {
+		n.Predecessor = predNode
+	}
+
+	return &pb.NotifyResponse{}, nil
+}
+
+func (n *Node) GetPredecessor(ctx context.Context, req *pb.GetPredecessorRequest) (*pb.GetPredecessorResponse, error) {
+	n.mu.RLock()
+	defer n.mu.RUnlock()
+
+	if n.Predecessor == "" {
+		return &pb.GetPredecessorResponse{
+			Address: "",
+		}, nil
+	}
+
+	return &pb.GetPredecessorResponse{
+		Address: n.Predecessor,
+	}, nil
+}
+
 func (n *Node) stabilize() {
 	// TODO: Student will implement this
+	n.mu.RLock()
+	firstSuccessor := n.Successors[0]
+	n.mu.RUnlock()
+
+	x, err := GetPredecessor(firstSuccessor)
+
+	if err == nil && x != "" {
+		if between(hash(n.Address), hash(x), hash(firstSuccessor), false) {
+			n.mu.Lock()
+			n.Successors[0] = x
+			n.mu.Unlock()
+
+			firstSuccessor = x
+		}
+	}
+
+	Notify(firstSuccessor, n.Address)
+
 }
 
 func (n *Node) fixFingers(nextFinger int) int {
