@@ -28,7 +28,7 @@ service Chord {
   rpc FindSuccessor(FindSuccessorRequest) returns (FindSuccessorResponse) {}
 
   // Call to get the first successor of a node
-  rpc GetFirstSuccesor(GetFirstSuccesorRequest) returns (GetFirstSuccesorResponse) {}
+  rpc GetSuccessorList(GetSuccessorListRequest) returns (GetSuccessorListResponse) {}
 
   // Notify a node
   rpc Notify(NotifyRequest) returns (NotifyResponse) {}
@@ -97,8 +97,8 @@ message FindSuccessorResponse {
 }
 
 // message for get list of Successors
-message GetFirstSuccesorRequest {}
-message GetFirstSuccesorResponse { 
+message GetSuccessorListRequest {}
+message GetSuccessorListResponse { 
   repeated string successors = 1; 
 }
 

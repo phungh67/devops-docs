@@ -156,11 +156,12 @@ func GetPredecessor(address string) (string, error) {
 	return resp.Address, nil
 }
 
-func GetSuccessorList(address string) (string, error) {
+// Get a successor list of a node (indicated by its address), essential for the maintenace
+func GetSuccessorList(address string) ([]string, error) {
 	address = resolveAddress(address)
 	conn, err := grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer conn.Close()
 
@@ -168,12 +169,12 @@ func GetSuccessorList(address string) (string, error) {
 	resp, err := client.GetSuccessorList(context.Background(), &pb.GetSuccessorListRequest{})
 
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	if len(resp.Successors) == 0 {
-		return "", fmt.Errorf("chord %s returned an empty successors list", address)
+		return nil, fmt.Errorf("chord %s returned an empty successors list", address)
 	}
 
-	return resp.Successors[0], nil
+	return resp.Successors, nil
 }

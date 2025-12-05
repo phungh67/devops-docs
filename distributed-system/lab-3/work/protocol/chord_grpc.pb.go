@@ -51,7 +51,7 @@ type ChordClient interface {
 	FindClosestPreceding(ctx context.Context, in *FindClosestPrecedingRequest, opts ...grpc.CallOption) (*FindClosestPrecedingResponse, error)
 	// FindSuccessor
 	FindSuccessor(ctx context.Context, in *FindSuccessorRequest, opts ...grpc.CallOption) (*FindSuccessorResponse, error)
-	// GetSuccessorList
+	// Call to get the first successor of a node
 	GetSuccessorList(ctx context.Context, in *GetSuccessorListRequest, opts ...grpc.CallOption) (*GetSuccessorListResponse, error)
 	// Notify a node
 	Notify(ctx context.Context, in *NotifyRequest, opts ...grpc.CallOption) (*NotifyResponse, error)
@@ -187,7 +187,7 @@ type ChordServer interface {
 	FindClosestPreceding(context.Context, *FindClosestPrecedingRequest) (*FindClosestPrecedingResponse, error)
 	// FindSuccessor
 	FindSuccessor(context.Context, *FindSuccessorRequest) (*FindSuccessorResponse, error)
-	// GetSuccessorList
+	// Call to get the first successor of a node
 	GetSuccessorList(context.Context, *GetSuccessorListRequest) (*GetSuccessorListResponse, error)
 	// Notify a node
 	Notify(context.Context, *NotifyRequest) (*NotifyResponse, error)
