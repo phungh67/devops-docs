@@ -109,16 +109,24 @@ func StartServer(address string, nprime string, ts int, tff int, tcp int, r int,
 
 	// Start background tasks
 	go func() {
-		nextFinger := 0
+		tickerStab := time.NewTicker(node.TimeStabilize)
+		tickerFix := time.NewTicker(node.TimeFixFinger)
+		tickerCheck := time.NewTicker(node.TimeCheckPred)
+		defer tickerStab.Stop()
+		defer tickerFix.Stop()
+		defer tickerCheck.Stop()
+
+		nextFinger := 1
+
 		for {
-			time.Sleep(time.Second / 3)
-			node.stabilize()
-
-			time.Sleep(time.Second / 3)
-			nextFinger = node.fixFingers(nextFinger)
-
-			time.Sleep(time.Second / 3)
-			node.checkPredecessor()
+			select {
+			case <-tickerStab.C:
+				node.stabilize()
+			case <-tickerFix.C:
+				nextFinger = node.fixFingers(nextFinger)
+			case <-tickerCheck.C:
+				node.checkPredecessor()
+			}
 		}
 	}()
 

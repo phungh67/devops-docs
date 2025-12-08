@@ -208,7 +208,25 @@ func (n *Node) findClosetPredecessor(id *big.Int) string {
 
 // Check predecessor logic, check for alive one
 func (n *Node) checkPredecessor() {
+	n.mu.RLock()
+	pred := n.Predecessor
+	n.mu.RUnlock()
 
+	if pred == "" {
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+	defer cancel()
+
+	if err := PingNode(ctx, pred); err != nil {
+		log.Printf("checkPredecessor: %s seems dead: %v, clearing predecessor", pred, err)
+		n.mu.Lock()
+		if n.Predecessor == pred {
+			n.Predecessor = ""
+		}
+		n.mu.Unlock()
+	}
 }
 
 // Internal self function to stabilize after fault of successors
@@ -216,16 +234,79 @@ func (n *Node) checkPredecessor() {
 // or it can be use when a new node join in between
 // n - x - first successor
 func (n *Node) stabilize() {
-	// TODO: Student will implement this
+	n.mu.RLock()
+	if len(n.Successors) == 0 {
+		n.mu.RUnlock()
+		return
+	}
+	succ := n.Successors[0]
+	n.mu.RUnlock()
+
+	if succ == "" || succ == n.Address {
+		return
+	}
+
+	x, err := GetPredecessor(succ)
+	if err == nil && x != "" && x != n.Address {
+		nID := hash(n.Address)
+		succID := hash(succ)
+		xID := hash(x)
+
+		if between(nID, xID, succID, false) {
+			log.Printf("stabilize: updating successor from %s to %s", succ, x)
+			succ = x
+			n.mu.Lock()
+			if len(n.Successors) == 0 {
+				n.Successors = []string{succ}
+			} else {
+				n.Successors[0] = succ
+			}
+			n.mu.Unlock()
+		}
+	}
+
+	_ = Notify(succ, n.Address)
+
+	succList, err := GetSuccessorList(succ)
+	if err != nil || len(succList) == 0 {
+		return
+	}
+
+	newList := append([]string{succ}, succList...)
+	if len(newList) > n.NumberOfSuccessors {
+		newList = newList[:n.NumberOfSuccessors]
+	}
+
+	n.mu.Lock()
+	n.Successors = newList
+	n.mu.Unlock()
 }
 
 func (n *Node) fixFingers(nextFinger int) int {
-	// TODO: Student will implement this
+	if nextFinger < 1 || nextFinger > keySize {
+		nextFinger = 1
+	}
+
+	// ID：n.ID + 2^(i-1)
+	n.mu.RLock()
+	selfID := new(big.Int).Set(&n.ID)
+	n.mu.RUnlock()
+
+	offset := new(big.Int).Exp(two, big.NewInt(int64(nextFinger-1)), nil)
+	target := new(big.Int).Add(selfID, offset)
+	target.Mod(target, hashMod)
+
+	addr, err := n.findSuccessor(target)
+	if err == nil && addr != "" {
+		n.mu.Lock()
+		n.FingerTable[nextFinger] = addr
+		n.mu.Unlock()
+	}
+
 	nextFinger++
 	if nextFinger > keySize {
 		nextFinger = 1
 	}
-
 	return nextFinger
 }
 
