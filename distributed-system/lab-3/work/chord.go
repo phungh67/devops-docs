@@ -242,7 +242,7 @@ func (n *Node) stabilize() {
 	succ := n.Successors[0]
 	n.mu.RUnlock()
 
-	if succ == "" || succ == n.Address {
+	if succ == "" {
 		return
 	}
 
