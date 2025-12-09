@@ -84,6 +84,11 @@ func (n *Node) Ping(ctx context.Context, req *pb.PingRequest) (*pb.PingResponse,
 // adding additional check for replica data accros successors
 func (n *Node) Put(ctx context.Context, req *pb.PutRequest) (*pb.PutResponse, error) {
 	n.mu.Lock()
+	defer n.mu.Unlock()
+
+	if n.Bucket == nil {
+		n.Bucket = make(map[string]string)
+	}
 	n.Bucket[req.Key] = req.Value
 
 	if req.IsReplica {
@@ -91,7 +96,6 @@ func (n *Node) Put(ctx context.Context, req *pb.PutRequest) (*pb.PutResponse, er
 	} else {
 		log.Printf("[INFO] Store PRIMARY for key %s", req.Key)
 	}
-	n.mu.Unlock()
 
 	if !req.IsReplica {
 		go n.replicateToSuccessors(req.Key, req.Value)
@@ -154,7 +158,7 @@ func (n *Node) replicateToSuccessors(key, value string) {
 
 	for i := 0; i < replicationNumber; i++ {
 		addr := n.Successors[i]
-		err := PutKeyValue(context.Background(), key, value, addr)
+		err := CallPutReplica(addr, key, value)
 		if err != nil {
 			log.Printf("[ERROR] Falied to replica key %s to address %s: %v", key, addr, err)
 		}

@@ -183,3 +183,20 @@ func CallGetSuccessorList(address string) ([]string, error) {
 }
 
 // Get a successor of a node (indicated by address)
+// Put data to replica
+func CallPutReplica(address, key, value string) error {
+	address = resolveAddress(address)
+	conn, err := grpc.NewClient(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		return err
+	}
+	defer conn.Close()
+
+	client := pb.NewChordClient(conn)
+	_, err = client.Put(context.Background(), &pb.PutRequest{
+		Key:       key,
+		Value:     value,
+		IsReplica: true,
+	})
+	return err
+}
