@@ -154,7 +154,7 @@ func (n *Node) findSuccessor(id *big.Int) (string, error) {
 		// Iterative lookup
 		// get the first successor of the current candidate first
 		// (closet predecessor of id - id - first successor of closet predecessor of id)
-		candidateSuccessor, _ := GetSuccessorList(currentCandidate)
+		candidateSuccessor, _ := CallGetSuccessorList(currentCandidate)
 
 		if len(candidateSuccessor) == 0 {
 			return "", fmt.Errorf("node %s has empty successor list", currentCandidate)
@@ -168,7 +168,7 @@ func (n *Node) findSuccessor(id *big.Int) (string, error) {
 		}
 
 		// if not, jump to next closet predecessor
-		nextHop, err := FindClosetPredecessor(context.Background(), currentCandidate, id.String())
+		nextHop, err := CallFindClosetPredecessor(context.Background(), currentCandidate, id.String())
 		if err != nil {
 			return "", err
 		}
@@ -246,7 +246,7 @@ func (n *Node) stabilize() {
 		return
 	}
 
-	x, err := GetPredecessor(succ)
+	x, err := CallGetPredecessor(succ)
 	if err == nil && x != "" && x != n.Address {
 		nID := hash(n.Address)
 		succID := hash(succ)
@@ -265,9 +265,9 @@ func (n *Node) stabilize() {
 		}
 	}
 
-	_ = Notify(succ, n.Address)
+	_ = CallNotify(succ, n.Address)
 
-	succList, err := GetSuccessorList(succ)
+	succList, err := CallGetSuccessorList(succ)
 	if err != nil || len(succList) == 0 {
 		return
 	}
@@ -356,6 +356,7 @@ func (n *Node) dump() {
 }
 
 // FindClosestPreceding implements the RPC: return this node's closest preceding node for id
+// handler for RPC call
 func (n *Node) FindClosestPreceding(ctx context.Context, req *pb.FindClosestPrecedingRequest) (*pb.FindClosestPrecedingResponse, error) {
 	id := new(big.Int)
 	// client 那边传的是 id.String()（十进制），所以这里用 base 10
@@ -382,6 +383,7 @@ func (n *Node) FindSuccessor(ctx context.Context, req *pb.FindSuccessorRequest) 
 }
 
 // GetSuccessorList returns this node's successor list
+// handler RCP call
 func (n *Node) GetSuccessorList(ctx context.Context, req *pb.GetSuccessorListRequest) (*pb.GetSuccessorListResponse, error) {
 	n.mu.RLock()
 	defer n.mu.RUnlock()
@@ -392,6 +394,7 @@ func (n *Node) GetSuccessorList(ctx context.Context, req *pb.GetSuccessorListReq
 }
 
 // Notify implements Chord / notify(n')
+// handler for the RPC call CallNotify
 func (n *Node) Notify(ctx context.Context, req *pb.NotifyRequest) (*pb.NotifyResponse, error) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
@@ -418,6 +421,7 @@ func (n *Node) Notify(ctx context.Context, req *pb.NotifyRequest) (*pb.NotifyRes
 }
 
 // GetPredecessor returns this node's predecessor
+// handler of RPC call
 func (n *Node) GetPredecessor(ctx context.Context, req *pb.GetPredecessorRequest) (*pb.GetPredecessorResponse, error) {
 	n.mu.RLock()
 	defer n.mu.RUnlock()
