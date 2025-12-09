@@ -76,16 +76,27 @@ func between(start, elt, end *big.Int, inclusive bool) bool {
 
 // Ping implements the Ping RPC method
 func (n *Node) Ping(ctx context.Context, req *pb.PingRequest) (*pb.PingResponse, error) {
-	log.Print("ping: received request")
+	// log.Print("ping: received request")
 	return &pb.PingResponse{}, nil
 }
 
 // Put implements the Put RPC method
+// adding additional check for replica data accros successors
 func (n *Node) Put(ctx context.Context, req *pb.PutRequest) (*pb.PutResponse, error) {
 	n.mu.Lock()
-	defer n.mu.Unlock()
-	log.Print("put: [", req.Key, "] => [", req.Value, "]")
 	n.Bucket[req.Key] = req.Value
+
+	if req.IsReplica {
+		log.Printf("[INFO] Store REPLICA for key %s", req.Key)
+	} else {
+		log.Printf("[INFO] Store PRIMARY for key %s", req.Key)
+	}
+	n.mu.Unlock()
+
+	if !req.IsReplica {
+		go n.replicateToSuccessors(req.Key, req.Value)
+	}
+
 	return &pb.PutResponse{}, nil
 }
 
@@ -128,6 +139,26 @@ func (n *Node) GetAll(ctx context.Context, req *pb.GetAllRequest) (*pb.GetAllRes
 	}
 
 	return &pb.GetAllResponse{KeyValues: keyValues}, nil
+}
+
+// helper function to replicate data accros nodes
+func (n *Node) replicateToSuccessors(key, value string) {
+	n.mu.RLock()
+	successors := make([]string, len(n.Successors))
+	// a list of destinations
+	copy(successors, n.Successors)
+	n.mu.RUnlock()
+
+	// release the lock for other operation
+	replicationNumber := n.NumberOfSuccessors
+
+	for i := 0; i < replicationNumber; i++ {
+		addr := n.Successors[i]
+		err := PutKeyValue(context.Background(), key, value, addr)
+		if err != nil {
+			log.Printf("[ERROR] Falied to replica key %s to address %s: %v", key, addr, err)
+		}
+	}
 }
 
 // Find the successor of id, performed by node n
@@ -329,25 +360,40 @@ func (n *Node) dump() {
 	fmt.Println()
 	fmt.Println("Dump: information about this node")
 
-	// predecessor and successor links
+	// Predecessor and Successor links
 	fmt.Println("Neighborhood")
 	fmt.Println("pred:   ", addr(n.Predecessor))
 	fmt.Println("self:   ", addr(n.Address))
 	for i, succ := range n.Successors {
 		fmt.Printf("succ  %d: %s\n", i, addr(succ))
 	}
-	fmt.Println()
-	fmt.Println("Finger table")
-	i := 1
-	for i <= keySize {
-		for i < keySize && n.FingerTable[i] == n.FingerTable[i+1] {
+
+	fmt.Println("\nFinger table")
+	for i := 1; i <= keySize; i++ {
+		val := n.FingerTable[i]
+
+		if val == "" {
+			continue
+		}
+
+		start := i
+		for i < keySize && n.FingerTable[i+1] == val {
 			i++
 		}
-		fmt.Printf(" [%3d]: %s\n", i, addr(n.FingerTable[i]))
-		i++
+		end := i
+
+		if start == end {
+			fmt.Printf(" [%3d]:       %s\n", start, addr(val))
+		} else {
+			fmt.Printf(" [%3d-%3d]: %s\n", start, end, addr(val))
+		}
 	}
-	fmt.Println()
-	fmt.Println("Data items")
+
+	// Data Items
+	fmt.Println("\nData items")
+	if len(n.Bucket) == 0 {
+		fmt.Println(" (empty)")
+	}
 	for k, v := range n.Bucket {
 		s := fmt.Sprintf("%040x", hash(k))
 		fmt.Printf("    %s.. %s => %s\n", s[:8], k, v)
