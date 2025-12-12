@@ -296,24 +296,38 @@ func RunShell(node *Node) {
 			filename := parts[1]
 			id := hash(filename)
 
-			succ, err := node.findSuccessor(id)
+			// try to find Primary Owner
+			targetNode, err := node.findSuccessor(id)
 			if err != nil {
-				fmt.Printf("Lookup: findSuccessor failed: %v\n", err)
+				fmt.Printf("[ERROR] Lookup: findSuccessor failed: %v\n", err)
 				continue
 			}
 
-			value, err := GetValue(ctx, filename, succ)
-			if err != nil {
-				fmt.Printf("Lookup: get from %s failed: %v\n", succ, err)
-				continue
+			fmt.Printf("[INFO] Primary owner found: %s. Attempting retrieval...\n", targetNode)
+
+			value, err := GetValue(ctx, filename, targetNode)
+
+			// Fault Tolerance Read
+			if err != nil || value == "" {
+				fmt.Printf("[WARN] Primary (%s) failed or miss. Error: %v. Trying replicas...\n", targetNode, err)
+
+				one := big.NewInt(1)
+				backupID := new(big.Int).Add(id, one)
+				backupNode, err2 := node.findSuccessor(backupID)
+
+				if err2 == nil && backupNode != targetNode {
+					fmt.Printf("[INFO] Trying backup node: %s...\n", backupNode)
+					value, err = GetValue(ctx, filename, backupNode)
+				}
+
 			}
+
 			if value == "" {
-				fmt.Printf("File %q not found (owner node %s)\n", filename, succ)
+				fmt.Printf("[ERROR] File %q not found in ring (checked primary and backup).\n", filename)
 				continue
 			}
 
-			fmt.Printf("Owner node: %s\n", addr(succ))
-			fmt.Println("File content:")
+			fmt.Println("File content retrieved successfully:")
 			fmt.Println(value)
 
 		case "printstate":
