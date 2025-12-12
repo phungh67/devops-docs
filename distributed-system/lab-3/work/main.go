@@ -10,6 +10,7 @@ import (
 	"math/big"
 	"net"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -80,19 +81,25 @@ func StartServer(address string, nprime string, ts int, tff int, tcp int, r int,
 
 	// Are we the first node?
 	if nprime == "" {
-		log.Print("StartServer: creating new ring")
+		log.Print("[INFO] StartServer: creating new ring")
 		node.Successors = []string{node.Address}
 	} else {
-		log.Print("StartServer: joining existing ring using ", nprime)
+		log.Print("[INFO] StartServer: joining existing ring using ", nprime)
 		// For now use the given address as our successor
 		nprime = resolveAddress(nprime)
 		node.Successors = []string{nprime}
 		// TODO: use a GetAll request to populate our bucket
 		remoteBucket, err := GetAllKeyValues(context.Background(), nprime)
 		if err != nil {
-			log.Printf("[WARNING][GET DATA] Failed to get data from node %s: %v", nprime, err)
+			log.Printf("[WARNING]: Failed to fetch data: %v", err)
+			node.Bucket = make(map[string]string)
+		} else if remoteBucket != nil {
+			node.Bucket = remoteBucket
 		}
-		node.Bucket = remoteBucket
+
+		if node.Bucket == nil {
+			node.Bucket = make(map[string]string)
+		}
 	}
 
 	// Start listening for RPC calls
@@ -101,29 +108,37 @@ func StartServer(address string, nprime string, ts int, tff int, tcp int, r int,
 
 	lis, err := net.Listen("tcp", node.Address)
 	if err != nil {
-		return nil, fmt.Errorf("failed to listen: %v", err)
+		return nil, fmt.Errorf("[ERROR] Failed to listen: %v", err)
 	}
 
 	// Start server in goroutine
-	log.Printf("Starting Chord node server on %s", node.Address)
+	log.Printf("[INFFO] Starting Chord node server on %s", node.Address)
 	go func() {
 		if err := grpcServer.Serve(lis); err != nil {
-			log.Fatalf("failed to serve: %v", err)
+			log.Fatalf("[ERROR] Failed to serve: %v", err)
 		}
 	}()
 
 	// Start background tasks
 	go func() {
-		nextFinger := 0
+		tickerStab := time.NewTicker(node.TimeStabilize)
+		tickerFix := time.NewTicker(node.TimeFixFinger)
+		tickerCheck := time.NewTicker(node.TimeCheckPred)
+		defer tickerStab.Stop()
+		defer tickerFix.Stop()
+		defer tickerCheck.Stop()
+
+		nextFinger := 1
+
 		for {
-			time.Sleep(time.Second / 3)
-			node.stabilize()
-
-			time.Sleep(time.Second / 3)
-			nextFinger = node.fixFingers(nextFinger)
-
-			time.Sleep(time.Second / 3)
-			node.checkPredecessor()
+			select {
+			case <-tickerStab.C:
+				node.stabilize()
+			case <-tickerFix.C:
+				nextFinger = node.fixFingers(nextFinger)
+			case <-tickerCheck.C:
+				node.checkPredecessor()
+			}
 		}
 	}()
 
@@ -164,8 +179,11 @@ func RunShell(node *Node) {
 			fmt.Println("  get <key> <address>         - Get a value for a key from a node")
 			fmt.Println("  delete <key> <address>      - Delete a key from a node")
 			fmt.Println("  getall <address>            - Get all key-value pairs from a node")
-			fmt.Println("  dump              - Display info about the current node")
-			fmt.Println("  quit              - Exit the program")
+			fmt.Println("  storefile <path>           - Store a local text file into the Chord ring")
+			fmt.Println("  lookup <filename>          - Lookup a file in the Chord ring and print its content")
+			fmt.Println("  printstate                 - Print this node's Chord state")
+			// fmt.Println("  dump              - Display info about the current node")
+			fmt.Println("  Quit              - Exit the program")
 
 		case "ping":
 			if len(parts) < 2 {
@@ -241,6 +259,66 @@ func RunShell(node *Node) {
 				}
 			}
 
+		case "storefile":
+			if len(parts) < 2 {
+				fmt.Println("Usage: StoreFile <path>")
+				continue
+			}
+			path := parts[1]
+
+			data, err := os.ReadFile(path)
+			if err != nil {
+				fmt.Printf("StoreFile: failed to read %s: %v\n", path, err)
+				continue
+			}
+
+			filename := filepath.Base(path)
+			id := hash(filename)
+
+			succ, err := node.findSuccessor(id)
+			if err != nil {
+				fmt.Printf("StoreFile: findSuccessor failed: %v\n", err)
+				continue
+			}
+
+			if err := PutKeyValue(ctx, filename, string(data), succ); err != nil {
+				fmt.Printf("StoreFile: RPC put to %s failed: %v\n", succ, err)
+				continue
+			}
+
+			fmt.Printf("Stored file %q at node %s\n", filename, succ)
+
+		case "lookup":
+			if len(parts) < 2 {
+				fmt.Println("Usage: Lookup <filename>")
+				continue
+			}
+			filename := parts[1]
+			id := hash(filename)
+
+			succ, err := node.findSuccessor(id)
+			if err != nil {
+				fmt.Printf("Lookup: findSuccessor failed: %v\n", err)
+				continue
+			}
+
+			value, err := GetValue(ctx, filename, succ)
+			if err != nil {
+				fmt.Printf("Lookup: get from %s failed: %v\n", succ, err)
+				continue
+			}
+			if value == "" {
+				fmt.Printf("File %q not found (owner node %s)\n", filename, succ)
+				continue
+			}
+
+			fmt.Printf("Owner node: %s\n", addr(succ))
+			fmt.Println("File content:")
+			fmt.Println(value)
+
+		case "printstate":
+			node.dump()
+
 		case "dump":
 			node.dump()
 
@@ -299,7 +377,7 @@ func main() {
 	bindAddress := fmt.Sprintf("%s:%d", *address, *port)
 	var remoteAddress string
 
-	if *joinAddr == "" {
+	if *joinAddr != "" {
 		remoteAddress = fmt.Sprintf("%s:%d", *joinAddr, *joinPort)
 	}
 
