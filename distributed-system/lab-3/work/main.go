@@ -319,33 +319,53 @@ func RunShell(node *Node) {
 			}
 
 			fmt.Printf("[INFO] Primary owner found: %s. Attempting retrieval...\n", targetNode)
-
 			value, err := GetValue(ctx, filename, targetNode)
 
 			// Fault Tolerance Read
 			if err != nil || value == "" {
 				fmt.Printf("[WARN] Primary (%s) failed or miss. Error: %v. Trying replicas...\n", targetNode, err)
 
-				one := big.NewInt(1)
-				backupID := new(big.Int).Add(id, one)
-				backupNode, err2 := node.findSuccessor(backupID)
+				// 1. get the primary node Hash ID
+				primaryID := hash(targetNode)
 
-				if err2 == nil && backupNode != targetNode {
-					fmt.Printf("[INFO] Trying backup node: %s...\n", backupNode)
-					value, err = GetValue(ctx, filename, backupNode)
+				// 2. calc searchID = primaryID + 2^0 (same as +1)
+				one := big.NewInt(1)
+				searchID := new(big.Int).Add(primaryID, one)
+
+				// 3. lookup (Replica 1)
+				// findSuccessor will find next alive node automatically
+				replicaNode1, errRep1 := node.findSuccessor(searchID)
+
+				if errRep1 == nil && replicaNode1 != targetNode {
+					fmt.Printf("[INFO] Trying Replica 1 (Successor of Primary): %s...\n", replicaNode1)
+					value, err = GetValue(ctx, filename, replicaNode1)
 				}
 
+				// 4. if Replica 1 dead，try Replica 2
+				// cal searchID = Replica1_ID + 1
+				if err != nil || value == "" {
+					if replicaNode1 != "" {
+						rep1ID := hash(replicaNode1)
+						searchID2 := new(big.Int).Add(rep1ID, one)
+						replicaNode2, errRep2 := node.findSuccessor(searchID2)
+
+						if errRep2 == nil && replicaNode2 != replicaNode1 && replicaNode2 != targetNode {
+							fmt.Printf("[INFO] Replica 1 failed. Trying Replica 2: %s...\n", replicaNode2)
+							value, err = GetValue(ctx, filename, replicaNode2)
+						}
+					}
+				}
 			}
 
 			if value == "" {
-				fmt.Printf("[ERROR] File %q not found in ring (checked primary and backup).\n", filename)
+				fmt.Printf("[ERROR] File %q not found in ring (checked primary and replicas).\n", filename)
 				continue
 			}
 
 			// decrypt
 			decrypted, err := decrypt(value)
 			if err != nil {
-				fmt.Printf("Decryption failed (maybe key mismatch?): %v\n", err)
+				fmt.Printf("[ERROR] Decryption failed (maybe key mismatch?): %v\n", err)
 				fmt.Println("Raw Content:", value)
 				continue
 			}
