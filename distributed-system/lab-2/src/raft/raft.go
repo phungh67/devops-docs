@@ -294,6 +294,8 @@ type RequestVoteArgs struct {
 	LastLogTerm  int
 }
 
+// RPC appending log handler
+
 // example RequestVote RPC reply structure.
 // field names must start with capital letters!
 type RequestVoteReply struct {
@@ -375,6 +377,13 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 func (rf *Raft) sendRequestVote(server int, args *RequestVoteArgs, reply *RequestVoteReply) bool {
 	ok := rf.peers[server].Call("Raft.RequestVote", args, reply)
 	return ok
+}
+
+// RPC call for sending append entries request
+// used for send commands from leader to all
+// other members in this network
+func (rf *Raft) sendAppendEntries(server int, args *AppendingEntriesArgs, reply *AppendingEntriesReply) bool {
+
 }
 
 // the service using Raft (e.g. a k/v server) wants to start
