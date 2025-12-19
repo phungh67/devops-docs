@@ -158,99 +158,6 @@ func (rf *Raft) readPersist(data []byte) {
 	// }
 }
 
-// broadcast Heartbeat of the leader
-// frequently send this to all follower
-func (rf *Raft) broadcastHeartBeat() {
-	for i := range rf.peers {
-		if i == rf.me {
-			continue
-		}
-
-		go func(server int) {
-			rf.mu.Lock()
-			if rf.state != StateLeader {
-				rf.mu.Unlock()
-				return
-			}
-			args := AppendingEntriesArgs{
-				Term:         rf.currentTerm,
-				LeaderId:     rf.me,
-				PrevLogIndex: len(rf.log) - 1,
-				PrevLogTerm:  rf.log[len(rf.log)-1].Term,
-				Entries:      nil,
-				LeaderCommit: rf.commitIndex,
-			}
-			rf.mu.Unlock()
-
-			reply := AppendingEntriesReply{}
-
-		}(i)
-	}
-}
-
-// internal logic of leader election, change self state
-// prepare data for broadcasting,...
-func (rf *Raft) startElection() {
-	// changed internal state/properties, no need for mutex lock
-	rf.state = StateCandidate
-	rf.currentTerm++
-	rf.votedFor = rf.me     // vote for self first
-	rf.persist()            // save state
-	rf.resetElectionTimer() // reset election time
-
-	term := rf.currentTerm
-	votesReceived := 1 // self-voted
-
-	args := RequestVoteArgs{
-		Term:         term,
-		CandidateId:  rf.me,
-		LastLogIndex: len(rf.log) - 1,
-		LastLogTerm:  rf.log[len(rf.log)-1].Term,
-	}
-
-	// broadcast self information
-	for i := range rf.peers {
-		if i == rf.me {
-			continue
-		}
-
-		go func(server int) {
-			reply := RequestVoteReply{}
-
-			if rf.sendRequestVote(server, &args, &reply) {
-				rf.mu.Lock()
-				defer rf.mu.Unlock()
-
-				if rf.currentTerm != term || rf.state != StateCandidate {
-					return
-				}
-
-				if reply.Term > rf.currentTerm {
-					rf.currentTerm = reply.Term
-					rf.state = StateFollower
-					rf.votedFor = -1
-					rf.persist()
-					return
-				}
-
-				if reply.VoteGranted {
-					votesReceived++
-					if votesReceived > len(rf.peers)/2 {
-						rf.state = StateLeader
-
-						for i := range rf.peers {
-							rf.nextIndex[i] = len(rf.log)
-							rf.matchIndex[i] = 0
-						}
-
-						// broadcast
-					}
-				}
-			}
-		}(i)
-	}
-}
-
 // the service says it has created a snapshot that has
 // all info up to and including index. this means the
 // service no longer needs the log through (and including)
@@ -377,13 +284,6 @@ func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 func (rf *Raft) sendRequestVote(server int, args *RequestVoteArgs, reply *RequestVoteReply) bool {
 	ok := rf.peers[server].Call("Raft.RequestVote", args, reply)
 	return ok
-}
-
-// RPC call for sending append entries request
-// used for send commands from leader to all
-// other members in this network
-func (rf *Raft) sendAppendEntries(server int, args *AppendingEntriesArgs, reply *AppendingEntriesReply) bool {
-
 }
 
 // the service using Raft (e.g. a k/v server) wants to start
