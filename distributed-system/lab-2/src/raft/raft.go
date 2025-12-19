@@ -84,6 +84,30 @@ type Raft struct {
 	state         int
 	lastHeartBeat time.Time
 	applyCh       chan ApplyMsg
+
+	// for leader election
+	electionTimeout time.Duration
+}
+
+// reset timer each time (increase term if follower, reset to become candidate)\
+func (rf *Raft) resetElectionTimer() {
+	rf.lastHeartBeat = time.Now()
+	ms := 300 + (rand.Int63() % 150) // [300; 450] ms
+	rf.electionTimeout = time.Duration(ms) * time.Millisecond
+}
+
+// clock for checking election time, hearing from leader,...
+func (rf *Raft) ticker() {
+	for rf.killed() == false {
+		// while raft node is still alive
+		rf.mu.Lock()
+		if rf.state != StateLeader && time.Since(rf.lastHeartBeat) > rf.electionTimeout {
+			// start election process
+			rf.startElection()
+		}
+		rf.mu.Unlock()
+		time.Sleep(10 * time.Millisecond)
+	}
 }
 
 // return currentTerm and whether this server
@@ -132,6 +156,99 @@ func (rf *Raft) readPersist(data []byte) {
 	//   rf.xxx = xxx
 	//   rf.yyy = yyy
 	// }
+}
+
+// broadcast Heartbeat of the leader
+// frequently send this to all follower
+func (rf *Raft) broadcastHeartBeat() {
+	for i := range rf.peers {
+		if i == rf.me {
+			continue
+		}
+
+		go func(server int) {
+			rf.mu.Lock()
+			if rf.state != StateLeader {
+				rf.mu.Unlock()
+				return
+			}
+			args := AppendingEntriesArgs{
+				Term:         rf.currentTerm,
+				LeaderId:     rf.me,
+				PrevLogIndex: len(rf.log) - 1,
+				PrevLogTerm:  rf.log[len(rf.log)-1].Term,
+				Entries:      nil,
+				LeaderCommit: rf.commitIndex,
+			}
+			rf.mu.Unlock()
+
+			reply := AppendingEntriesReply{}
+
+		}(i)
+	}
+}
+
+// internal logic of leader election, change self state
+// prepare data for broadcasting,...
+func (rf *Raft) startElection() {
+	// changed internal state/properties, no need for mutex lock
+	rf.state = StateCandidate
+	rf.currentTerm++
+	rf.votedFor = rf.me     // vote for self first
+	rf.persist()            // save state
+	rf.resetElectionTimer() // reset election time
+
+	term := rf.currentTerm
+	votesReceived := 1 // self-voted
+
+	args := RequestVoteArgs{
+		Term:         term,
+		CandidateId:  rf.me,
+		LastLogIndex: len(rf.log) - 1,
+		LastLogTerm:  rf.log[len(rf.log)-1].Term,
+	}
+
+	// broadcast self information
+	for i := range rf.peers {
+		if i == rf.me {
+			continue
+		}
+
+		go func(server int) {
+			reply := RequestVoteReply{}
+
+			if rf.sendRequestVote(server, &args, &reply) {
+				rf.mu.Lock()
+				defer rf.mu.Unlock()
+
+				if rf.currentTerm != term || rf.state != StateCandidate {
+					return
+				}
+
+				if reply.Term > rf.currentTerm {
+					rf.currentTerm = reply.Term
+					rf.state = StateFollower
+					rf.votedFor = -1
+					rf.persist()
+					return
+				}
+
+				if reply.VoteGranted {
+					votesReceived++
+					if votesReceived > len(rf.peers)/2 {
+						rf.state = StateLeader
+
+						for i := range rf.peers {
+							rf.nextIndex[i] = len(rf.log)
+							rf.matchIndex[i] = 0
+						}
+
+						// broadcast
+					}
+				}
+			}
+		}(i)
+	}
 }
 
 // the service says it has created a snapshot that has
@@ -188,6 +305,44 @@ type RequestVoteReply struct {
 // example RequestVote RPC handler.
 func (rf *Raft) RequestVote(args *RequestVoteArgs, reply *RequestVoteReply) {
 	// Your code here (2A, 2B).
+	rf.mu.Lock()
+	defer rf.mu.Unlock()
+
+	defer rf.persist()
+
+	if args.Term < rf.currentTerm {
+		reply.Term = rf.currentTerm
+		reply.VoteGranted = false
+		return
+	}
+
+	if args.Term > rf.currentTerm {
+		rf.currentTerm = args.Term
+		rf.state = StateFollower
+		rf.votedFor = -1
+	}
+
+	reply.Term = rf.currentTerm
+	lastLogIndex := len(rf.log) - 1
+	lastLogTerm := rf.log[lastLogIndex].Term
+
+	logOK := false
+
+	// check log before finally give vote
+	if args.LastLogTerm > lastLogTerm {
+		logOK = true
+	} else if args.LastLogTerm == lastLogTerm && args.LastLogIndex >= lastLogIndex {
+		logOK = true
+	}
+
+	// havent vote yet AND candidate log is up-to-date (at least as new as us)
+	if (rf.votedFor == -1 || rf.votedFor == args.CandidateId) && logOK {
+		rf.votedFor = args.CandidateId
+		reply.VoteGranted = true
+		rf.lastHeartBeat = time.Now()
+	} else {
+		reply.VoteGranted = false
+	}
 }
 
 // example code to send a RequestVote RPC to a server.
