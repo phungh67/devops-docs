@@ -19,12 +19,14 @@ package raft
 
 import (
 	//	"bytes"
+	"bytes"
 	"math/rand"
 	"sync"
 	"sync/atomic"
 	"time"
 
 	//	"6.5840/labgob"
+	"6.5840/labgob"
 	"6.5840/labrpc"
 )
 
@@ -118,9 +120,15 @@ func (rf *Raft) GetState() (int, bool) {
 func (rf *Raft) persist() {
 	// Your code here (2C).
 	// Example:
-	// w := new(bytes.Buffer)
-	// e := labgob.NewEncoder(w)
-	// e.Encode(rf.xxx)
+	w := new(bytes.Buffer)
+	e := labgob.NewEncoder(w)
+
+	e.Encode(rf.currentTerm)
+	e.Encode(rf.votedFor)
+	e.Encode(rf.log)
+
+	rfState := w.Bytes()
+	rf.persister.Save(rfState, nil)
 	// e.Encode(rf.yyy)
 	// raftstate := w.Bytes()
 	// rf.persister.Save(raftstate, nil)
@@ -133,17 +141,22 @@ func (rf *Raft) readPersist(data []byte) {
 	}
 	// Your code here (2C).
 	// Example:
-	// r := bytes.NewBuffer(data)
-	// d := labgob.NewDecoder(r)
-	// var xxx
-	// var yyy
-	// if d.Decode(&xxx) != nil ||
-	//    d.Decode(&yyy) != nil {
-	//   error...
-	// } else {
-	//   rf.xxx = xxx
-	//   rf.yyy = yyy
-	// }
+	r := bytes.NewBuffer(data)
+	d := labgob.NewDecoder(r)
+
+	var curerntTerm int
+	var votedFor int
+	var logs []LogEntry
+
+	if d.Decode(&rf.currentTerm) != nil ||
+		d.Decode(&rf.votedFor) != nil ||
+		d.Decode(&rf.log) != nil {
+		// error
+	} else {
+		rf.currentTerm = curerntTerm
+		rf.votedFor = votedFor
+		rf.log = logs
+	}
 }
 
 // broadcast Heartbeat of the leader
@@ -177,6 +190,18 @@ func (rf *Raft) broadcastHeartBeat() {
 				rf.mu.Lock()
 				defer rf.mu.Unlock()
 
+				if !reply.Success {
+					// entry's index conflict, jump backward, if negative, set to 1
+					rf.nextIndex[server] = rf.nextIndex[server] - 1
+					if rf.nextIndex[server] < 1 {
+						rf.nextIndex[server] = 1
+					} else {
+						// Success, update matchIndex
+						rf.matchIndex[server] = args.PrevLogIndex + len(args.Entries)
+						rf.nextIndex[server] = rf.matchIndex[server] + 1
+					}
+				}
+
 				if reply.Term > rf.currentTerm {
 					// give up leadership if any neighbor has higher term
 					rf.currentTerm = reply.Term
@@ -185,7 +210,6 @@ func (rf *Raft) broadcastHeartBeat() {
 					rf.persist()
 				}
 			}
-
 		}(i)
 	}
 }
@@ -324,6 +348,7 @@ func (rf *Raft) AppendEntries(args *AppendingEntriesArgs, reply *AppendingEntrie
 		rf.votedFor = -1
 	}
 
+	// sending log ~ heartbeat
 	rf.lastHeartBeat = time.Now()
 
 	if rf.state == StateCandidate {
@@ -331,9 +356,52 @@ func (rf *Raft) AppendEntries(args *AppendingEntriesArgs, reply *AppendingEntrie
 	}
 
 	reply.Term = rf.currentTerm
-	reply.Success = true
+	// reply.Success = true
 
 	// log consistent 2B
+	// 5.3 reply fail if log does not contain any entry at prevLogIndex with term
+	// matches to prevLogTerm
+	if len(rf.log)-1 < args.PrevLogIndex {
+		// log is too short
+		reply.Success = false
+		// maybe notify leader
+		return
+	}
+
+	if rf.log[args.PrevLogIndex].Term != args.PrevLogTerm {
+		// match index but not term (stale data?)
+		reply.Success = false
+		return
+	}
+
+	reply.Success = true
+
+	// if reply success, append log entries that are missing
+	for i, entry := range args.Entries {
+		index := args.PrevLogIndex + 1 + i
+
+		if index < len(rf.log) {
+			if rf.log[index].Term != entry.Term {
+				// conflict term
+				rf.log = rf.log[:index] // force update
+				rf.log = append(rf.log, entry)
+			}
+		} else {
+			rf.log = append(rf.log, entry)
+		}
+	}
+
+	// if leader commit index is larger than us, set the commit index
+	// to min of leader commit and the upcoming commit index
+	if args.LeaderCommit > rf.commitIndex {
+		lastNewIndex := args.PrevLogIndex + len(args.Entries)
+		if args.LeaderCommit < lastNewIndex {
+			rf.commitIndex = args.LeaderCommit
+		} else {
+			rf.commitIndex = lastNewIndex
+		}
+		//TODO: broadcast the message through the channel
+	}
 }
 
 // example RequestVote RPC reply structure.
