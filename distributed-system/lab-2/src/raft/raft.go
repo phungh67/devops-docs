@@ -87,7 +87,8 @@ type Raft struct {
 	applyCh       chan ApplyMsg
 
 	// for leader election
-	electionTimeout time.Duration
+	electionTimeout   time.Duration
+	lastBroadcastTime time.Time // fix the minor bug "warning: term changed even though there were no failures"
 }
 
 // reset timer each time (increase term if follower, reset to become candidate)\
@@ -484,16 +485,32 @@ func (rf *Raft) ticker() {
 		// pause for a random amount of time between 50 and 350
 		// milliseconds.
 		rf.mu.Lock()
-		// if currently not leader and not hear from leader affter a time
+
+		// snapshot of currentstate
+		state := rf.state
+
+		if state == StateLeader {
+			// leader need to broadcast frequently
+			if time.Since(rf.lastBroadcastTime) > 100*time.Millisecond {
+				// using 100 since election in range [300,450] with 150 interval
+				rf.lastBroadcastTime = time.Now()
+				rf.mu.Unlock()
+				rf.broadcastHeartBeat()
+				rf.mu.Lock()
+			}
+		}
+
 		if rf.state != StateLeader && time.Since(rf.lastHeartBeat) > rf.electionTimeout {
 			// start election process
+			// if currently not leader and not hear from leader affter a time (candidate logic)
+
 			rf.startElection()
 		}
 		rf.mu.Unlock()
 
 		// sleep again
-		ms := 50 + (rand.Int63() % 300)
-		time.Sleep(time.Duration(ms) * time.Millisecond)
+		// ms := 50 + (rand.Int63() % 300)
+		time.Sleep(10 * time.Millisecond)
 	}
 }
 
