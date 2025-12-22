@@ -194,7 +194,7 @@ func (rf *Raft) broadcastHeartBeat() {
 				Term:         rf.currentTerm,
 				LeaderId:     rf.me,
 				PrevLogIndex: prevLogIndex,
-				PrevLogTerm:  rf.log[len(rf.log)-1].Term,
+				PrevLogTerm:  rf.log[prevLogIndex].Term,
 				Entries:      entries,
 				LeaderCommit: rf.commitIndex,
 			}
