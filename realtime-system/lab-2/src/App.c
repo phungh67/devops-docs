@@ -76,7 +76,7 @@ void print_period_by_key(int x){
     SCI_WRITE(&sci0, " ");
   }
 
-  SCI_WRITE(&sci0, '\n');
+  SCI_WRITE(&sci0, "\n");
 }
 
 void reader(App *self, int c)
@@ -96,11 +96,12 @@ void reader(App *self, int c)
 
     SCI_WRITE(&sci0, "\nKey: ");
     SCI_WRITE(&sci0, input_key);
-    SCI_WRITE(&sci0, '\n');
+    SCI_WRITE(&sci0, "\n");
 
     self->count = 0;
 
     print_period_by_key(value);
+    SCI_WRITE(&sci0, "\n");
   }
   else if (self->count < 3){
     self->key[self->count++] = (char)c;
