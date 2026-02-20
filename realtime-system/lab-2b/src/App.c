@@ -25,6 +25,15 @@ void receiver(App *self, int unused)
   SCI_WRITE(&sci0, msg.buff);
 }
 
+void print_helper(App *self) {
+    SCI_WRITE(&sci0, "\n--- Main Menu ---\n");
+    SCI_WRITE(&sci0, "This is tone generator, it has 2 functions: \n");
+    SCI_WRITE(&sci0, "The tone will be automatically run, can be stopped with 's'.\n");
+    SCI_WRITE(&sci0, "Press 'v' to begin increase or decrease the volume.\n");
+    SCI_WRITE(&sci0, "Press 'b' to adjust background payload period...\n");
+    SCI_WRITE(&sci0, "Choice: ");
+}
+
 void int_to_string(int n, char *buffer)
 {
   int i = 0, is_negative = 0;
@@ -37,7 +46,7 @@ void int_to_string(int n, char *buffer)
   if (n < 0)
   {
     is_negative = 1;
-    n = -1;
+    n = -n;
   }
   while (n != 0)
   {
@@ -57,6 +66,13 @@ void int_to_string(int n, char *buffer)
     buffer[j] = buffer[i - j - 1];
     buffer[i - j - 1] = temp;
   }
+}
+
+void background_task(App *self, int period){
+  for (int i = 0; i < self->background_loop; i++){
+    asm("nop");
+  }
+  AFTER(USEC(period), self, background_task, 0);
 }
 
 void tone_generator(App *self, int state)
@@ -86,7 +102,7 @@ void tone_generator(App *self, int state)
 
 void volume_control(App *self, int input)
 {
-  if (self->val + input > MAX_VOLUME)
+  if (input > MAX_VOLUME)
   {
     // over max volume
     if (DEBUG)
@@ -96,7 +112,7 @@ void volume_control(App *self, int input)
     self->val = MAX_VOLUME;
     return;
   }
-  if (self->val + input < MIN_VOLUME)
+  if (input < MIN_VOLUME)
   {
     if (DEBUG)
     {
@@ -106,7 +122,7 @@ void volume_control(App *self, int input)
     return;
   }
   // handle normally
-  self->val = self->val + input;
+  self->val = input;
 }
 
 void volume_control_handler(App *self, char controL_character)
@@ -125,6 +141,7 @@ void volume_control_handler(App *self, char controL_character)
     self->mode = 0;
     self->pos = 0;
     SCI_WRITE(&sci0, "\nReturn to main menu...\n");
+    print_helper(self);
     return;
   }
   // newline == end input
@@ -168,6 +185,8 @@ void reader(App *self, int c)
     break;
   case 's':
     self->mute = 1;
+    SCI_WRITE(&sci0, "\nMuting tone generator...\n");
+    print_helper(self);
     break;
   default:
     break;
@@ -180,13 +199,15 @@ void startApp(App *self, int arg)
 
   CAN_INIT(&can0);
   SCI_INIT(&sci0);
-  SCI_WRITE(&sci0, "This is tone generator, it has 2 functions: \n");
-  SCI_WRITE(&sci0, "The tone will be automatically run, can be stopped with 's'.\n");
-  SCI_WRITE(&sci0, "Press 'v' to begin increase or decrease the voume.\n");
-  SCI_WRITE(&sci0, "Press 'b' to adjust background payload period...\n");
+
 
   self->mute = 0;
+  self->mode = 0;
+  self->background_loop = 1000;
+
+  print_helper(self);
   tone_generator(self, 1);
+  background_task(self, 1300);
 }
 
 int main()
