@@ -7,11 +7,13 @@ typedef struct {
   Object super;
   Timer timer;
   char buffer[12];
+  int mode;
+  int pos;
   int val;
   int mute;
 } App;
 
-#define initApp() { initObject(), initTimer(), {0}, 0, 0 }
+#define initApp() { initObject(), initTimer(), {0}, 0, 0, 0, 0 }
 
 void reader(App *, int);
 void receiver(App *, int);
