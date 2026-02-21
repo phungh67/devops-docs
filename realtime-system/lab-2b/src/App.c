@@ -230,6 +230,12 @@ void reader(App *self, int c)
     return;
   }
 
+  if (self->mode == 2)
+  {
+    background_loop_handler(self, &load_obj, (char)c);
+    return;
+  }
+
   switch (c)
   {
   case 'v':
@@ -247,7 +253,7 @@ void reader(App *self, int c)
     SCI_WRITE(&sci0, "\nMuting tone generator...\n");
     print_helper(self);
     break;
-  case 'b':         
+  case 'b':
     self->mode = 2;
     SCI_WRITE(&sci0, "\nAdjusting background load (use '+' or '-' to change): ");
     break;
