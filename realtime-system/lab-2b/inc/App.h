@@ -3,7 +3,8 @@
 
 #include "TinyTimber.h"
 
-typedef struct {
+typedef struct
+{
   Object super;
   Timer timer;
   char buffer[12];
@@ -14,10 +15,20 @@ typedef struct {
   int mute;
 } App;
 
-#define initApp() { initObject(), initTimer(), {0}, 0, 0, 0, 0, 0 }
+#define initApp() {initObject(), initTimer(), {0}, 0, 0, 0, 0, 0}
 
 void reader(App *, int);
 void receiver(App *, int);
 void startApp(App *, int);
+
+typedef struct
+{
+  /* data */
+  Object super;
+  int background_loop_range;
+  int period;
+} LoadTask;
+
+#define initLoadTask() {initObject(), 0, 1300}
 
 #endif
