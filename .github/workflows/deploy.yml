@@ -1,0 +1,21 @@
+name: Deploy Action
+
+on:
+  push:
+    branches: [main]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Run cutom setup step
+        id: custom_setup
+        uses: ./.github/actions/setup-tools # point to correct directory
+        with:
+          environment: 'prod'
+      
+      - name: Verify plugin output
+        run: |
+          echo "The plugin successfully installed version: ${{ steps.custom_setup.outputs.tool_version }}"

@@ -1,0 +1,29 @@
+name: "Setup tools and pulgins"
+description: "Reusable plguin to install and to manage things"
+
+# input logic
+inputs:
+  environment:
+    description: 'The target env: dev, prod, staging'
+    required: true
+    default: 'dev'
+
+# outputs
+outputs:
+  tool_version:
+    description: 'Version of installed tools'
+    value: ${{ steps.install_step.outputs.version }}
+
+runs:
+  using: composite
+  steps:
+    - name: Run custom script
+      id: install_step
+      run: |
+        echo "Install something useless since this is only a demo, with this input value: ${{ inputs.environment }}"
+
+        echo "Installing tool ..."
+        INSTALL_VERSION="v2.4.1"
+
+        echo "version=$INSTALL_VERSION" >> $GITHUB_OUTPUT
+      shell: bash
