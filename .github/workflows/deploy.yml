@@ -18,4 +18,5 @@ jobs:
       
       - name: Verify plugin output
         run: |
-          echo "The plugin successfully installed version: ${{ steps.custom_setup.outputs.tool_version }}"
+          echo "The plugin successfully installed version: 
+            ${{ steps.custom_setup.outputs.tool_version }}"

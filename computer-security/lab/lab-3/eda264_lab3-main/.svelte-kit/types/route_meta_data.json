@@ -1,0 +1,11 @@
+{
+	"/": [
+		"src/routes/+page.server.ts"
+	],
+	"/comments": [
+		"src/routes/comments/+page.server.ts"
+	],
+	"/upload": [
+		"src/routes/upload/+page.server.ts"
+	]
+}

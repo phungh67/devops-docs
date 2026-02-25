@@ -1,0 +1,9 @@
+services:
+  site:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "55173:55173"
+    volumes:
+      - ./db.db:/app/db.db
+      - ./static:/app/static
