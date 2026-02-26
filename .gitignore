@@ -14,7 +14,7 @@ data-privacy/*/__pycache__/*
 computer-security/lab/lab-1/*
 computer-security/lab/lab-2/passdb
 
-computer-security/lab/*/.svelte-kit/*
-computer-security/lab/*/node-modules/*
-computer-security/lab/*/*.db
+computer-security/lab/*/*/.svelte-kit/*
+computer-security/lab/*/*/node-modules/*
+computer-security/lab/*/*/db.db
 
