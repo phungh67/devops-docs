@@ -8,6 +8,7 @@
 #include <string.h>
 
 extern App app;
+extern ToneTask tone_task;
 extern Can can0;
 extern Serial sci0;
 extern LoadTask load_obj;
@@ -16,7 +17,7 @@ extern LoadTask load_obj;
 #define MIN_VOLUME 0
 #define MAX_VOLUME 20
 
-#define MAX_TASK 8000
+#define MAX_TASK 80000
 #define MIN_TASK 1000
 
 #define DEBUG 0
@@ -29,19 +30,31 @@ void receiver(App *self, int unused)
   SCI_WRITE(&sci0, msg.buff);
 }
 
-// print the header each time
+// helper function to print menu
 void print_helper(App *self)
 {
-  SCI_WRITE(&sci0, "\n--- Main Menu ---\n");
-  SCI_WRITE(&sci0, "This is tone generator, it has 2 functions: \n");
-  SCI_WRITE(&sci0, "The tone will be automatically run, can be stopped with 's'.\n");
-  SCI_WRITE(&sci0, "Press 'v' to begin increase or decrease the volume.\n");
-  SCI_WRITE(&sci0, "Press 'b' to adjust background payload period...\n");
+  (void)self;
+  SCI_WRITE(&sci0, "\n=== Tone Generator Console ===\n");
+  SCI_WRITE(&sci0, "Enter a command and press Enter.\n");
+  SCI_WRITE(&sci0, "\nMain commands:\n");
+  SCI_WRITE(&sci0, "  v | volume            Set volume (0-20)\n");
+  SCI_WRITE(&sci0, "  s | mute              Mute tone output\n");
+  SCI_WRITE(&sci0, "  r | unmute            Resume tone output\n");
+  SCI_WRITE(&sci0, "  b | bg | background   Adjust background load\n");
+  SCI_WRITE(&sci0, "  d | deadline          Enable deadline mode\n");
+  SCI_WRITE(&sci0, "  e | nd | nodeadline   Disable deadline mode\n");
+  SCI_WRITE(&sci0, "  h | help              Show this help\n");
+  SCI_WRITE(&sci0, "\nIn volume mode:\n");
+  SCI_WRITE(&sci0, "  Enter a number 0-20, then Enter\n");
+  SCI_WRITE(&sci0, "  e               Return to main menu\n");
+  SCI_WRITE(&sci0, "\nIn background mode:\n");
+  SCI_WRITE(&sci0, "  +               Increase background load\n");
+  SCI_WRITE(&sci0, "  -               Decrease background load\n");
+  SCI_WRITE(&sci0, "  e               Return to main menu\n");
   SCI_WRITE(&sci0, "Choice: ");
 }
 
-// convert integer to string
-// for printing
+// convert int to string, store in buffer
 void int_to_string(int n, char *buffer)
 {
   int i = 0, is_negative = 0;
@@ -65,8 +78,8 @@ void int_to_string(int n, char *buffer)
   {
     // add sign
     buffer[i++] = '-';
-    buffer[i] = '\0';
   }
+  buffer[i] = '\0';
 
   for (int j = 0; j < i / 2; j++)
   {
@@ -81,9 +94,19 @@ void background_task(LoadTask *self, int unused)
 {
   for (int i = 0; i < self->background_loop_range; i++)
   {
-    asm("nop");
+    asm("nop");     // do nothing, just insert "no operation" isntruction to CPU
   }
-  AFTER(USEC(self->period), self, background_task, 0);
+
+  if (self->deadline)
+  {
+    // in deadline mode: periodic release with relative deadline
+    SEND(USEC(self->period), USEC(1300), self, background_task, 0);
+  }
+  else
+  {
+    // no-deadline mode: periodic release only (best-effort)
+    AFTER(USEC(self->period), self, background_task, 0);
+  }
 }
 
 // hanlder for loop range adjust
@@ -100,15 +123,11 @@ void background_loop_handler(App *self, LoadTask *task, char c)
   // adjustment
   if (c == '+')
   {
-    task->background_loop_range += 500;
-    if (task->background_loop_range > MAX_TASK)
-    {
-      task->background_loop_range = MAX_TASK;
-    }
+    SYNC(&load_obj, adjust_range, 500);
   }
   else if (c == '-' && task->background_loop_range >= 500)
   {
-    task->background_loop_range -= 500;
+    SYNC(&load_obj, adjust_range, -500);
   }
   else
   {
@@ -116,65 +135,106 @@ void background_loop_handler(App *self, LoadTask *task, char c)
   }
 
   char buff[12];
-  int_to_string(task->background_loop_range, buff);
+  int current_range = SYNC(&load_obj, get_range, 0);
+  int_to_string(current_range, buff);
   SCI_WRITE(&sci0, "\nBackground loop range: ");
   SCI_WRITE(&sci0, buff);
   SCI_WRITE(&sci0, "\n");
 }
 
 // tone generator
-void tone_generator(App *self, int state)
+// object's method
+
+// get volume value
+int get_volume(ToneTask *self){
+  return self->val;
+}
+
+// method to access and set the val property
+void set_volume(ToneTask *self, int value){
+  if (value > MAX_VOLUME){
+    self->val = MAX_VOLUME;
+  } else if (value < MIN_VOLUME) {
+    self->val = MIN_VOLUME;
+  } else {
+    self->val = value;
+  }
+}
+
+// method to access mute status
+int get_mute(ToneTask *self){
+  return self->mute;
+}
+
+// method to set the mute 
+void set_mute(ToneTask *self, int enable){
+  self->mute = enable;
+}
+
+// method to get deadline status
+int get_deadline(ToneTask *self){
+  return self->deadline;
+}
+
+// method to toogle deadline
+void set_deadline(ToneTask *self, int enable){
+  self->deadline = enable;
+}
+
+
+void tone_generator(ToneTask *self, int state)
 {
-  if (self->mute == 1)
-  {
-    if (DEBUG)
-    {
-      SCI_WRITE(&sci0, "\nReceive mute signal, surpress tone generator...\n");
+  // check if muted
+  if (get_mute(self)){
+    if (DEBUG){
+      SCI_WRITE(&sci0, "\nReceive the mute signal, surpress tone generator...\n");
     }
     DAC_PORT = 0;
+    if (get_deadline(self)){
+      SEND(USEC(500), USEC(100), self, tone_generator, state);
+    } else {
+      AFTER(USEC(500), self, tone_generator, state);
+    }
     return;
   }
+
 
   // change the DAC bit
   int next_state = state ? 0 : 1;
 
   if (next_state == 1)
   {
-    DAC_PORT = self->val;
+    DAC_PORT = get_volume(self);
   }
   else
   {
     DAC_PORT = 0;
   }
 
-  // generate tone
-  AFTER(USEC(500), self, tone_generator, next_state);
+  /* generate tone, it will execute every 500 microseconds,
+     which means the frequency is 1kHz (since we toggle the bit
+     every time, the period is 1ms) */
+  if (get_deadline(self))
+  {
+    // deadline mode: periodic release with relative deadline
+    // SEND(USEC(931), USEC(100), self, tone_generator, next_state);    // this is for 539 Hz tone
+    // SEND(USEC(650), USEC(100), self, tone_generator, next_state);    // this is for 769 Hz tone
+   SEND(USEC(500), USEC(100), self, tone_generator, next_state);      // this is for 1000 Hz tone
+  }
+  else
+  {
+    // no-deadline mode: periodic release only (best-effort)
+    // AFTER(USEC(931), self, tone_generator, next_state);      // this is for 539 Hz tone, around 1500 loop
+    // AFTER(USEC(650), self, tone_generator, next_state);      // this is for 769 Hz tone, arond 3000 loop
+    AFTER(USEC(500), self, tone_generator, next_state);      // this is for 1000 Hz tone, around 4000 loop
+
+  }
 }
 
 // control the volume (logic)
-void volume_control(App *self, int input)
+void volume_control(int input, ToneTask *tone_task)
 {
-  if (input > MAX_VOLUME)
-  {
-    // over max volume
-    if (DEBUG)
-    {
-      SCI_WRITE(&sci0, "\nMax volume exceeded, cap the value at max...\n");
-    }
-    self->val = MAX_VOLUME;
-    return;
-  }
-  if (input < MIN_VOLUME)
-  {
-    if (DEBUG)
-    {
-      SCI_WRITE(&sci0, "\nMin volume exceeded, cap the value at min...\n");
-    }
-    self->val = MIN_VOLUME;
-    return;
-  }
-  // handle normally
-  self->val = input;
+  SYNC(tone_task, set_volume, input);
 }
 
 // handler for volume controller
@@ -202,79 +262,219 @@ void volume_control_handler(App *self, char controL_character)
   {
     self->buffer[self->pos++] = '\0';
     int value = atoi(self->buffer);
-    volume_control(self, value);
+
+    volume_control(value, &tone_task);
+
 
     char current_volume[12];
-    int_to_string(self->val, current_volume);
+    int current_val = SYNC(&tone_task, get_volume, 0);
+    int_to_string(current_val, current_volume);
     SCI_WRITE(&sci0, "\nCurrent volume: ");
     SCI_WRITE(&sci0, current_volume);
     SCI_WRITE(&sci0, "\n");
     self->pos = 0;
   }
-  else if (self->pos < 12)
+  else if (self->pos < (int)(sizeof(self->buffer) - 1))
   {
     self->buffer[self->pos++] = controL_character;
     SCI_WRITECHAR(&sci0, controL_character);
   }
 }
 
+void deadline_control_tone_handler(ToneTask *self, int enable)
+{
+  if (enable)
+  {
+    set_deadline(self, enable);
+  }
+  else
+  {
+    set_deadline(self, 0);
+  }
+}
+
+int get_bg_deadline(LoadTask *self){
+  return self->deadline;
+}
+
+void set_bg_deadline(LoadTask* self, int enable){
+  self->deadline = enable;
+}
+
+int get_range(LoadTask *self){
+  return self->background_loop_range;
+}
+
+void adjust_range(LoadTask *self, int amount){
+  self->background_loop_range += amount;
+  if (self->background_loop_range > MAX_TASK) {
+    self->background_loop_range = MAX_TASK;
+  }
+  if (self->background_loop_range < 500){
+    self->background_loop_range = 500;
+  }
+}
+
+void deadline_control_bg_handler(LoadTask *self, int enable)
+{
+  if (enable)
+  {
+    set_bg_deadline(self, enable);
+    SCI_WRITE(&sci0, "\nEnable deadline deadline_control_bg_handler mode...\n");
+  }
+  else
+  {
+    set_bg_deadline(self, 0);
+    SCI_WRITE(&sci0, "\nDisable deadline deadline_control_bg_handler mode...\n");
+  }
+
+}
+
+void command_handler(App *self, char character)
+{
+  if (DEBUG)
+  {
+    SCI_WRITE(&sci0, "\nEnter command handler...\n");
+  }
+
+  if (character == '\n' || character == '\r')
+  {
+    self->buffer[self->pos] = '\0';
+
+    // Normalize command to lowercase in-place.
+    for (int i = 0; self->buffer[i] != '\0'; i++)
+    {
+      if (self->buffer[i] >= 'A' && self->buffer[i] <= 'Z')
+      {
+        self->buffer[i] = self->buffer[i] - 'A' + 'a';
+      }
+    }
+
+    if (self->pos == 0)
+    {
+      print_helper(self);
+      return;
+    }
+
+    if (strcmp(self->buffer, "v") == 0 || strcmp(self->buffer, "volume") == 0)
+    {
+      self->mode = VOLUME_MODE;
+      self->pos = 0;
+      SCI_WRITE(&sci0, "\nInput the volume, end with enter: ");
+      return;
+    }
+
+    if (strcmp(self->buffer, "s") == 0 || strcmp(self->buffer, "mute") == 0)
+    {
+      SYNC(&tone_task, set_mute, 1);
+      self->pos = 0;
+      SCI_WRITE(&sci0, "\nMuting tone generator...\n");
+      print_helper(self);
+      return;
+    }
+
+    if (strcmp(self->buffer, "r") == 0 || strcmp(self->buffer, "unmute") == 0)
+    {
+      SYNC(&tone_task, set_mute, 0);
+      self->pos = 0;
+      SCI_WRITE(&sci0, "\nUnmuting tone generator...\n");
+      print_helper(self);
+      return;
+    }
+
+    if (strcmp(self->buffer, "b") == 0 || strcmp(self->buffer, "bg") == 0 || strcmp(self->buffer, "background") == 0)
+    {
+      self->mode = BACKGROUND_LOAD_MODE;
+      self->pos = 0;
+      SCI_WRITE(&sci0, "\nAdjusting background load (use '+' or '-' to change): ");
+      return;
+    }
+
+    if (strcmp(self->buffer, "d") == 0 || strcmp(self->buffer, "deadline") == 0)
+    {
+      // load_obj.deadline = true;
+      // tone_task.deadline = true;
+      SYNC(&tone_task, deadline_control_tone_handler, 1);
+      SYNC(&load_obj, deadline_control_bg_handler, 1);
+      self->pos = 0;
+      SCI_WRITE(&sci0, "\nEnable deadline control mode...\n");
+      print_helper(self);
+      return;
+    }
+
+    if (strcmp(self->buffer, "e") == 0 || strcmp(self->buffer, "nd") == 0 || strcmp(self->buffer, "nodeadline") == 0)
+    {
+      // load_obj.deadline = false;
+      // tone_task.deadline = false;
+      SYNC(&tone_task, deadline_control_tone_handler, 0);
+      SYNC(&load_obj, deadline_control_bg_handler, 0);
+      self->pos = 0;
+      SCI_WRITE(&sci0, "\nDisable deadline control mode...\n");
+      print_helper(self);
+      return;
+    }
+
+    if (strcmp(self->buffer, "h") == 0 || strcmp(self->buffer, "help") == 0)
+    {
+      self->pos = 0;
+      print_helper(self);
+      return;
+    }
+
+    self->pos = 0;
+    SCI_WRITE(&sci0, "\nUnknown command. Type 'help' for valid commands.\n");
+    print_helper(self);
+    return;
+  }
+  else if (self->pos < (int)(sizeof(self->buffer) - 1))
+  {
+    self->buffer[self->pos++] = character;
+    SCI_WRITECHAR(&sci0, character);
+  }
+}
+
+// handler for sci interrupt, read user input and call corresponding handler
 void reader(App *self, int c)
 {
-  if (self->mode == 1)
+  // if currently in volume cotrol mode, call volume control handler
+  if (self->mode == VOLUME_MODE)
   {
     if (DEBUG)
     {
-      SCI_WRITE(&sci0, "\nDefault mode, currently in volume mode...\n");
+      SCI_WRITE(&sci0, "\nCurrently in volume mode...\n");
     }
     volume_control_handler(self, (char)c);
     return;
   }
 
-  if (self->mode == 2)
+  // if currently in background load adjust mode, call background load handler
+  if (self->mode == BACKGROUND_LOAD_MODE)
   {
+    if (DEBUG)
+    {
+      SCI_WRITE(&sci0, "\nCurrently in background load mode...\n");
+    }
+
     background_loop_handler(self, &load_obj, (char)c);
     return;
   }
 
-  switch (c)
-  {
-  case 'v':
-    /* code */
-    if (DEBUG)
-    {
-      SCI_WRITE(&sci0, "\nEnter volume mode, input value to adjust volume.\n");
-    }
-    self->mode = 1;
-    self->pos = 0;
-    SCI_WRITE(&sci0, "\nInput the volume, end with enter: ");
-    break;
-  case 's':
-    self->mute = 1;
-    SCI_WRITE(&sci0, "\nMuting tone generator...\n");
-    print_helper(self);
-    break;
-  case 'b':
-    self->mode = 2;
-    SCI_WRITE(&sci0, "\nAdjusting background load (use '+' or '-' to change): ");
-    break;
-  default:
-    break;
-  }
+  // otherwise, it is in control mode
+  command_handler(self, (char)c);
+
 }
 
 void startApp(App *self, int arg)
 {
-  CANMsg msg;
-
   CAN_INIT(&can0);
   SCI_INIT(&sci0);
 
-  self->mute = 0;
-  self->mode = 0;
-  self->background_loop = 1000;
+  self->mute = 0;   // set default to unmuted
+  self->mode = CONTROL_MODE;   // set default mode
 
-  print_helper(self);
-  tone_generator(self, 1);
+  print_helper(self);   /* print help info */
+
+  ASYNC(&tone_task, tone_generator, 1);
   ASYNC(&load_obj, background_task, 0);
 }
 
