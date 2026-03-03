@@ -3,18 +3,28 @@
 
 #include "TinyTimber.h"
 
+// for media player
+typedef enum
+{
+  CONTROL_MODE = 0,
+  VOLUME_MODE = 1,
+  KEY_MODE = 2,
+  TEMPO_MODE = 3
+} Mode;
+
 typedef struct
 {
   Object super;
-  char buffer[32];   // receive command
-  int buffer_pos;    // pointer to buffer position
+  char buffer[32]; // receive command
+  int buffer_pos;  // pointer to buffer position
+  int mode;
   int current_index; // current tone index to play
   int key;           // shifted key
   int tempo;         // length to play
   int mute;          // indicate mute or not
 } App;
 
-#define initApp() {initObject(), {0}, 0, 0, 0, 120, 0}
+#define initApp() {initObject(), {0}, 0, 0, 0, 0, 120, 0}
 
 void reader(App *, int);
 void receiver(App *, int);
@@ -34,8 +44,11 @@ typedef struct
 #define initToneTask() {initObject(), 0, 0, 0};
 
 // set method
-void tone_set_mute(ToneTask *);
-void tone_set_period(ToneTask *);
-void tone_set_volume(ToneTask *);
+void tone_set_mute(ToneTask *, int);
+void tone_set_period(ToneTask *, int);
+void tone_set_volume(ToneTask *, int);
+
+// get method
+int tone_get_volume(ToneTask *);
 
 #endif

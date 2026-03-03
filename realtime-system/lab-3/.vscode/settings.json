@@ -9,6 +9,6 @@
     "${workspaceFolder}/lib/tinytimber/inc"
   ],
   "C_Cpp.default.intelliSenseMode": "gcc-arm",
-  "C_Cpp.errorSquiggles": "disabled",
+  "C_Cpp.errorSquiggles": "enabled",
   "mdx07-templates.appName": "lab-3"
 }

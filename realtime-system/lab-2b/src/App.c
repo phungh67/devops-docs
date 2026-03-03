@@ -474,7 +474,7 @@ void startApp(App *self, int arg)
 
   print_helper(self);   /* print help info */
 
-  ASYNC(&tone_task, tone_generator, 1);
+  ASYNC(&tone_task, tone_generatortone_generator, 1);
   ASYNC(&load_obj, background_task, 0);
 }
 
