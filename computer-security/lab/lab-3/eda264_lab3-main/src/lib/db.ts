@@ -1,29 +1,42 @@
 import Database from 'better-sqlite3';
 import md5 from 'md5';
+import { realpathSync } from 'node:fs';
 
 const db = new Database('db.db');
 db.exec(
 	'CREATE TABLE IF NOT EXISTS Table_Users (' +
-		'UID Integer Primary Key Autoincrement, ' +
-		'Username TEXT NOT NULL,                ' +
-		'Password TEXT NOT NULL,                ' +
-		'SID TEXT)'
+	'UID Integer Primary Key Autoincrement, ' +
+	'Username TEXT NOT NULL,                ' +
+	'Password TEXT NOT NULL,                ' +
+	'SID TEXT)'
 );
 
 db.exec(
 	'CREATE TABLE IF NOT EXISTS Table_Comments (' +
-		'UID Integer Primary Key Autoincrement, ' +
-		'Timestamp TEXT NOT NULL,               ' +
-		'User Integer NOT NULL,                 ' +
-		'Html TEXT)'
+	'UID Integer Primary Key Autoincrement, ' +
+	'Timestamp TEXT NOT NULL,               ' +
+	'User Integer NOT NULL,                 ' +
+	'Html TEXT)'
 );
 
+// export function checkUserPass(username: string, password: string): { UID: number, Error?: Error } {
+// 	const hash = md5(password);
+// 	const command =
+// 		"SELECT UID FROM Table_Users WHERE Username='" + username + "' AND Password='" + hash + "'";
+// 	try {
+// 		const uid = db.prepare(command).get() as { UID: number };
+// 		return uid;
+// 	} catch (e) {
+// 		return { UID: 0, Error: e as Error }
+// 	}
+// }
+
 export function checkUserPass(username: string, password: string): { UID: number, Error?: Error } {
-	const hash = md5(password);
+	const hash = md5(password)
 	const command =
-		"SELECT UID FROM Table_Users WHERE Username='" + username + "' AND Password='" + hash + "'";
+		"SELECT UID FROM Table_Users WHERE Username=? AND Password=?";
 	try {
-		const uid = db.prepare(command).get() as { UID: number };
+		const uid = db.prepare(command).get(username, hash) as { UID: number };
 		return uid;
 	} catch (e) {
 		return { UID: 0, Error: e as Error }
