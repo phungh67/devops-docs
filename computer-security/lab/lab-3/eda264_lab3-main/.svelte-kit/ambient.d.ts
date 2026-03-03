@@ -79,8 +79,8 @@ declare module '$env/static/private' {
 	export const npm_config_init_module: string;
 	export const PWD: string;
 	export const npm_execpath: string;
-	export const NVM_CD_FLAGS: string;
 	export const _P9K_TTY: string;
+	export const NVM_CD_FLAGS: string;
 	export const npm_config_global_prefix: string;
 	export const npm_command: string;
 	export const HOSTTYPE: string;
@@ -173,8 +173,8 @@ declare module '$env/dynamic/private' {
 		npm_config_init_module: string;
 		PWD: string;
 		npm_execpath: string;
-		NVM_CD_FLAGS: string;
 		_P9K_TTY: string;
+		NVM_CD_FLAGS: string;
 		npm_config_global_prefix: string;
 		npm_command: string;
 		HOSTTYPE: string;
