@@ -52,6 +52,41 @@ int get_period(int note_pos, int key_offset)
   return periods[actual_index];
 }
 
+// convert int to string
+void int_to_string(int n, char *buffer)
+{
+  int i = 0, is_negative = 0;
+  if (n == 0)
+  {
+    buffer[i++] = '0';
+    buffer[i] = '\0';
+    return;
+  }
+  if (n < 0)
+  {
+    is_negative = 1;
+    n = -n;
+  }
+  while (n != 0)
+  {
+    buffer[i++] = (n % 10) + '0';
+    n = n / 10;
+  }
+  if (is_negative)
+  {
+    // add sign
+    buffer[i++] = '-';
+  }
+  buffer[i] = '\0';
+
+  for (int j = 0; j < i / 2; j++)
+  {
+    char temp = buffer[j];
+    buffer[j] = buffer[i - j - 1];
+    buffer[i - j - 1] = temp;
+  }
+}
+
 void receiver(App *self, int unused)
 {
   CANMsg msg;
