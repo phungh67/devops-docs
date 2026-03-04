@@ -344,16 +344,16 @@ void command_handler(App *self, char c)
       return;
     }
 
-    if (strcmp(self->buffer, "p") == 0)
+    if (strcmp(self->buffer, "s") == 0)
     {
       self->buffer_pos = 0;
-      self->current_index = 0;
-      SCI_WRITE(&sci0, "\nPlaying...\n");
+      SYNC(&tone_task, tone_set_volume, 0);
+    }
 
-      ASYNC(self, play_note, 0);
-
-      print_helper(self);
-      return;
+    if (strcmp(self->buffer, "r") == 0)
+    {
+      self->buffer_pos = 0;
+      SYNC(&tone_task, tone_set_volume, 10);
     }
 
     self->buffer_pos = 0;

@@ -19,29 +19,29 @@ db.exec(
 	'Html TEXT)'
 );
 
-// export function checkUserPass(username: string, password: string): { UID: number, Error?: Error } {
-// 	const hash = md5(password);
-// 	const command =
-// 		"SELECT UID FROM Table_Users WHERE Username='" + username + "' AND Password='" + hash + "'";
-// 	try {
-// 		const uid = db.prepare(command).get() as { UID: number };
-// 		return uid;
-// 	} catch (e) {
-// 		return { UID: 0, Error: e as Error }
-// 	}
-// }
-
 export function checkUserPass(username: string, password: string): { UID: number, Error?: Error } {
-	const hash = md5(password)
+	const hash = md5(password);
 	const command =
-		"SELECT UID FROM Table_Users WHERE Username=? AND Password=?";
+		"SELECT UID FROM Table_Users WHERE Username='" + username + "' AND Password='" + hash + "'";
 	try {
-		const uid = db.prepare(command).get(username, hash) as { UID: number };
+		const uid = db.prepare(command).get() as { UID: number };
 		return uid;
 	} catch (e) {
 		return { UID: 0, Error: e as Error }
 	}
 }
+
+// export function checkUserPass(username: string, password: string): { UID: number, Error?: Error } {
+// 	const hash = md5(password)
+// 	const command =
+// 		"SELECT UID FROM Table_Users WHERE Username=? AND Password=?";
+// 	try {
+// 		const uid = db.prepare(command).get(username, hash) as { UID: number };
+// 		return uid;
+// 	} catch (e) {
+// 		return { UID: 0, Error: e as Error }
+// 	}
+// }
 
 export function getUserFromSessionID(sid: string): { Username: string, Error?: Error } {
 	const command = "SELECT Username FROM Table_Users WHERE SID='" + sid + "'";
