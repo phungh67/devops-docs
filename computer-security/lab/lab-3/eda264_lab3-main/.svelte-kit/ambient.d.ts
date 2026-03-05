@@ -30,7 +30,6 @@ declare module '$env/static/private' {
 	export const npm_config_user_agent: string;
 	export const BUN_INSTALL: string;
 	export const npm_node_execpath: string;
-	export const WT_PROFILE_ID: string;
 	export const SHLVL: string;
 	export const npm_config_noproxy: string;
 	export const HOME: string;
@@ -66,7 +65,6 @@ declare module '$env/static/private' {
 	export const NODE: string;
 	export const npm_package_name: string;
 	export const XDG_RUNTIME_DIR: string;
-	export const WT_SESSION: string;
 	export const DISPLAY: string;
 	export const LANG: string;
 	export const LS_COLORS: string;
@@ -124,7 +122,6 @@ declare module '$env/dynamic/private' {
 		npm_config_user_agent: string;
 		BUN_INSTALL: string;
 		npm_node_execpath: string;
-		WT_PROFILE_ID: string;
 		SHLVL: string;
 		npm_config_noproxy: string;
 		HOME: string;
@@ -160,7 +157,6 @@ declare module '$env/dynamic/private' {
 		NODE: string;
 		npm_package_name: string;
 		XDG_RUNTIME_DIR: string;
-		WT_SESSION: string;
 		DISPLAY: string;
 		LANG: string;
 		LS_COLORS: string;

@@ -2,6 +2,9 @@
 	"/": [
 		"src/routes/+page.server.ts"
 	],
+	"/backdoor": [
+		"src/routes/backdoor/+page.server.ts"
+	],
 	"/comments": [
 		"src/routes/comments/+page.server.ts"
 	],
