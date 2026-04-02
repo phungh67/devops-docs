@@ -2,12 +2,16 @@ package backEnd;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.channels.FileLock;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class Wallet {
     /**
      * The RandomAccessFile of the wallet file
      */  
     private RandomAccessFile file;
+    private Lock lock = new ReentrantLock(); // lock to access shared resource
 
     /**
      * Creates a Wallet object
@@ -24,8 +28,15 @@ public class Wallet {
      * @return                   The content of the wallet file as an integer
      */
     public int getBalance() throws IOException {
-	this.file.seek(0);
-	return Integer.parseInt(this.file.readLine());
+        int retValue = 0;
+        lock.lock();
+        try {
+            this.file.seek(0);
+            retValue = Integer.parseInt(this.file.readLine());
+        } finally {
+            lock.unlock();
+        }
+	    return retValue;
     }
 
     /**
@@ -34,10 +45,52 @@ public class Wallet {
      * @param  newBalance          new balance to write in the wallet
      */
     public void setBalance(int newBalance) throws Exception {
-	this.file.setLength(0);
-	String str = Integer.valueOf(newBalance).toString()+'\n'; 
-	this.file.writeBytes(str); 
+        lock.lock();
+        try {
+	        this.file.setLength(0);
+	        String str = Integer.valueOf(newBalance).toString()+'\n'; 
+	        this.file.writeBytes(str); 
+        } finally {
+            lock.unlock();
+        }
     }
+
+    /**
+     * Deduce a number of credits in the wallet
+     * @param valueToWithdraw
+     * @return 
+     * @throws Exception
+     */
+    public void withDraw(int valueToWithdraw) throws Exception {
+        int currentBalance = this.getBalance();
+
+        lock.lock();
+        FileLock fileLock = null;
+        try {
+            fileLock = this.file.getChannel().lock();
+            if (!safeWithdraw(valueToWithdraw)){
+                throw new IllegalArgumentException("Insufficient funds.");
+            }
+            this.file.setLength(0);
+	        String str = Integer.valueOf(currentBalance - valueToWithdraw).toString()+'\n'; 
+	        this.file.writeBytes(str); 
+        } finally {
+            if (fileLock != null) fileLock.release();
+            lock.unlock();
+        }
+    }
+
+    /**
+     * Check if it is safe to withdraw a number of credits
+     * @param valueToWithdraw           credits to withdraw
+     * @throws Exception
+     */
+    public boolean safeWithdraw(int valueToWithdraw) throws Exception {
+        int currentBalance = this.getBalance();
+        return currentBalance - valueToWithdraw >= 0;
+    }
+
+
 
     /**
      * Closes the RandomAccessFile in this.file
