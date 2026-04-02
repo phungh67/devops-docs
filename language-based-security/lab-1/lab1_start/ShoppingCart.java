@@ -22,18 +22,10 @@ public class ShoppingCart {
         String product = scan(scanner);
 
         while(!product.equals("quit")) {
-            int CurrentBalance = wallet.getBalance();
 
-            int CurrentPrice = Store.getProductPrice(product);
+            wallet.withDraw(Store.getProductPrice(product));
 
             Thread.sleep(1000);
-
-
-            if (CurrentBalance - CurrentPrice < 0) {
-                throw new IllegalArgumentException("Balance must be greater than 0 to process");
-            }
-
-            wallet.setBalance(CurrentBalance - CurrentPrice);
 
             pocket.addProduct(product);
 
