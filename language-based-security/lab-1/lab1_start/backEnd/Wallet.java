@@ -62,12 +62,11 @@ public class Wallet {
      * @throws Exception
      */
     public void withDraw(int valueToWithdraw) throws Exception {
-        int currentBalance = this.getBalance();
-
         lock.lock();
         FileLock fileLock = null;
         try {
             fileLock = this.file.getChannel().lock();
+            int currentBalance = this.getBalance();
             if (!safeWithdraw(valueToWithdraw)){
                 throw new IllegalArgumentException("Insufficient funds.");
             }
