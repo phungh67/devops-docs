@@ -29,12 +29,18 @@ public class Wallet {
      */
     public int getBalance() throws IOException {
         int retValue = 0;
-        lock.lock();
+        // a read lock - for reading purpose, allow 
+        // multiple instances to read the value at 
+        // the same time but blocks the writers
+        // lock.lock();
+        FileLock fileLock = null;
         try {
+            fileLock = this.file.getChannel().lock(0, Long.MAX_VALUE, true);
             this.file.seek(0);
             retValue = Integer.parseInt(this.file.readLine());
         } finally {
-            lock.unlock();
+            if (fileLock != null) fileLock.release();
+            // lock.unlock();
         }
 	    return retValue;
     }
@@ -45,13 +51,16 @@ public class Wallet {
      * @param  newBalance          new balance to write in the wallet
      */
     public void setBalance(int newBalance) throws Exception {
-        lock.lock();
+        // lock.lock();
+        FileLock fileLock = null;
         try {
+            fileLock = this.file.getChannel().lock();
 	        this.file.setLength(0);
 	        String str = Integer.valueOf(newBalance).toString()+'\n'; 
 	        this.file.writeBytes(str); 
         } finally {
-            lock.unlock();
+            if (fileLock != null) fileLock.release();
+            // lock.unlock();
         }
     }
 
@@ -62,7 +71,7 @@ public class Wallet {
      * @throws Exception
      */
     public void withDraw(int valueToWithdraw) throws Exception {
-        lock.lock();
+        // lock.lock();
         FileLock fileLock = null;
         try {
             fileLock = this.file.getChannel().lock();
@@ -75,7 +84,7 @@ public class Wallet {
 	        this.file.writeBytes(str); 
         } finally {
             if (fileLock != null) fileLock.release();
-            lock.unlock();
+            // lock.unlock();
         }
     }
 
