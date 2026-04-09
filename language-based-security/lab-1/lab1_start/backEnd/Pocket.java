@@ -28,7 +28,7 @@ public class Pocket {
      * @param  product           product name to add to the pocket (e.g. "car")
      */
     public void addProduct(String product) throws Exception {
-        lock.lock();
+        // lock.lock();
         FileLock fileLock = null;
         try {
             fileLock = this.file.getChannel().lock();
@@ -36,7 +36,7 @@ public class Pocket {
             this.file.writeBytes(product+'\n');
         } finally {
             if (fileLock != null) fileLock.release();
-            lock.unlock();
+            // lock.unlock();
         }
     }
 
