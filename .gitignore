@@ -20,3 +20,5 @@ computer-security/lab/*/*/db
 
 *.class
 
+language-based-security/lab/*/sandbox/*
+language-based-security/lab/*/__pycache__/*
