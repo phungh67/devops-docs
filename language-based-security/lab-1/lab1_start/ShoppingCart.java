@@ -23,10 +23,12 @@ public class ShoppingCart {
 
         while(!product.equals("quit")) {
 
-            wallet.withDraw(Store.getProductPrice(product));
+            int CurrentPrice = Store.getProductPrice(product);
 
-            Thread.sleep(1000);
-
+            if (!wallet.safeWithdraw(CurrentPrice)){
+                throw new IllegalArgumentException("Insufficient funds!!!");
+            }
+            
             pocket.addProduct(product);
 
             // Just to print everything again...
