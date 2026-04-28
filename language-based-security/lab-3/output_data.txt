@@ -1,0 +1,9 @@
+2026-04-28 12:42:29.240369 - Cookies: PHPSESSID=mblvb7si58mm086deq32rio116 | Local: LS:  | URL: http://localhost:8080/post.php?id=2
+2026-04-28 12:59:02.126157 - Cookies: PHPSESSID=mblvb7si58mm086deq32rio116 | Local: LS:  | URL: http://localhost:8080/post.php?id=2
+2026-04-28 23:19:07.378308 - Cookies: PHPSESSID=6vgn6u2gc9a1ddhdu5stm88s60 | Local: LS:  | URL: http://127.0.0.1/post.php?id=2
+2026-04-28 23:20:07.576739 - Cookies: PHPSESSID=ekm0b94o968o2v5bf4pithl1l1 | Local: LS:  | URL: http://127.0.0.1/post.php?id=2
+2026-04-28 23:21:07.783073 - Cookies: PHPSESSID=uuh0927lkou6eg9iko384o4vc6 | Local: LS:  | URL: http://127.0.0.1/post.php?id=2
+2026-04-28 23:22:06.990233 - Cookies: PHPSESSID=mle1nfhd24rrssqb0olplkii01 | Local: LS:  | URL: http://127.0.0.1/post.php?id=2
+2026-04-28 23:23:07.190959 - Cookies: PHPSESSID=nahkr9mbgtftvusbgd5j0k9sc1 | Local: LS:  | URL: http://127.0.0.1/post.php?id=2
+2026-04-28 23:24:07.394107 - Cookies: PHPSESSID=mnnsqpngjmms73fqp11lgsppt7 | Local: LS:  | URL: http://127.0.0.1/post.php?id=2
+2026-04-28 23:25:07.596939 - Cookies: PHPSESSID=t50ahkhq71n29nk7c19a0v0r06 | Local: LS:  | URL: http://127.0.0.1/post.php?id=2
