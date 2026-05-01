@@ -1,11 +1,12 @@
 import re
 import ahocorasick
 
-"""A regex filter, try to find malicious keywords by matching with patterns,
-regardless adversaries tried to hide them with messed up texts,...
-"""
+
 
 class RegexFilter:
+    """A regex filter, try to find malicious keywords by matching with patterns,
+    regardless adversaries tried to hide them with messed up texts,...
+    """
     def __init__(self):
         self.base64_pattern = re.compile(r"(?:[A-Za-z0-9+/]{4}){10,}(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?")
         self.syntax_pattern = re.compile(r"(\}\}\]\]|```.+```|.+\d$)")
@@ -25,15 +26,15 @@ class RegexFilter:
             self.automaton.add_word(target, target)
 
         self.automaton.make_automaton()
-
-    """Scan method, based on regex built earlier
-    
-    Keyword arguments:
-    self, prompt (str) -- user's prompt
-    Return: True of False if this prompt is safe
-    """
     
     def scan(self, prompt: str) -> bool:
+
+        """Scan method, based on regex built earlier
+    
+        Keyword arguments:
+        self, prompt (str) -- user's prompt
+        Return: True of False if this prompt is safe
+        """
         if self.base64_pattern.search(prompt):
             print("[DANGER] Structural Regex flagged Base64 encoding.")
             return False
