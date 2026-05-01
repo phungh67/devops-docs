@@ -37,13 +37,23 @@ class PromptInjectionGuardDaemon:
         self.DROP_SCORE = 0.80
         self.QUARANTINE_SCORE = 0.45
 
-    def frame_data(self, data: str) -> str:
+    def frame_data(self, intent: str, data: str) -> str:
         """Santitizes and wraps text extracted in XML tags."""
-        if not data:
-            return ""
-        
-        escaped_data = html.escape(data, quote=True)
-        return f"\n<user_context>\n{escaped_data}\n</user_context>"
+        safe_intent = html.escape(intent.strip(), quote=True)
+        final_payload = f"<user_input>\n{safe_intent}\n</user_input>"
+
+        if data:
+            data = data.strip()
+            
+            if data.startswith("```") and data.endswith("```"):
+                lines = data.split('\n')
+                if len(lines) >= 2:
+                    data = '\n'.join(lines[1:-1]).strip()
+
+            safe_data = html.escape(data, quote=True)
+            final_payload += f"\n<data>\n{safe_data}\n</data>"
+
+        return final_payload
 
     def process_input(self, raw_input: str) -> dict:
         """Detect, extract and sanitize user's input"""
@@ -68,12 +78,11 @@ class PromptInjectionGuardDaemon:
         intent = extracted.get("intentions", "")
         data = extracted.get("data", None)
 
-        safe_xml_data = self.frame_data(data)
-        final_payload = f"{intent}{safe_xml_data}"
+        safe_xml_data = self.frame_data(intent, data)
 
         return {
             "status": "APPROVED",
-            "safe_payload": final_payload
+            "safe_payload": safe_xml_data
         }
 
     def start(self):
