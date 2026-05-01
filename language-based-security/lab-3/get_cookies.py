@@ -19,7 +19,7 @@ class Listener(http.server.SimpleHTTPRequestHandler):
 
     def do_GET(self):
         if "/log" in self.path:
-            # Change 1: Return standard text instead of an image
+            # forged a response with plain text (avoid CORS error)
             self.send_response(200)
             self.send_header("Content-type", "text/plain")
             self.end_headers()
@@ -35,7 +35,6 @@ class Listener(http.server.SimpleHTTPRequestHandler):
             except Exception as e:
                 print(f"Error decoding data: {e}")
 
-            # Change 2: Write a simple text acknowledgement
             self.wfile.write(b"OK")
         else:
             super().do_GET()
