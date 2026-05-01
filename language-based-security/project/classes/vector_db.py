@@ -16,9 +16,16 @@ class VectorDatabase:
 
     def find_similar_vectors(self, query_vector, num_results=2):
         results = []
+        norm_query = np.linalg.norm(query_vector)
        # calculate the cosine (undirectional multiple between 2)
         for vector_id, vector in self.vector_data.items():
-            similarity = np.dot(query_vector, vector) / (np.linalg.norm(query_vector) * np.linalg.norm(vector))
+            norm_vector = np.linalg.norm(vector)
+
+            if norm_query == 0.0 or norm_query == 0.0:
+                similarity = 0.0
+            else:
+                similarity = np.dot(query_vector, vector) / (np.linalg.norm(query_vector) * np.linalg.norm(vector))
+            
             results.append((vector_id, similarity))
         # sort by looking the index x (the associated score for each vector)
         # and from bigger to smaller
