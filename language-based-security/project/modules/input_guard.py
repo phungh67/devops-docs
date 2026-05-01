@@ -1,13 +1,3 @@
-# first layer of guarding
-"""This is the first guardrail, only tries to match a naive way, explicitly drop
-any visible malicious intention
-
-Keyword arguments:
-prompt (string) -- raw input from user
-Return: 0 if danger, otherwise 1
-"""
-
-
 # global
 malicious_phrases = [
     "ignore previous",
@@ -23,6 +13,14 @@ malicious_phrases = [
 
 # optimistic filter
 def words_matching_simple(prompt: str):
+    # first layer of guarding
+    """This is the first guardrail, only tries to match a naive way, explicitly drop
+    any visible malicious intention
+
+    Keyword arguments:
+    prompt (string) -- raw input from user
+    Return: 0 if danger, otherwise 1
+    """
     print("[LOG]Checking if in the prompt contained malicious phrases...")
 
     # strip spaces and lower all the words

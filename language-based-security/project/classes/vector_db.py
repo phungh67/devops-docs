@@ -1,6 +1,12 @@
 import numpy as np
 
-class VectorStorage:
+class VectorDatabase:
+    """Definition for a Vector database with simple methods to store and retrieve
+    
+    add_vector(self, vector_id, vector): add a vector with vector_id to databases
+    find_similar_vectors(self, query_vector, num_results): find similar vector with 'query_vector', limit results to num_of_results
+    """
+    
     def __init__(self):
         self.vector_data = {}
     
