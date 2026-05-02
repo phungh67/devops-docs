@@ -19,9 +19,9 @@ from modules.vector_matching import (
 
 SOCKET_PATH = "/tmp/llm_guard_client.sock"
 
-class PromptInjectionGuardDaemon:
+class LLGuardDaemon:
     """
-    Class definition for the Prompt Injection Guard Daemon
+    Class definition for the LLM (Prompt Injection) Guard Daemon
     """
     def __init__(self):
         self.extractor = LexicalExtractor()
@@ -39,7 +39,7 @@ class PromptInjectionGuardDaemon:
 
         self.verbose_log = 0
 
-        self.DROP_SCORE = 0.80
+        self.DROP_SCORE = 0.63
         self.QUARANTINE_SCORE = 0.45
 
     def toggle_log(self):
@@ -82,7 +82,8 @@ class PromptInjectionGuardDaemon:
 
         if highest_similarity >= self.DROP_SCORE:
             return {"status": "BLOCKED", "reason": "Failed Stage 3: Semantic similarity to known attacks."}
-
+        elif highest_similarity >= self.QUARANTINE_SCORE:
+            print("[WARN] Payload quarantined. Applying stricter LLM guardrails...")
 
         extracted = self.extractor.extract(raw_input)
         intent = extracted.get("intentions", "")
@@ -127,11 +128,19 @@ class PromptInjectionGuardDaemon:
 
                 result = self.process_input(raw_data)
 
+                if result["status"] == "APPROVED":
+                    if self.verbose_log:
+                        print("[REQUEST OUT] Payload is sanitized and ready for Ollama.")
+                    llm_data = self.ollama_connector.generate_chat(result["safe_payload"])
+
+                    if "error" in llm_data:
+                        result = {"status": "ERROR", "reason": llm_data["error"]}
+                    else:
+                        result["llm_response"] = llm_data.get("message", {}).get("content", "")
+                        del result["safe_payload"]
+
                 conn.sendall(json.dumps(result).encode('utf-8'))
                 conn.close()
-
-                if result["status"] == "APPROVED":
-                    print("[REQUEST OUT] Payload is sanitized and ready for Ollama.")
         except KeyboardInterrupt:
             print("\n[DAEMON] Shutting down...")
         finally:
@@ -139,5 +148,5 @@ class PromptInjectionGuardDaemon:
                 os.remove(SOCKET_PATH)   
 
 if __name__ == "__main__":
-    daemon = PromptInjectionGuardDaemon()
+    daemon = LLGuardDaemon()
     daemon.start()        
