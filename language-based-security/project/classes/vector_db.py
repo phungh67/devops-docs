@@ -21,7 +21,7 @@ class VectorDatabase:
         for vector_id, vector in self.vector_data.items():
             norm_vector = np.linalg.norm(vector)
 
-            if norm_query == 0.0 or norm_query == 0.0:
+            if norm_query == 0.0 or norm_vector == 0.0:
                 similarity = 0.0
             else:
                 similarity = np.dot(query_vector, vector) / (np.linalg.norm(query_vector) * np.linalg.norm(vector))
