@@ -17,7 +17,7 @@ from modules.vector_matching import (
     sentences
 )
 
-SOCKET_PATH = "/tmp/prompt_injection_guard.sock"
+SOCKET_PATH = "/tmp/llm_guard_client.sock"
 
 class PromptInjectionGuardDaemon:
     """
