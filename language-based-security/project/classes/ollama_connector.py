@@ -8,16 +8,19 @@ class OllamaConnector:
     """
     Handle the HTTP connection between security daemon and the Ollama API
     Further information about Ollama API: https://docs.ollama.com/api/
+    Need to set 2 variables if want to customize
+    OLLAMA_HOST_URL = address where OLLAMA is running
+    OLLAMA_PREFER_MODEL = model that is currently being used
     """
-    def __init__(self, host: str, model: str):
+    def __init__(self, host: Optional[str] = None, model: Optional[str] = None):
         """
         Constructor method to create a new connector object
         host -- endpoint string, localhost or a public connection goes with http://
         model -- for model selection, based on peference model: qwen, llama,...
         """
 
-        self.host = host
-        self.model = model
+        self.host = host if host is not None else os.getenv("OLLAMA_HOST_URL", "http://localhost:11434")
+        self.model = model if model is not None else os.getenv("OLLAMA_PREFER_MODEL", "gemma4")
         # the URL is listed in the official document
         self.api_url = f"{self.host}/api/chat"
         # log tweak
@@ -71,15 +74,7 @@ class OllamaConnector:
                 return {"error": "Connection to Ollama failed.", "detail": str(e)}
 
 if __name__ == "__main__":
-    # setup variable
-    host = os.getenv('HOST')
-    if host == None:
-        host = "http://localhost:11434"
-    model = os.getenv('OLLAMA_MODEL')
-    if model == None:
-        model = "gemma4"
-    
-    connector = OllamaConnector(host, model)
+    connector = OllamaConnector()
     # connector.toggle_log()
 
     mock_safe_payload = (
