@@ -42,8 +42,8 @@ class LexicalExtractor:
         elif keyword_match:
             if self.logger_indicate == 1:
                 print(f"[LOG] Found matched results: {keyword_match}")
-            intention = keyword_match.group(1).strip()
-            data = (keyword_match.group(2)).strip()
+            intention = (keyword_match.group(1) + " " + keyword_match.group(2)).strip()
+            data = (keyword_match.group(3)).strip()
             return {"intentions": intention, "data": data}
         else:
             if self.logger_indicate == 1:

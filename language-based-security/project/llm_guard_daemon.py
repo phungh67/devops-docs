@@ -68,20 +68,27 @@ class LLGuardDaemon:
     def process_input(self, raw_input: str) -> dict:
         """Detect, extract and sanitize user's input"""
 
+        threat_detected = False
+        threat_flags = []
+
         if words_matching_simple(raw_input) == 0:
-            return {"status": "BLOCKED", "reason": "Failed Stage 1: Naive string match."}
+            threat_detected = True
+            threat_flags.append("Stage 1: Known malicious phrase(s).")
 
         if not self.regex_filter.scan(raw_input):
-            return {"status": "BLOCKED", "reason": "Failed Stage 2: Obfuscation/Structural match."}
+            threat_detected = True
+            threat_flags.append("Stage 2: Obfuscation/Base64.")
+
 
         query_vector = vectorized_sentence(raw_input, self.word_index, self.vocabulary)
         similar_sentences = self.vector_db.find_similar_vectors(query_vector, num_results=2)
         highest_similarity = similar_sentences[0][1] if similar_sentences else 0.0
 
-        print(f"[INFO] Vector similarity detection Score: {highest_similarity:.4f}")
+        # print(f"[INFO] Vector similarity detection Score: {highest_similarity:.4f}")
 
         if highest_similarity >= self.DROP_SCORE:
-            return {"status": "BLOCKED", "reason": "Failed Stage 3: Semantic similarity to known attacks."}
+            threat_detected = True
+            threat_flags.append(f"Stage 3: Semantic match with {highest_similarity:.2f}")
         elif highest_similarity >= self.QUARANTINE_SCORE:
             print("[WARN] Payload quarantined. Applying stricter LLM guardrails...")
 
@@ -92,7 +99,8 @@ class LLGuardDaemon:
         safe_xml_data = self.frame_data(intent, data)
 
         return {
-            "status": "APPROVED",
+            "status": "SANITIZED" if threat_detected else "APPROVED",
+            "threat_flags": threat_flags,
             "safe_payload": safe_xml_data
         }
 
@@ -128,7 +136,7 @@ class LLGuardDaemon:
 
                 result = self.process_input(raw_data)
 
-                if result["status"] == "APPROVED":
+                if result["status"] in ["APPROVED", "SANITIZED"]:
                     if self.verbose_log:
                         print("[REQUEST OUT] Payload is sanitized and ready for Ollama.")
                     llm_data = self.ollama_connector.generate_chat(result["safe_payload"])

@@ -62,17 +62,23 @@ class LLMGuardClient():
                 with self.console.status("[bold cyan]Processing via LLM-Guard & LLM...", spinner="bouncingBar"):
                     result = self.send_to_daemon(raw_input)
 
-                if result.get("status") == "BLOCKED":
-                    self.console.print(f"\n[bold red] BLOCKED:[/bold red] {result.get('reason')}")
-                
-                elif result.get("status") == "ERROR":
-                    self.console.print(f"\n[bold red] SYSTEM ERROR:[/bold red] {result.get('reason')}")
-                
-                elif result.get("status") == "APPROVED":
+                status = result.get("status")
+
+                if status == "ERROR":
+                    self.console.print(f"\n[bold red]SYSTEM ERROR:[/bold red] {result.get('reason')}")
+                elif status == "APPROVED" or status == "SANITIZED":
+                    
+                    # If it was an attack that we successfully contained, brag about it!
+                    if status == "SANITIZED":
+                        flags = ", ".join(result.get("threat_flags", []))
+                        self.console.print(f"\n[bold yellow]THREAT DETECTED & NEUTRALIZED:[/bold yellow] {flags}")
+                        self.console.print("[dim green]The malicious commands were trapped in the data block. Processing utility request...[/dim green]\n")
+                    
                     raw_content = result.get("llm_response", "No content found.")
                     self.console.rule("[bold cyan]--- SECURE LLM RESPONSE ---")
                     self.console.print(Markdown(raw_content))
                     self.console.rule()
+
             except (KeyboardInterrupt, EOFError):
                 self.console.print("\n[bold red]Shutting down client...[/bold red]")
                 break
