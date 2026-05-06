@@ -29,13 +29,18 @@ class LLGuardDaemon:
 
         self.embedding_mode = False
 
+        # premade database, limited cases
         self.vocabulary = construct_vocabulary(sentences)
         self.word_index = construct_word_indexes(self.vocabulary)
         sentence_vectors = vectorized_input_database(sentences, self.word_index, self.vocabulary)
 
+        # construct vector database
         self.vector_db = VectorDatabase()
         for sentence, vector in sentence_vectors.items():
             self.vector_db.add_vector(sentence, vector)
+
+        # reinforcement for the matching database
+        self.embedding_vector_db = VectorDatabase()
 
         self.ollama_connector = OllamaConnector()
 
@@ -47,7 +52,16 @@ class LLGuardDaemon:
     def toggle_log(self):
         """Helper method to enable log"""
         self.verbose_log = 1
-    
+
+    def update_inner_vector_database(self, sentence: str):
+        sentences.append(sentence)
+        self.vocabulary = construct_vocabulary(sentences)
+        self.word_index = construct_word_indexes(self.vocabulary)
+        sentence_vectors = vectorized_input_database(sentences, self.word_index, self.vocabulary)
+
+        self.vector_db.clear()
+        for sentence, vector in sentence_vectors.items():
+            self.vector_db.add_vector(sentence, vector)
 
     def frame_data(self, intent: str, data: str) -> str:
         """Santitizes and wraps text extracted in XML tags."""
@@ -92,17 +106,15 @@ class LLGuardDaemon:
             threat_detected = True
             threat_flags.append(f"Stage 3: Semantic match with {highest_similarity:.2f}")
         elif highest_similarity >= self.QUARANTINE_SCORE:
-            print("[WARN] Payload quarantined. Applying stricter LLM guardrails...")
+            if self.verbose_log:
+                print("[WARN] Payload quarantined. Applying stricter LLM guardrails...")
+            embedding_sentence = 
 
         extracted = self.extractor.extract(raw_input)
         intent = extracted.get("intentions", "")
         data = extracted.get("data", None)
 
         safe_xml_data = self.frame_data(intent, data)
-
-        if threat_detected == True and threat_flags.count != 0 :
-            print("Process to embedding mode")
-
 
         return {
             "status": "SANITIZED" if threat_detected else "APPROVED",

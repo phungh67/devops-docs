@@ -12,7 +12,7 @@ class OllamaConnector:
     OLLAMA_HOST_URL = address where OLLAMA is running
     OLLAMA_PREFER_MODEL = model that is currently being used
     """
-    def __init__(self, host: Optional[str] = None, model: Optional[str] = None):
+    def __init__(self, host: Optional[str] = None, model: Optional[str] = None, embedding_model: Optional[str] = None):
         """
         Constructor method to create a new connector object
         host -- endpoint string, localhost or a public connection goes with http://
@@ -21,6 +21,7 @@ class OllamaConnector:
 
         self.host = host if host is not None else os.getenv("OLLAMA_HOST_URL", "http://localhost:11434")
         self.model = model if model is not None else os.getenv("OLLAMA_PREFER_MODEL", "gemma4")
+        self.embedding_model = embedding_model
         # the URL is listed in the official document
         self.api_url = f"{self.host}/api/chat"
         # log tweak
@@ -42,6 +43,25 @@ class OllamaConnector:
         Small helper to toggle log level
         """
         self.log = 1
+
+    def generate_embedded_vector(sentence: str):
+        """
+        Send the sentence to an embedding model to vectorized it, take the return as an array of float number.
+        """
+        payload = {
+            "model": self.embedding_mpdel,
+            "input": sentence
+        }
+
+        try:
+            headers = {"Content-Type": "application/json"}
+            response = requests.post(f"{self.host}/api/embed", json=payload, headers=headers)
+
+            return response.json()['embeddings'][0]
+        except requests.exceptions.RequestException as e:
+            if self.log:
+                print(f"[ERROR] Faliued to connect to Ollama API: {e}")
+                return {"error": "Connection to Ollama falied.", "detail": str(e)}
     
     def generate_chat(self, safe_payload: str) -> dict:
         """

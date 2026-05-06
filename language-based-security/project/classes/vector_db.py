@@ -9,6 +9,9 @@ class VectorDatabase:
     
     def __init__(self):
         self.vector_data = {}
+
+    def clear(self):
+        self.vector_data.clear()
     
     def add_vector(self, vector_id, vector):
        # add an element to the data store
