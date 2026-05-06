@@ -1,6 +1,7 @@
 import requests
 import json
 import os
+from typing import Optional
 from rich.console import Console
 from rich.markdown import Markdown
 
@@ -21,7 +22,7 @@ class OllamaConnector:
 
         self.host = host if host is not None else os.getenv("OLLAMA_HOST_URL", "http://localhost:11434")
         self.model = model if model is not None else os.getenv("OLLAMA_PREFER_MODEL", "gemma4")
-        self.embedding_model = embedding_model
+        self.embedding_model = embedding_model if embedding_model is not None else os.getenv("OLLAMA_EMBED_MODEL", "nomic-embed-text")
         # the URL is listed in the official document
         self.api_url = f"{self.host}/api/chat"
         # log tweak
@@ -44,18 +45,19 @@ class OllamaConnector:
         """
         self.log = 1
 
-    def generate_embedded_vector(sentence: str):
+    def generate_embedded_vector(self, sentence: str):
         """
         Send the sentence to an embedding model to vectorized it, take the return as an array of float number.
         """
         payload = {
-            "model": self.embedding_mpdel,
+            "model": self.embedding_model,
             "input": sentence
         }
 
         try:
             headers = {"Content-Type": "application/json"}
             response = requests.post(f"{self.host}/api/embed", json=payload, headers=headers)
+            response.raise_for_status()
 
             return response.json()['embeddings'][0]
         except requests.exceptions.RequestException as e:

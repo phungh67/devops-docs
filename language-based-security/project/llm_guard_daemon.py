@@ -108,7 +108,30 @@ class LLGuardDaemon:
         elif highest_similarity >= self.QUARANTINE_SCORE:
             if self.verbose_log:
                 print("[WARN] Payload quarantined. Applying stricter LLM guardrails...")
-            embedding_sentence = 
+
+            embedding_vector = self.ollama_connector.generate_embedded_vector(raw_input)
+
+            if isinstance(embedding_vector, list):
+                self.embedding_vector_db.add_vector(raw_input, embedding_vector)
+                if self.verbose_log:
+                    print("[LOG] Threat embedding successfully stored in dense database.")
+            else:
+                if self.verbose_log:
+                    print("[ERROR] Failed to generate embedding. Bypassing dense storage.")
+        
+        if self.embedding_mode == True:
+
+            embedding_query_vector = self.ollama_connector.generate_embedded_vector(raw_input)
+            if isinstance(embedding_query_vector, list):
+                similar_sentences_embedding = self.embedding_vector_db.find_similar_vectors(query_vector=embedding_query_vector, num_results=2)
+                highest_similarity_embedding = similar_sentences_embedding[0][1] if similar_sentences_embedding else 0.0
+
+                if highest_similarity >= self.DROP_SCORE:
+                    threat_detected = True
+                    threat_flags.append(f"Stage 4 (Optional): Semantic match with {highest_similarity_embedding:.2f}")
+            else:
+                if self.verbose_log:
+                    print("[ERROR] Failed to generate embedding for active defense check.")
 
         extracted = self.extractor.extract(raw_input)
         intent = extracted.get("intentions", "")
