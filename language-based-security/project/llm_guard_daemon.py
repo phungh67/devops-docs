@@ -27,6 +27,8 @@ class LLGuardDaemon:
         self.extractor = LexicalExtractor()
         self.regex_filter = RegexFilter()
 
+        self.embedding_mode = False
+
         self.vocabulary = construct_vocabulary(sentences)
         self.word_index = construct_word_indexes(self.vocabulary)
         sentence_vectors = vectorized_input_database(sentences, self.word_index, self.vocabulary)
@@ -97,6 +99,10 @@ class LLGuardDaemon:
         data = extracted.get("data", None)
 
         safe_xml_data = self.frame_data(intent, data)
+
+        if threat_detected == True and threat_flags.count != 0 :
+            print("Process to embedding mode")
+
 
         return {
             "status": "SANITIZED" if threat_detected else "APPROVED",
