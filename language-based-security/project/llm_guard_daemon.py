@@ -175,7 +175,7 @@ class LLGuardDaemon:
             playground = sandbox.Sandbox()
             playground.start()
 
-            exec_results = playground.execute_steps(steps, mode='all', sandbox=playground)
+            exec_results = sandbox.execute_steps(steps, mode='all', sandbox=playground)
             changed_files = playground.changed_files()
 
             playground.stop()
@@ -252,7 +252,7 @@ class LLGuardDaemon:
                         processed_dict = self.process_input(raw_data)
 
                         # appended the system prompt to this dictionary
-                        processed_dict["safe_payload"] += f"\n\n{sandbox.SYSTEM_PROMT}"
+                        processed_dict["safe_payload"] += f"\n\n{sandbox.SYSTEM_PROMPT}"
 
                         execution_prompt = self.handler_prompt_result(processed_dict)
 
