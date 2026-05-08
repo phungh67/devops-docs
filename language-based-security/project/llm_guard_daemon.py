@@ -239,12 +239,16 @@ class LLGuardDaemon:
                 if raw_data.strip().lower().startswith("/execution") and self.is_execution == True:
                     raw_data = raw_data.strip()[10:].strip()
 
-                    # branching logic here: if currently sanitized and stored
-                    if self.sanitinzed_prompt:
-                        llm_response_str = self.sanitinzed_prompt.get("last_llm_response")
-                        execution_result = self.sandbox_execution(llm_response_str)
+                    # check if the /execution just came alone
+                    if not raw_data:
+                        # branching logic here: if currently sanitized and stored
+                        if self.sanitinzed_prompt and "last_llm_response" in self.sanitinzed_prompt:
+                            llm_response_str = self.sanitinzed_prompt.get("last_llm_response")
+                            execution_result = self.sandbox_execution(llm_response_str)
 
-                        conn.sendall(json.dumps({"status": "EXECUTED", "llm_response": execution_result}).encode('utf-8'))
+                            conn.sendall(json.dumps({"status": "EXECUTED", "llm_response": execution_result}).encode('utf-8'))
+                        else:
+                            conn.sendall(json.dumps({"status": "ERROR", "llm_response": "No previous chat history to execute."}).encode('utf-8'))
                         conn.close()
                         continue
                     # else /execution command went with data
