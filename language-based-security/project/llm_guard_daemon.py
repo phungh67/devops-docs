@@ -170,6 +170,8 @@ class LLGuardDaemon:
         # native parser
         steps = sandbox.parse_steps(llm_response)
 
+        final_output = ""
+
         # if not null
         if steps:
             playground = sandbox.Sandbox()
