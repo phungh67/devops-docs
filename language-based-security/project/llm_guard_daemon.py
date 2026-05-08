@@ -16,6 +16,7 @@ from modules.vector_matching import (
     vectorized_sentence,
     sentences
 )
+import modules.sandboxing as sandbox
 
 SOCKET_PATH = "/tmp/llm_guard_client.sock"
 
@@ -28,6 +29,7 @@ class LLGuardDaemon:
         self.regex_filter = RegexFilter()
 
         self.embedding_mode = False
+        self.is_execution = False
 
         # premade database, limited cases
         self.vocabulary = construct_vocabulary(sentences)
@@ -52,6 +54,10 @@ class LLGuardDaemon:
     def toggle_log(self):
         """Helper method to enable log"""
         self.verbose_log = 1
+
+    def toggle_sandbox_execution(self):
+        """Helper method to enable sandboxing execution"""
+        self.is_execution = True
 
     def update_inner_vector_database(self, sentence: str):
         sentences.append(sentence)
@@ -86,6 +92,8 @@ class LLGuardDaemon:
 
         threat_detected = False
         threat_flags = []
+
+        # indicate the execution status
 
         if words_matching_simple(raw_input) == 0:
             threat_detected = True
