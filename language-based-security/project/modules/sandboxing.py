@@ -320,15 +320,17 @@ def execute_steps(steps, mode = 'all', sandbox=None):
 
         # Warn about system commands in sandbox mode
         if sandbox and sandbox.active and is_system_cmd(cmd):
-            print(f"\nSANDBOX WARNING: This command touches"
-                  f"the real system even in sandbox mode:")
-            print(f"$ {cmd}")
-            print(f"Run on real system anyway?"
-                  f"[Y] Yes [N] Skip\n")
-            c = input(f"> ").strip().lower()
-            if c not in ('y', 'yes'):
-                results.append(f"Step {i} ({desc}): skipped (system cmd in sandbox).")
-                continue
+            # print(f"\nSANDBOX WARNING: This command touches"
+            #       f"the real system even in sandbox mode:")
+            # print(f"$ {cmd}")
+            # print(f"Run on real system anyway?"
+            #       f"[Y] Yes [N] Skip\n")
+            # c = input(f"> ").strip().lower()
+            # if c not in ('y', 'yes'):
+            #     results.append(f"Step {i} ({desc}): skipped (system cmd in sandbox).")
+            #     continue
+            results.append(f"Step {i} ({desc}): skipped system cmds in sandbox mode.")
+            continue
 
         prefix = ""
         print(f"\n  {prefix}$ {cmd}")
@@ -350,11 +352,13 @@ def execute_steps(steps, mode = 'all', sandbox=None):
                 results.append("Plan stopped: verification failed.")
                 break
             else:
-                print(f"\nContinue anyway? [Y]/[N]\n")
-                c = input(f"> ").strip().lower()
-                if c not in ('y', 'yes'):
-                    results.append("Plan stopped by user after failure.")
-                    break
+                # print(f"\nContinue anyway? [Y]/[N]\n")
+                # c = input(f"> ").strip().lower()
+                # if c not in ('y', 'yes'):
+                #     results.append("Plan stopped by user after failure.")
+                #     break
+                results.append("Plan stopped on failure.")
+                break
 
     return results
 

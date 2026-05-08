@@ -241,13 +241,27 @@ class LLGuardDaemon:
 
                     # branching logic here: if currently sanitized and stored
                     if self.sanitinzed_prompt:
-                        execution_result = self.sandbox_execution(self.sanitinzed_prompt["last_llm_response"])
+                        llm_response_str = self.sanitinzed_prompt.get("last_llm_response")
+                        execution_result = self.sandbox_execution(llm_response_str)
+
+                        conn.sendall(json.dumps({"status": "EXECUTED", "llm_response": execution_result}).encode('utf-8'))
+                        conn.close()
+                        continue
                     # else /execution command went with data
                     else:
-                        execution_prompt = self.handler_prompt_result(self.process_input(raw_data))
-                        execution_result = self.sandbox_execution(execution_prompt)
-                        conn.sendall(json.dumps(execution_result).encode('utf-8'))
+                        processed_dict = self.process_input(raw_data)
 
+                        # appended the system prompt to this dictionary
+                        processed_dict["safe_payload"] += f"\n\n{sandbox.SYSTEM_PROMT}"
+
+                        execution_prompt = self.handler_prompt_result(processed_dict)
+
+                        llm_response_str = execution_prompt.get("llm_response", "")
+                        execution_result = self.sandbox_execution(llm_response_str)
+
+                        conn.sendall(json.dumps({"status": "EXECUTED", "llm_response": execution_result}).encode('utf-8'))
+                        conn.close()
+                        continue
 
                 result = self.process_input(raw_data)
 
