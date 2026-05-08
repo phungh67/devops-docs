@@ -1,5 +1,6 @@
 import socket
 import json
+import readline
 
 from rich.console import Console
 from rich.markdown import Markdown
