@@ -28,6 +28,7 @@ class LLGuardDaemon:
         self.extractor = LexicalExtractor()
         self.regex_filter = RegexFilter()
 
+        # configuration toggle
         self.embedding_mode = False
         self.is_execution = False
 
@@ -40,6 +41,9 @@ class LLGuardDaemon:
         self.vector_db = VectorDatabase()
         for sentence, vector in sentence_vectors.items():
             self.vector_db.add_vector(sentence, vector)
+
+        # output modular
+        self.sanitinzed_prompt = {}
 
         # reinforcement for the matching database
         self.embedding_vector_db = VectorDatabase()
@@ -147,11 +151,59 @@ class LLGuardDaemon:
 
         safe_xml_data = self.frame_data(intent, data)
 
-        return {
+        self.sanitinzed_prompt = {
             "status": "SANITIZED" if threat_detected else "APPROVED",
             "threat_flags": threat_flags,
             "safe_payload": safe_xml_data
         }
+
+        return self.sanitinzed_prompt
+    
+    def sandbox_execution(self, llm_response: str) -> str:
+        """
+        Method to execute step by step with pre generated response from earlier stages
+        Keyword arguments:
+        llm_response -- string representation of the response
+        Return -- unknow yet
+        """
+
+        # native parser
+        steps = sandbox.parse_steps(llm_response)
+
+        # if not null
+        if steps:
+            playground = sandbox.Sandbox()
+            playground.start()
+
+            exec_results = playground.execute_steps(steps, mode='all', sandbox=playground)
+            changed_files = playground.changed_files()
+
+            playground.stop()
+
+            final_output = "**HAL Execution Plan:**\n```text\n"
+            final_output += "\n".join(exec_results)
+            if changed_files:
+                final_output += f"\n\n[SANDBOX] {len(changed_files)} files modified in memory."
+                final_output += "\n```"
+                                
+        return final_output
+    
+    def handler_prompt_result(self, prompt_result: dict) -> dict:
+        """
+        Helper function for DRY
+        """
+        if prompt_result["status"] in ["APPROVED", "SANITIZED"]:
+            if self.verbose_log:
+                print("[REQUEST OUT] Payload is sanitized and ready for Ollama.")
+                llm_data = self.ollama_connector.generate_chat(prompt_result["safe_payload"])
+                if "error" in llm_data:
+                    prompt_result = {"status": "ERROR", "reason": llm_data["error"]}
+                else:
+                    prompt_result["llm_response"] = llm_data.get("message", {}).get("content", "")
+                    self.sanitinzed_prompt["last_llm_response"] = prompt_result["llm_response"]
+                    del prompt_result["safe_payload"]
+        return prompt_result
+                
 
     def start(self):
         """Start method of the class"""
@@ -183,18 +235,23 @@ class LLGuardDaemon:
                     print("-" * 60)
                     print(f"[REQUEST IN] {raw_data[:50]}...")
 
+                # handle execution command
+                if raw_data.strip().lower().startswith("/execution") and self.is_execution == True:
+                    raw_data = raw_data.strip()[10:].strip()
+
+                    # branching logic here: if currently sanitized and stored
+                    if self.sanitinzed_prompt:
+                        execution_result = self.sandbox_execution(self.sanitinzed_prompt["last_llm_response"])
+                    # else /execution command went with data
+                    else:
+                        execution_prompt = self.handler_prompt_result(self.process_input(raw_data))
+                        execution_result = self.sandbox_execution(execution_prompt)
+                        conn.sendall(json.dumps(execution_result).encode('utf-8'))
+
+
                 result = self.process_input(raw_data)
 
-                if result["status"] in ["APPROVED", "SANITIZED"]:
-                    if self.verbose_log:
-                        print("[REQUEST OUT] Payload is sanitized and ready for Ollama.")
-                    llm_data = self.ollama_connector.generate_chat(result["safe_payload"])
-
-                    if "error" in llm_data:
-                        result = {"status": "ERROR", "reason": llm_data["error"]}
-                    else:
-                        result["llm_response"] = llm_data.get("message", {}).get("content", "")
-                        del result["safe_payload"]
+                self.handler_prompt_result(result)
 
                 conn.sendall(json.dumps(result).encode('utf-8'))
                 conn.close()
