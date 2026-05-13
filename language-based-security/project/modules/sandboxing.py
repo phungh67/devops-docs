@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+#credit goes to Emi
 
 import subprocess
 import tempfile
@@ -294,6 +295,8 @@ def show_plan(steps, sandbox_active):
 
 def execute_steps(steps, mode = 'all', sandbox=None):
     results = []
+    skipped_sys_cmd = False
+
     for i, step in enumerate(steps, 1):
         cmd       = step.get("command")
         desc      = step.get("description", "")
@@ -329,7 +332,8 @@ def execute_steps(steps, mode = 'all', sandbox=None):
             # if c not in ('y', 'yes'):
             #     results.append(f"Step {i} ({desc}): skipped (system cmd in sandbox).")
             #     continue
-            results.append(f"Step {i} ({desc}): skipped system cmds in sandbox mode.")
+            results.append(f"Step {i} ({desc}): [SKIPPED] System command.")
+            skipped_sys_cmd = True
             continue
 
         prefix = ""
@@ -348,8 +352,11 @@ def execute_steps(steps, mode = 'all', sandbox=None):
             results.append(f"Step {i} ({desc}): FAILED\n{err[:400]}")
 
             if is_verify:
-                print(f"\nVerification failed. stopping plan.")
-                results.append("Plan stopped: verification failed.")
+                if skipped_sys_cmd:
+                    results.append("Plan stopped: Verification failed (Expected: System commands were safely skipped in sandbox).")
+                else:
+                    print(f"\nVerification failed. stopping plan.")
+                    results.append("Plan stopped: verification failed.")
                 break
             else:
                 # print(f"\nContinue anyway? [Y]/[N]\n")

@@ -48,7 +48,7 @@ def run_test():
             "name": "Test 4: System Command Guardrail (Auto-Skip)",
             "payload": "/execution Install the nmap package using apt-get.",
             "expected_status": "EXECUTED",
-            "must_contain": "skipped system cmds in sandbox mode"
+            "must_contain": "[SKIPPED] System command."
         }
     ]
 
