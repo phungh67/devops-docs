@@ -58,13 +58,13 @@ class LLGuardDaemon:
         self.DROP_SCORE = 0.63
         self.QUARANTINE_SCORE = 0.45
 
-    def toggle_log(self):
+    def toggle_log(self, value: bool):
         """Helper method to enable log"""
-        self.verbose_log = 1
+        self.verbose_log = value
 
-    def toggle_sandbox_execution(self):
+    def toggle_sandbox_execution(self, value: bool):
         """Helper method to enable sandboxing execution"""
-        self.is_execution = True
+        self.is_execution = value
 
     def update_inner_vector_database(self, sentence: str):
         sentences.append(sentence)
@@ -251,6 +251,20 @@ class LLGuardDaemon:
                 if self.verbose_log:
                     print("-" * 60)
                     print(f"[REQUEST IN] {raw_data[:50]}...")
+
+                if raw_data.strip().lower().startswith("/config"):
+                    if self.verbose_log:
+                        print(f"[DAEMON] Applying config: {raw_data}")
+
+                    if "sandbox=True" in raw_data:
+                        self.toggle_sandbox_execution(True)
+                    if "embed=True" in raw_data:
+                        self.embedding_mode = True
+                    
+                    conn.sendall(json.dumps({"status": "SYSTEM", "llm_response": "Config applied."}).encode('utf-8'))
+                    conn.close()
+                    continue
+
 
                 # handle /commit command (apply changes to plan)
                 if raw_data.strip().lower() == "/commit":
