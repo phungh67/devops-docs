@@ -5,6 +5,7 @@ import readline
 from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
+from rich.prompt import Confirm
 
 SOCKET_PATH = "/tmp/llm_guard_client.sock"
 
@@ -30,8 +31,26 @@ class LLMGuardClient():
         finally:
             client.close()
 
+    def show_menu(self):
+        """Anchor method to start and for better navigation purpose for this client.
+        """
+        self.console.print("\n[bold cyan]--- System Configuration ---[/bold cyan]")
+        
+        sandbox_state = Confirm.ask("Enable Sandbox Execution (Agentic Mode)?", default=True)
+        embed_state = Confirm.ask("Enable Dense Embedding Defense (Deep Semantic - embedding vectorized for future guarding)?", default=False)
+
+        config_payload = f"/config sandbox={sandbox_state} embed={embed_state}"
+
+        with self.console.status("[bold cyan]Applying configuration...", spinner="dots"):
+            result = self.send_to_daemon(config_payload)
+
+        if result.get("status") == "SYSTEM":
+            self.console.print("[bold green]✔ Configuration successfully synchronized with Daemon.[/bold green]\n")
+        else:
+            self.console.print("[bold red]✖ Failed to synchronize configuration.[/bold red]\n")
+
     def run(self):
-        self.console.clear()
+        # self.console.clear()
         welcome_text = (
             "[bold green] LLM Guard - Security Proxy Terminal for LLM Model [/bold green]\n"
             "Type [bold cyan]/exit[/bold cyan] to quit.\n"
@@ -50,6 +69,11 @@ class LLMGuardClient():
                     if line.strip().lower() == '/exit':
                         self.console.print("\n[bold red]Shutting down client...[/bold red]")
                         return
+                    if line.strip().lower() == '/main':
+                        self.show_menu()
+                        user_lines = []
+                        break
+
                     if line.strip().lower() == '/send':
                         break
                         

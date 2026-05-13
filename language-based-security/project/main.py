@@ -8,8 +8,8 @@ from llm_guard_client import LLMGuardClient
 def run_server():
     """Background daemon to handle prompt and sends to Ollama"""
     server = LLGuardDaemon()
-    server.toggle_sandbox_execution()
-    server.toggle_log()
+    server.toggle_sandbox_execution(True)
+    server.toggle_log(True)
     server.start()
 
 def run_client():
