@@ -189,7 +189,7 @@ class LLGuardDaemon:
             final_output += "\n".join(exec_results)
             if changed_files:
                 final_output += f"\n\n[SANDBOX] {len(changed_files)} files modified in memory."
-                final_output += "\n```"
+            final_output += "\n```"
                                 
         return final_output
     
@@ -213,7 +213,7 @@ class LLGuardDaemon:
                         else:
                             llm_response = "Hello, what's a nice day, how can I help you?"
 
-                    prompt_result["llm_response"] = llm_data.get("message", {}).get("content", "")
+                    prompt_result["llm_response"] = llm_response
                     self.sanitinzed_prompt["last_llm_response"] = prompt_result["llm_response"]
                     
                     # only delete (to free "space") if the result was safe
