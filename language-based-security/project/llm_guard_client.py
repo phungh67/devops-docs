@@ -36,6 +36,7 @@ class LLMGuardClient():
             "[bold green] LLM Guard - Security Proxy Terminal for LLM Model [/bold green]\n"
             "Type [bold cyan]/exit[/bold cyan] to quit.\n"
             "To submit a multi-line prompt, type [bold cyan]/send[/bold cyan] on a new line when finished."
+            "To toggle the sandbox-mode, allowing commands to be executed in a safe, isolated environment first, using [bold cyan]/sandbox[/bold cyan]."
         )
         self.console.print(Panel.fit(welcome_text, border_style="green"))
 

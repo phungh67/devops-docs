@@ -45,6 +45,9 @@ class LLGuardDaemon:
         # output modular
         self.sanitinzed_prompt = {}
 
+        # store the pending (safe) actions
+        self.pending_execution_steps = []
+
         # reinforcement for the matching database
         self.embedding_vector_db = VectorDatabase()
 
@@ -201,9 +204,21 @@ class LLGuardDaemon:
                 if "error" in llm_data:
                     prompt_result = {"status": "ERROR", "reason": llm_data["error"]}
                 else:
+                    # bugs: neutralized prompt did not generate a response
+                    llm_response = llm_data.get("message", {}).get("content", "")
+                    if not llm_response.strip():
+                        # check the status, if blank because of guard
+                        if prompt_result["status"] == "SANITIZED":
+                            llm_response = "> The system detected a malcious payload in previous prompt, all threats were neutralized, I'm ready for the next command. *"
+                        else:
+                            llm_response = "Hello, what's a nice day, how can I help you?"
+
                     prompt_result["llm_response"] = llm_data.get("message", {}).get("content", "")
                     self.sanitinzed_prompt["last_llm_response"] = prompt_result["llm_response"]
-                    del prompt_result["safe_payload"]
+                    
+                    # only delete (to free "space") if the result was safe
+                    if "safe_payload" in prompt_result:
+                        del prompt_result["safe_payload"]
         return prompt_result
                 
 
@@ -237,6 +252,25 @@ class LLGuardDaemon:
                     print("-" * 60)
                     print(f"[REQUEST IN] {raw_data[:50]}...")
 
+                # handle /commit command (apply changes to plan)
+                if raw_data.strip().lower() == "/commit":
+                    if self.pending_execution_steps:
+                        # check if there is any steps in the state machine?
+                        if self.verbose_log:
+                            print("[DAEMON] Escalating execution to the real system...")
+
+                        real_results = sandbox.execute_steps(self.pending_execution_steps, mode='all', sandbox=None)
+                        self.pending_execution_steps = [] # upon succesfully executed, clean it
+
+                        report = "**Real System Update:**\n```text\n" + "\n".join(real_results) + "\n```"
+                        conn.sendall(json.dumps({"status": "EXECUTED", "llm_response": report}).encode('utf-8'))
+
+                # handle discard command (got plan but chose to not go with it)
+                if raw_data.strip().lower() == "/discard":
+                    self.pending_execution_steps = []
+                    conn.sendall(json.dumps({"status": "EXECUTED", "llm_response": "Execution plan discarded. Ready for next command."}).encode('utf-8'))
+                    conn.close()
+                    continue
                 # handle execution command
                 if raw_data.strip().lower().startswith("/execution") and self.is_execution == True:
                     raw_data = raw_data.strip()[10:].strip()
