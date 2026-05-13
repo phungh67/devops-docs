@@ -68,9 +68,8 @@ class LLMGuardClient():
 
                 if status == "ERROR":
                     self.console.print(f"\n[bold red]SYSTEM ERROR:[/bold red] {result.get('reason')}")
-                elif status == "APPROVED" or status == "SANITIZED":
+                elif status in ["APPROVED", "SANITIZED", "EXECUTED"]:
                     
-                    # If it was an attack that we successfully contained, brag about it!
                     if status == "SANITIZED":
                         flags = ", ".join(result.get("threat_flags", []))
                         self.console.print(f"\n[bold yellow]THREAT DETECTED & NEUTRALIZED:[/bold yellow] {flags}")
