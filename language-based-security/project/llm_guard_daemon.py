@@ -154,6 +154,8 @@ class LLGuardDaemon:
 
         safe_xml_data = self.frame_data(intent, data)
 
+        print(f"[DEBUG] The framed data: {safe_xml_data}")
+
         self.sanitinzed_prompt = {
             "status": "SANITIZED" if threat_detected else "APPROVED",
             "threat_flags": threat_flags,
