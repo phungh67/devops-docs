@@ -70,6 +70,13 @@ Rules:
 - Prefer apt and standard Unix tools. Avoid sudo unless essential.
 - After results: brief summary + next steps. Be concise."""
 
+# predefine of system commands
+SYSTEM_CMDS = [
+    'apt', 'apt-get', 'dpkg', 'snap', 'flatpak',
+    'pacman', 'yay', 'paru', 'dnf', 'yum', 'zypper',
+    'apk'
+]
+
 #sandbox
 class Sandbox:
     def __init__(self):
@@ -248,8 +255,18 @@ GUI_APPS = [
 SYSTEM_CMDS = ['apt', 'apt-get', 'dpkg', 'snap', 'flatpak']
 
 def is_system_cmd(cmd):
-    first = cmd.strip().split()[0] if cmd.strip() else ''
-    return first in SYSTEM_CMDS or cmd.strip().startswith('sudo ')
+    cmd_str = cmd.strip().lower()
+
+    if 'sudo ' in cmd_str or 'su ' in cmd_str:
+        return True
+
+    sub_cmds = re.split(r'&&|\|\||;', cmd_str)
+    for sub in sub_cmds:
+        parts = sub.strip().split()
+        if parts and parts[0] in SYSTEM_CMDS:
+            return True
+
+    return False
 
 def is_gui_app(cmd):
     return any(app in cmd.lower() for app in GUI_APPS)
@@ -347,6 +364,11 @@ def execute_steps(steps, mode = 'all', sandbox=None):
             results.append(f"Step {i} ({desc}): OK\n{out[:400]}")
         else:
             print(f"Failed (exit {code})")
+            if sandbox and sandbox.active and skipped_sys_cmd:
+                print(f"  -> Auto-skipped failure (expected missing dependency in sandbox).")
+                results.append(f"Step {i} ({desc}): [AUTO-SKIPPED] Failed (Expected due to skipped system command).")
+                continue
+
             if err.strip():
                 print(f"{err.strip()[:300]}")
             results.append(f"Step {i} ({desc}): FAILED\n{err[:400]}")

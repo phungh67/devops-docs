@@ -53,6 +53,13 @@ class LLGuardDaemon:
 
         # reinforcement for the matching database
         self.embedding_vector_db = VectorDatabase()
+        if self.verbose_log:
+            print("[DAEMON] Initializing Dense Embeddings (This may take a moment)...")
+            
+        for sentence in self.threat_db.semantic_sentences:
+            dense_vector = self.ollama_connector.generate_embedded_vector(sentence)
+            if isinstance(dense_vector, list):
+                self.embedding_vector_db.add_vector(sentence, dense_vector)
 
         self.ollama_connector = OllamaConnector()
 
@@ -68,16 +75,6 @@ class LLGuardDaemon:
     def toggle_sandbox_execution(self, value: bool):
         """Helper method to enable sandboxing execution"""
         self.is_execution = value
-
-    def update_inner_vector_database(self, sentence: str):
-        sentences.append(sentence)
-        self.vocabulary = construct_vocabulary(sentences)
-        self.word_index = construct_word_indexes(self.vocabulary)
-        sentence_vectors = vectorized_input_database(sentences, self.word_index, self.vocabulary)
-
-        self.vector_db.clear()
-        for sentence, vector in sentence_vectors.items():
-            self.vector_db.add_vector(sentence, vector)
 
     def frame_data(self, intent: str, data: str) -> str:
         """Santitizes and wraps text extracted in XML tags."""
@@ -144,7 +141,7 @@ class LLGuardDaemon:
                 similar_sentences_embedding = self.embedding_vector_db.find_similar_vectors(query_vector=embedding_query_vector, num_results=2)
                 highest_similarity_embedding = similar_sentences_embedding[0][1] if similar_sentences_embedding else 0.0
 
-                if highest_similarity >= self.DROP_SCORE:
+                if highest_similarity_embedding >= self.DROP_SCORE:
                     threat_detected = True
                     threat_flags.append(f"Stage 4 (Optional): Semantic match with {highest_similarity_embedding:.2f}")
             else:
@@ -167,7 +164,7 @@ class LLGuardDaemon:
 
         return self.sanitinzed_prompt
     
-    def sandbox_execution(self, llm_response: str) -> str:
+    def sandbox_execution(self, llm_response: str) -> tuple:
         """
         Method to execute step by step with pre generated response from earlier stages
         Keyword arguments:
@@ -195,8 +192,10 @@ class LLGuardDaemon:
             if changed_files:
                 final_output += f"\n\n[SANDBOX] {len(changed_files)} files modified in memory."
             final_output += "\n```"
+
+            final_output += "\n\n> **ACTION REQUIRED:** Type `/commit` to apply these changes to your real system, or `/discard` to abort."
                                 
-        return final_output
+        return final_output, steps
     
     def handler_prompt_result(self, prompt_result: dict) -> dict:
         """
@@ -291,7 +290,7 @@ class LLGuardDaemon:
                     conn.close()
                     continue
                 # handle execution command
-                if raw_data.strip().lower().startswith("/execution") and self.is_execution == True:
+                if raw_data.strip().lower().startswith("/execute") and self.is_execution == True:
                     raw_data = raw_data.strip()[10:].strip()
 
                     # check if the data only contain /execute tag

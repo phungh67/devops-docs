@@ -24,8 +24,8 @@ if __name__ == "__main__":
 
     try:
         run_client()
-    except KeyboardInterrupt:
-        pass
+    except Exception as e:
+        print(f"Error: {e}")
     finally:
         print("\n[SYSTEM] Terminating LLM Guard Daemon...")
         daemon_process.terminate()
