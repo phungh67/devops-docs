@@ -54,10 +54,15 @@ class LLMGuardClient():
         welcome_text = (
             "[bold green] LLM Guard - Security Proxy Terminal for LLM Model [/bold green]\n"
             "Type [bold cyan]/exit[/bold cyan] to quit.\n"
-            "To submit a multi-line prompt, type [bold cyan]/send[/bold cyan] on a new line when finished."
-            "To toggle the sandbox-mode, allowing commands to be executed in a safe, isolated environment first, using [bold cyan]/sandbox[/bold cyan]."
+            "Type [bold cyan]/menu[/bold cyan] to configure system settings.\n"
+            "To submit a multi-line prompt, type [bold cyan]/send[/bold cyan] on a new line when finished.\n"
+            "\n[bold yellow]Agentic Execution Commands:[/bold yellow]\n"
+            "  [bold cyan]/execute <prompt>[/bold cyan] - Run a new command in the sandbox.\n"
+            "  [bold cyan]/execute[/bold cyan]          - Run the last generated plan in the sandbox.\n"
+            "  [bold cyan]/commit[/bold cyan]           - Apply the pending sandbox changes to your real system.\n"
+            "  [bold cyan]/discard[/bold cyan]          - Discard the pending sandbox changes.\n"
         )
-        self.console.print(Panel.fit(welcome_text, border_style="green"))
+        self.console.print(Panel.fit(welcome_text, title="System Ready", border_style="green"))
 
         while True:
             try:
@@ -75,6 +80,12 @@ class LLMGuardClient():
                         break
 
                     if line.strip().lower() == '/send':
+                        break
+
+                    if line.strip().lower() == '/commit':
+                        break
+
+                    if line.strip().lower() == '/execute':
                         break
                         
                     user_lines.append(line)
@@ -101,7 +112,7 @@ class LLMGuardClient():
                     
                     raw_content = result.get("llm_response", "No content found.")
                     self.console.rule("[bold cyan]--- SECURE LLM RESPONSE ---")
-                    self.console.print(Markdown(raw_content))
+                    self.console.print(raw_content)
                     self.console.rule()
 
             except (KeyboardInterrupt, EOFError):

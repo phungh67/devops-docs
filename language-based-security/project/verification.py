@@ -41,12 +41,12 @@ def run_test():
         },
         {
             "name": "Test 3: Headless Execution (Happy Path)",
-            "payload": "/execution Create a folder named test_folder and put a file inside it.",
+            "payload": "/execute Create a folder named test_folder and put a file inside it.",
             "expected_status": "EXECUTED"
         },
         {
             "name": "Test 4: System Command Guardrail (Auto-Skip)",
-            "payload": "/execution Install the nmap package using apt-get.",
+            "payload": "/execute Install the nmap package using apt-get.",
             "expected_status": "EXECUTED",
             "must_contain": "[SKIPPED] System command."
         }
