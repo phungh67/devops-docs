@@ -8,13 +8,14 @@ from classes.regex_filter import RegexFilter
 from classes.vector_db import VectorDatabase
 from classes.ollama_connector import OllamaConnector
 
+from db.basic_db import ThreatDatabase
+
 from modules.input_guard import words_matching_simple
 from modules.vector_matching import (
     construct_vocabulary,
     construct_word_indexes,
     vectorized_input_database,
-    vectorized_sentence,
-    sentences
+    vectorized_sentence
 )
 import modules.sandboxing as sandbox
 
@@ -25,6 +26,8 @@ class LLGuardDaemon:
     Class definition for the LLM (Prompt Injection) Guard Daemon
     """
     def __init__(self):
+        self.threat_db = ThreatDatabase()
+
         self.extractor = LexicalExtractor()
         self.regex_filter = RegexFilter()
 
@@ -33,9 +36,9 @@ class LLGuardDaemon:
         self.is_execution = False
 
         # premade database, limited cases
-        self.vocabulary = construct_vocabulary(sentences)
+        self.vocabulary = construct_vocabulary(self.threat_db.semantic_sentences)
         self.word_index = construct_word_indexes(self.vocabulary)
-        sentence_vectors = vectorized_input_database(sentences, self.word_index, self.vocabulary)
+        sentence_vectors = vectorized_input_database(self.threat_db.semantic_sentences, self.word_index, self.vocabulary)
 
         # construct vector database
         self.vector_db = VectorDatabase()
@@ -102,7 +105,7 @@ class LLGuardDaemon:
 
         # indicate the execution status
 
-        if words_matching_simple(raw_input) == 0:
+        if words_matching_simple(raw_input, self.threat_db.static_strings) == 0:
             threat_detected = True
             threat_flags.append("Stage 1: Known malicious phrase(s).")
 

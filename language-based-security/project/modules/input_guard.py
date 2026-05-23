@@ -1,18 +1,5 @@
-# global
-malicious_phrases = [
-    "ignore previous",
-    "disregard previous",
-    "forget all instructions",
-    "system prompt",
-    "developer mode",
-    "you are now",
-    "print your instructions",
-    "bypass filters",
-    "do not filter",
-]
-
 # optimistic filter
-def words_matching_simple(prompt: str):
+def words_matching_simple(prompt: str, malicious_phrases: list) -> int:
     # first layer of guarding
     """This is the first guardrail, only tries to match a naive way, explicitly drop
     any visible malicious intention
