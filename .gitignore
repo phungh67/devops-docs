@@ -24,3 +24,5 @@ language-based-security/lab/*/sandbox/*
 language-based-security/lab/*/__pycache__/*
 
 *.pyc
+
+ethics-hacking-pentesting/wireguard.conf
