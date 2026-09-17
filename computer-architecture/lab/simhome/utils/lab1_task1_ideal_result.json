@@ -1,0 +1,29 @@
+{
+  "qsort": {
+    "Instruction Count": 41903758,
+    "Execution Time in cycles": 636481027,
+    "CPI_base": 15.1891,
+    "MPI I-L1": 0.05963,
+    "MPI D-L1": 0.03805,
+    "CPI_0": 15.09142,
+    "SP_ideal": 1.0064725519533617
+  },
+  "gsm-untoast": {
+    "Instruction Count": 11706482,
+    "Execution Time in cycles": 39543570,
+    "CPI_base": 3.3779,
+    "MPI I-L1": 0.00800,
+    "MPI D-L1": 0.00075,
+    "CPI_0": 3.36915,
+    "SP_ideal": 1.0025970942225784
+  },
+  "jpeg-cjpeg": {
+    "Instruction Count": 27273610,
+    "Execution Time in cycles": 163132127,
+    "CPI_base": 5.9813,
+    "MPI I-L1": 0.01491,
+    "MPI D-L1": 0.01065,
+    "CPI_0": 5.95574,
+    "SP_ideal": 1.0042916581314834
+  }
+}
