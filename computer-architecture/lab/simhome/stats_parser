@@ -1,0 +1,26 @@
+DIR=$1
+CFG=$2
+benchspecs=( dijkstra qsort stringsearch-cabce gsm-untoast jpeg-cjpeg )
+
+echo "DIR,CFG,BENCHMARK,sim_num_insn,sim_cycle,sim_CPI,mpi_il1,mpi_dl1"
+for BENCHMARK in "${benchspecs[@]}"
+do
+
+    sim_num_insn=`grep "sim_num_insn" configs/$DIR/Stats_"$CFG"_"$BENCHMARK".txt | awk -F' ' '{print $2}'`
+    sim_cycle=`grep "sim_cycle" configs/$DIR/Stats_"$CFG"_"$BENCHMARK".txt | awk -F' ' '{print $2}'`
+    sim_CPI=`grep "sim_CPI" configs/$DIR/Stats_"$CFG"_"$BENCHMARK".txt | awk -F' ' '{print $2}'`
+    il1_misses=`grep "il1.misses" configs/$DIR/Stats_"$CFG"_"$BENCHMARK".txt | awk -F' ' '{print $2}'`
+    dl1_misses=`grep "dl1.misses" configs/$DIR/Stats_"$CFG"_"$BENCHMARK".txt | awk -F' ' '{print $2}'`
+
+    if [ -z "$il1_misses" ]
+    then
+        mpi_il1=0
+        mpi_dl1=0
+    else 
+        mpi_il1=$(awk "BEGIN {printf \"%.5f\",${il1_misses}/${sim_num_insn}}")
+        mpi_dl1=$(awk "BEGIN {printf \"%.5f\",${dl1_misses}/${sim_num_insn}}")
+    fi
+
+    echo "$DIR,$CFG,$BENCHMARK,$sim_num_insn,$sim_cycle,$sim_CPI,${mpi_il1/,/.},${mpi_dl1/,/.}"
+
+done
