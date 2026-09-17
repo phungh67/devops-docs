@@ -1,0 +1,112 @@
+sim-profile: SimpleScalar/PISA Tool Set version 3.0 of August, 2003.
+Copyright (c) 1994-2003 by Todd M. Austin, Ph.D. and SimpleScalar, LLC.
+All Rights Reserved. This version of SimpleScalar is licensed for academic
+non-commercial use.  No portion of this work may be used by any commercial
+entity, or for any commercial purpose, without the prior written permission
+of SimpleScalar, LLC (info@simplescalar.com).
+
+sim: command line: ./bin/sim-profile -brprof -iclass -redir:sim ./configs//gsm-untoast-stats.txt ./apps/gsm-untoast/untoast -fps -c ./apps/gsm-untoast/small.au.run.gsm 
+
+sim: simulation started @ Thu Sep 17 11:54:56 2026, options follow:
+
+sim-profile: This simulator implements a functional simulator with
+profiling support.  Run with the `-h' flag to see profiling options
+available.
+
+# -config                     # load configuration from a file
+# -dumpconfig                 # dump configuration to a file
+# -h                    false # print help message    
+# -v                    false # verbose operation     
+# -d                    false # enable debug message  
+# -i                    false # start in Dlite debugger
+-seed                       1 # random number generator seed (0 for timer seed)
+# -q                    false # initialize and terminate immediately
+# -chkpt               <null> # restore EIO trace execution from <fname>
+# -redir:sim     ./configs//gsm-untoast-stats.txt # redirect simulator output to file (non-interactive only)
+# -redir:prog          <null> # redirect simulated program output to file
+-nice                       0 # simulator scheduling priority
+-max:inst                   0 # maximum number of inst's to execute
+-all                    false # enable all profile options
+-iclass                  true # enable instruction class profiling
+-iprof                  false # enable instruction profiling
+-brprof                  true # enable branch instruction profiling
+-amprof                 false # enable address mode profiling
+-segprof                false # enable load/store address segment profiling
+-tsymprof               false # enable text symbol profiling
+-taddrprof              false # enable text address profiling
+-dsymprof               false # enable data symbol profiling
+-internal               false # include compiler-internal symbols during symbol profiling
+# -pcstat              <null> # profile stat(s) against text addr's (mult uses ok)
+
+sim: ** starting functional simulation **
+warning: syscall: sigvec ignored
+warning: syscall: sigvec ignored
+warning: syscall: sigvec ignored
+warning: syscall: sigvec ignored
+warning: syscall: sigvec ignored
+
+sim: ** simulation statistics **
+sim_num_insn               11706482 # total number of instructions executed
+sim_num_refs                1431531 # total number of loads and stores executed
+sim_elapsed_time                  1 # total simulation time in seconds
+sim_inst_rate          11706482.0000 # simulation speed (in insts/sec)
+
+sim_inst_class_prof    # instruction class profile
+sim_inst_class_prof.array_size = 7
+sim_inst_class_prof.bucket_size = 1
+sim_inst_class_prof.count = 7
+sim_inst_class_prof.total = 11706481
+sim_inst_class_prof.imin = 0
+sim_inst_class_prof.imax = 7
+sim_inst_class_prof.average = 1672354.4286
+sim_inst_class_prof.std_dev = 2921874.5952
+sim_inst_class_prof.overflows = 0
+# pdf == prob dist fn, cdf == cumulative dist fn
+#          index      count    pdf 
+sim_inst_class_prof.start_dist
+load                 948584   8.10 
+store                482947   4.13 
+uncond branch        597038   5.10 
+cond branch         1486234  12.70 
+int computation     8191648  69.98 
+fp computation            0   0.00 
+trap                     30   0.00 
+sim_inst_class_prof.end_dist
+
+
+sim_branch_prof        # branch instruction profile
+sim_branch_prof.array_size = 6
+sim_branch_prof.bucket_size = 1
+sim_branch_prof.count = 6
+sim_branch_prof.total = 2083272
+sim_branch_prof.imin = 0
+sim_branch_prof.imax = 6
+sim_branch_prof.average = 347212.0000
+sim_branch_prof.std_dev = 594645.1971
+sim_branch_prof.overflows = 0
+# pdf == prob dist fn, cdf == cumulative dist fn
+#          index      count    pdf 
+sim_branch_prof.start_dist
+uncond direct        529319  25.41 
+cond direct         1486234  71.34 
+call direct           33672   1.62 
+uncond indirect       33877   1.63 
+cond indirect             0   0.00 
+call indirect           170   0.01 
+sim_branch_prof.end_dist
+
+ld_text_base             0x00400000 # program text (code) segment base
+ld_text_size                 145904 # program text (code) size in bytes
+ld_data_base             0x10000000 # program initialized data segment base
+ld_data_size                  26400 # program init'ed `.data' and uninit'ed `.bss' size in bytes
+ld_stack_base            0x7fffc000 # program stack segment base (highest address in stack)
+ld_stack_size                 16384 # program initial stack size
+ld_prog_entry            0x00400140 # program entry point (initial PC)
+ld_environ_base          0x7fff8000 # program environment base address address
+ld_target_big_endian              0 # target executable endian-ness, non-zero if big endian
+mem.page_count                   53 # total number of pages allocated
+mem.page_mem                   212k # total size of memory pages allocated
+mem.ptab_misses                  53 # total first level page table misses
+mem.ptab_accesses          50671052 # total page table accesses
+mem.ptab_miss_rate           0.0000 # first level page table miss rate
+
