@@ -1,0 +1,42 @@
+[DEBUG] Value of target file: ../configs/Lab1-Task1/base1.txt
+-seed                : 1 
+-nice                : 0 
+-max:inst            : 0 
+-fastfwd             : 0 
+-fetch:ifqsize       : 4 
+-fetch:mplat         : 3 
+-fetch:speed         : 1 
+-bpred               : nottaken 
+-bpred:bimod         : 1024 
+-bpred:2lev          : 1 1024 8 0 
+-bpred:comb          : 1024 
+-bpred:ras           : 0 
+-bpred:btb           : 8 2 
+-decode:width        : 1 
+-issue:width         : 1 
+-issue:inorder       : true 
+-issue:wrongpath     : false 
+-commit:width        : 1 
+-ruu:size            : 16
+-lsq:size            : 8
+-cache:dl1           : dl1:64:32:2:l 
+-cache:dl1lat        : 1 
+-cache:dl2           : none 
+-cache:dl2lat        : 4 
+-cache:il1           : il1:64:32:2:l 
+-cache:il1lat        : 1 
+-cache:il2           : none  
+-cache:il2lat        : 4 
+-cache:flush         : false 
+-cache:icompress     : false 
+-mem:lat             : 200 1 
+-mem:width           : 8 
+-tlb:itlb            : itlb:32:4096:4:l 
+-tlb:dtlb            : dtlb:32:4096:4:l 
+-tlb:lat             : 30 
+-res:ialu            : 1 
+-res:imult           : 1 
+-res:memport         : 1 
+-res:fpalu           : 1 
+-res:fpmult          : 1 
+-bugcompat           : false 
