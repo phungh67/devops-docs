@@ -1,23 +1,23 @@
 {
   "qsort": {
     "sim_num_insn": 41903758,
-    "sim_cycle": 636481027,
-    "sim_CPI": 15.1891,
+    "sim_cycle": 92281803,
+    "sim_CPI": 2.2022,
     "mpi_il1": 0.05963,
     "mpi_dl1": 0.03805
   },
   "gsm-untoast": {
     "sim_num_insn": 11706482,
-    "sim_cycle": 39543570,
-    "sim_CPI": 3.3779,
+    "sim_cycle": 22361246,
+    "sim_CPI": 1.9102,
     "mpi_il1": 0.00800,
     "mpi_dl1": 0.00075
   },
   "jpeg-cjpeg": {
     "sim_num_insn": 27273610,
-    "sim_cycle": 163131533,
-    "sim_CPI": 5.9813,
-    "mpi_il1": 0.01491,
+    "sim_cycle": 53145582,
+    "sim_CPI": 1.9486,
+    "mpi_il1": 0.01492,
     "mpi_dl1": 0.01065
   }
 }

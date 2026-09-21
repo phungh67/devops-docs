@@ -1,5 +1,23 @@
-# Phase 1: Cache Size Sweep (Fixed: 1-way assoc, 32B block size)
+# 4kB size, sweep for all associativity
 il1:128:32:1:l 1
+il1:64:32:2:l 1
+il1:32:32:4:l 2
+il1:16:32:8:1 2
+
+# 8kB size
 il1:256:32:1:l 1
+il1:128:32:2:l 2
+il1:64:32:4:l 2
+il1:32:32:8:l 3
+
+# 16kB size
 il1:512:32:1:l 2
+il1:256:32:2:l 2
+il1:128:32:4:l 3
+il1:64:32:8:l 3
+
+# 32 kB size
 il1:1024:32:1:l 2
+il1:512:32:2:l 3
+il1:256:32:4:l 3
+il1:128:32:8:l 4

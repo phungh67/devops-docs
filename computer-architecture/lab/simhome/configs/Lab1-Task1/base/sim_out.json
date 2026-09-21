@@ -8,7 +8,7 @@
   },
   "gsm-untoast": {
     "sim_num_insn": 11706482,
-    "sim_cycle": 39543570,
+    "sim_cycle": 39543768,
     "sim_CPI": 3.3779,
     "mpi_il1": 0.00800,
     "mpi_dl1": 0.00075
