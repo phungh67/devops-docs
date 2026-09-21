@@ -1,38 +1,35 @@
 #!/usr/bin/env bash
 
-# Assign arguments to variables, applying a default value for the third argument
+# Assign arguments to variables (Removed the OUT_FILE argument)
 SIM_FILE=$1
 CFG_FILE=$2
-OUT_FILE=${3:-"output_default_calculated.json"}
 
 # 1. Validation checks
 if [[ -z "$SIM_FILE" || -z "$CFG_FILE" ]]; then
-  echo "Error: Missing required arguments."
-  echo "Usage: $0 <simulation_result.json> <static_configuration.json> [output.json]"
+  echo "Error: Missing required arguments." >&2
+  echo "Usage: $0 <simulation_result.json> <static_configuration.json>" >&2
   exit 1
 fi
 
 if [[ ! -f "$SIM_FILE" ]]; then
-  echo "Error: Simulation result file '$SIM_FILE' not found."
+  echo "Error: Simulation result file '$SIM_FILE' not found." >&2
   exit 1
 fi
 
 if [[ ! -f "$CFG_FILE" ]]; then
-  echo "Error: Static configuration file '$CFG_FILE' not found."
+  echo "Error: Static configuration file '$CFG_FILE' not found." >&2
   exit 1
 fi
 
-# 2. Debug outputs to verify which values are taken
-echo "[DEBUG] Simulation result file : $SIM_FILE"
-echo "[DEBUG] Static config file     : $CFG_FILE"
-echo "[DEBUG] Output target file     : $OUT_FILE"
+# 2. Debug outputs routed to stderr to protect stdout
+echo "[DEBUG] Simulation result file : $SIM_FILE" >&2
+echo "[DEBUG] Static config file     : $CFG_FILE" >&2
 
 # Extract the Miss Penalty (MP) from the static configuration file using jq
-# This specifically parses the value associated with "-mem:lat" to verify it before processing
 MP_VALUE=$(jq -r '."-mem:lat".value | split(" ")[0]' "$CFG_FILE")
-echo "[DEBUG] Extracted Miss Penalty (MP) from $CFG_FILE: $MP_VALUE cycles"
+echo "[DEBUG] Extracted Miss Penalty (MP) from $CFG_FILE: $MP_VALUE cycles" >&2
 
-# 3. Calculate metrics and output to JSON
+# 3. Calculate metrics and output to JSON (prints directly to stdout)
 jq -s '
   # Re-extract the Miss Penalty inside the main jq script
   (.[1]["-mem:lat"].value | split(" ")[0] | tonumber) as $mp |
@@ -54,6 +51,6 @@ jq -s '
       "Memory Stall %": (((.sim_CPI - $cpi_0) / .sim_CPI) * 100)
     }
   )
-' "$SIM_FILE" "$CFG_FILE" > "$OUT_FILE"
+' "$SIM_FILE" "$CFG_FILE"
 
-echo "[SUCCESS] Computed metrics saved to $OUT_FILE"
+echo "[SUCCESS] Computed metrics generated successfully" >&2

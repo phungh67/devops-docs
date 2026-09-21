@@ -1,19 +1,22 @@
 #!/usr/bin/env bash
 
+# The script now takes exactly one argument (Removed the OUTPUT_DIR argument)
 TARGET_FILE=$1
-OUTPUT_DIR=$2
 
-echo "[DEBUG] Value of target file: $TARGET_FILE" >&2
-
-if [ -z $OUTPUT_DIR ]; then
-    echo "[WARN] Value of output file is not set, fall back to default file name: variable_${TARGET_FILE}.json"
-    OUTPUT_DIR="variable_base"
+# 1. Validation checks
+if [[ -z "$TARGET_FILE" ]]; then
+  echo "Error: Missing required argument." >&2
+  echo "Usage: $0 <path_to_configuration_file>" >&2
+  exit 1
 fi
 
 if [[ ! -f "$TARGET_FILE" ]]; then
   echo "Error: File '$TARGET_FILE' not found." >&2
   exit 1
 fi
+
+# Route debug message to stderr
+echo "[DEBUG] Value of target file: $TARGET_FILE" >&2
 
 awk '
   BEGIN { desc = "" }
@@ -56,7 +59,7 @@ awk '
     next
   }
 ' "$TARGET_FILE" | jq -R -s '
-  # Transform the 4-column TSV into JSON
+  # Transform the 4-column TSV into JSON (prints directly to stdout)
   [ 
     split("\n")[] | select(length > 0) | split("\t") | 
     { 
@@ -67,4 +70,4 @@ awk '
       } 
     } 
   ] | add
-' >> ${OUTPUT_DIR}.json
+'

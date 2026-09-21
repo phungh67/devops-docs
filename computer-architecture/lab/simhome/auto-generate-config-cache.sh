@@ -3,9 +3,9 @@
 INPUT_FILE=$1
 
 # validate
-if [[ -z "$1" || -z "$2" ]]; then
+if [[ -z "$1" ]]; then
   echo "Error: Missing required arguments."
-  echo "Usage: $0 <path_to_configuration_file> <hit_latency>"
+  echo "Usage: $0 <path_to_configuration_file>"
   echo "Example: $0 configs_to_test.txt"
   exit 1
 fi
@@ -16,6 +16,7 @@ if [[ ! -f "$INPUT_FILE" ]]; then
 fi
 
 BASE_FILE="base1.txt" # the base, provided by TAs
+HOME_DIR="configs" # the base for runsim_sim script
 TASK_DIR="Lab1-Task2" # the base directory, aligns with task
 
 echo "[INFO] Starting batch operation with cache-memory optimization from $INPUT_FILE..."
@@ -33,7 +34,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   fi
 
   CONFIG_DIR_NAME=$(echo "$IL1_CONFIG" | tr ':' '-')
-  OUT_DIR="$TASK_DIR/$CONFIG_DIR_NAME"
+  OUT_DIR="$HOME_DIR/$TASK_DIR/$CONFIG_DIR_NAME"
 
   echo "--------------------------------------------------"
   echo "[INFO] Processing: $CONFIG_DIR_NAME (Latency: $IL1_LAT)"
@@ -49,16 +50,16 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   echo "[INFO] Created configuration template at $NEW_CONFIG_FILE"
 
   echo "[INFO] Starting SimpleScalar simulation..."
-  ./runsim_sim "$OUT_DIR" "configure"
+  ./runsim_sim "$TASK_DIR/$CONFIG_DIR_NAME" "configure"
 
   echo "[INFO] Parsing configuration static variables..."
-  ./util/variable-parser.sh "$NEW_CONFIG_FILE" > "$OUT_DIR/variable_base.json"
+  ./utils/variable-parser.sh "$NEW_CONFIG_FILE" > "$OUT_DIR/variable_base.json"
 
   echo "[INFO] Parsing simulation runtime stats..."
-  ./util/stats_parser_jq.sh "$OUT_DIR" > "$OUT_DIR/sim_out.json"
+  ./utils/stats_parser_jq.sh "$OUT_DIR" > "$OUT_DIR/sim_out.json"
 
   echo "[INFO] Generating final metric report..."
-  ./util/calculate_result_2.sh "$OUT_DIR/sim_out.json" "$OUT_DIR/variable_base.json" "$OUT_DIR/final_report.json"
+  ./utils/calculate_result.sh "$OUT_DIR/sim_out.json" "$OUT_DIR/variable_base.json" > "$OUT_DIR/final_report.json"
 
   echo "[SUCCESS] Finished $CONFIG_DIR_NAME"
 

@@ -1,24 +1,25 @@
 #!/bin/bash
-DIR=$1
-CFG=$2
-OUT_DIR=$3
+# The script now takes exactly one argument: the target directory path
+TARGET_DIR=$1
 
 # excluded dijkstra and stringsearch-cabce
 benchspecs=( qsort gsm-untoast jpeg-cjpeg )
 
-# check and raise a warning for default output value
-if [ -z $3 ]; then
-    echo "[?] WARNING: the output file was not specified, fallback to default value."
-    echo "[!] INFO: the output file name should be simulation_${DIR}_${CFG}_out.json."
-    OUT_DIR="simulation_${DIR}_${CFG}_out.json"
-fi
+# Route verbose initialization message to stderr
+echo "[INFO] Starting JSON parsing for directory: $TARGET_DIR" >&2
 
 for BENCHMARK in "${benchspecs[@]}"
 do
-    FILE="configs/$DIR/Stats_${CFG}_${BENCHMARK}.txt"
+    FILE="$TARGET_DIR/Stats_configure_${BENCHMARK}.txt"
     
-    # Saftey check: skip to the next benchmark if the output file is missing
-    [ ! -f "$FILE" ] && continue
+    # Safety check: skip to the next benchmark if the output file is missing
+    if [ ! -f "$FILE" ]; then
+        echo "[WARN] Stats file missing for $BENCHMARK. Skipping." >&2
+        continue
+    fi
+
+    # Route verbose progress message to stderr
+    echo "[INFO] Extracting metrics for $BENCHMARK..." >&2
 
     # Extract values, using -m1 to stop reading after the first match
     sim_num_insn=$(grep -m1 "sim_num_insn" "$FILE" | awk '{print $2}')
@@ -41,7 +42,7 @@ do
         mpi_dl1=$(awk "BEGIN {printf \"%.5f\",${dl1_misses}/${sim_num_insn}}")
     fi
 
-    # Emit a standalone JSON object for this benchmark
+    # Emit a standalone JSON object for this benchmark (goes to stdout)
     jq -n \
         --arg test "$BENCHMARK" \
         --arg insn "$sim_num_insn" \
@@ -58,4 +59,4 @@ do
                 "mpi_dl1": ($mpi_dl1 | tonumber)
             }
         }'
-done | jq -s 'add' >> ${OUT_DIR}
+done | jq -s 'add'

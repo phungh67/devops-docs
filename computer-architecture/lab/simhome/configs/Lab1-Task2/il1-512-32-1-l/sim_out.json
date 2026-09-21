@@ -1,0 +1,23 @@
+{
+  "qsort": {
+    "sim_num_insn": 41903758,
+    "sim_cycle": 274336202,
+    "sim_CPI": 6.5468,
+    "mpi_il1": 0.00435,
+    "mpi_dl1": 0.03805
+  },
+  "gsm-untoast": {
+    "sim_num_insn": 11706482,
+    "sim_cycle": 33657301,
+    "sim_CPI": 2.8751,
+    "mpi_il1": 0.00494,
+    "mpi_dl1": 0.00075
+  },
+  "jpeg-cjpeg": {
+    "sim_num_insn": 27273610,
+    "sim_cycle": 109011342,
+    "sim_CPI": 3.9970,
+    "mpi_il1": 0.00282,
+    "mpi_dl1": 0.01065
+  }
+}

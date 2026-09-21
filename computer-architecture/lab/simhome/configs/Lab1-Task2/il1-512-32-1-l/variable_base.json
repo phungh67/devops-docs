@@ -1,0 +1,277 @@
+{
+  "-config": {
+    "description": "load configuration from a file",
+    "value": "",
+    "status": "commented(unused)"
+  },
+  "-dumpconfig": {
+    "description": "dump configuration to a file",
+    "value": "",
+    "status": "commented(unused)"
+  },
+  "-h": {
+    "description": "print help message",
+    "value": "false",
+    "status": "commented(unused)"
+  },
+  "-v": {
+    "description": "verbose operation",
+    "value": "false",
+    "status": "commented(unused)"
+  },
+  "-d": {
+    "description": "enable debug message",
+    "value": "false",
+    "status": "commented(unused)"
+  },
+  "-i": {
+    "description": "start in Dlite debugger",
+    "value": "false",
+    "status": "commented(unused)"
+  },
+  "-seed": {
+    "description": "random number generator seed (0 for timer seed)",
+    "value": "1",
+    "status": "active"
+  },
+  "-q": {
+    "description": "initialize and terminate immediately",
+    "value": "true",
+    "status": "commented(unused)"
+  },
+  "-chkpt": {
+    "description": "restore EIO trace execution from <fname>",
+    "value": "<null>",
+    "status": "commented(unused)"
+  },
+  "-redir:sim": {
+    "description": "redirect simulator output to file (non-interactive only)",
+    "value": "<null>",
+    "status": "commented(unused)"
+  },
+  "-redir:prog": {
+    "description": "redirect simulated program output to file",
+    "value": "<null>",
+    "status": "commented(unused)"
+  },
+  "-nice": {
+    "description": "simulator scheduling priority",
+    "value": "0",
+    "status": "active"
+  },
+  "-cost:enable": {
+    "description": "run simulation with cost enable",
+    "value": "false",
+    "status": "commented(unused)"
+  },
+  "-max:inst": {
+    "description": "maximum number of inst's to execute",
+    "value": "0",
+    "status": "active"
+  },
+  "-fastfwd": {
+    "description": "number of insts skipped before timing starts",
+    "value": "0",
+    "status": "active"
+  },
+  "-ptrace": {
+    "description": "generate pipetrace, i.e., <fname|stdout|stderr> <range>",
+    "value": "<null>",
+    "status": "commented(unused)"
+  },
+  "-fetch:ifqsize": {
+    "description": "instruction fetch queue size (in insts)",
+    "value": "4",
+    "status": "active"
+  },
+  "-fetch:mplat": {
+    "description": "extra branch mis-prediction latency",
+    "value": "3",
+    "status": "active"
+  },
+  "-fetch:speed": {
+    "description": "speed of front-end of machine relative to execution core",
+    "value": "1",
+    "status": "active"
+  },
+  "-bpred": {
+    "description": "branch predictor type {nottaken|taken|perfect|bimod|2lev|comb}",
+    "value": "nottaken",
+    "status": "active"
+  },
+  "-bpred:bimod": {
+    "description": "bimodal predictor config (<table size>)",
+    "value": "1024",
+    "status": "active"
+  },
+  "-bpred:2lev": {
+    "description": "2-level predictor config (<l1size> <l2size> <hist_size> <xor>)",
+    "value": "1 1024 8 0",
+    "status": "active"
+  },
+  "-bpred:comb": {
+    "description": "combining predictor config (<meta_table_size>)",
+    "value": "1024",
+    "status": "active"
+  },
+  "-bpred:ras": {
+    "description": "return address stack size (0 for no return stack)",
+    "value": "0",
+    "status": "active"
+  },
+  "-bpred:btb": {
+    "description": "BTB config (<num_sets> <associativity>)",
+    "value": "8 2",
+    "status": "active"
+  },
+  "-bpred:spec_update": {
+    "description": "speculative predictors update in {ID|WB} (default non-spec)",
+    "value": "<null>",
+    "status": "commented(unused)"
+  },
+  "-decode:width": {
+    "description": "instruction decode B/W (insts/cycle)",
+    "value": "1",
+    "status": "active"
+  },
+  "-issue:width": {
+    "description": "instruction issue B/W (insts/cycle)",
+    "value": "1",
+    "status": "active"
+  },
+  "-issue:inorder": {
+    "description": "run pipeline with in-order issue",
+    "value": "true",
+    "status": "active"
+  },
+  "-issue:wrongpath": {
+    "description": "issue instructions down wrong execution paths",
+    "value": "false",
+    "status": "active"
+  },
+  "-commit:width": {
+    "description": "instruction commit B/W (insts/cycle)",
+    "value": "1",
+    "status": "active"
+  },
+  "-ruu:size": {
+    "description": "register update unit (RUU) size",
+    "value": "16",
+    "status": "active"
+  },
+  "-lsq:size": {
+    "description": "load/store queue (LSQ) size",
+    "value": "8",
+    "status": "active"
+  },
+  "-cache:dl1": {
+    "description": "l1 data cache config, i.e., {<config>|none}",
+    "value": "dl1:64:32:2:l",
+    "status": "active"
+  },
+  "-cache:dl1lat": {
+    "description": "l1 data cache hit latency (in cycles)",
+    "value": "1",
+    "status": "active"
+  },
+  "-cache:dl2": {
+    "description": "l2 data cache config, i.e., {<config>|none}",
+    "value": "none",
+    "status": "active"
+  },
+  "-cache:dl2lat": {
+    "description": "l2 data cache hit latency (in cycles)",
+    "value": "4",
+    "status": "active"
+  },
+  "-cache:il1": {
+    "description": "l1 inst cache config, i.e., {<config>|dl1|dl2|none}",
+    "value": "il1:512:32:1:l",
+    "status": "active"
+  },
+  "-cache:il1lat": {
+    "description": "l1 instruction cache hit latency (in cycles)",
+    "value": "2",
+    "status": "active"
+  },
+  "-cache:il2": {
+    "description": "l2 instruction cache config, i.e., {<config>|dl2|none}",
+    "value": "none",
+    "status": "active"
+  },
+  "-cache:il2lat": {
+    "description": "l2 instruction cache hit latency (in cycles)",
+    "value": "4",
+    "status": "active"
+  },
+  "-cache:flush": {
+    "description": "flush caches on system calls",
+    "value": "false",
+    "status": "active"
+  },
+  "-cache:icompress": {
+    "description": "convert 64-bit inst addresses to 32-bit inst equivalents",
+    "value": "false",
+    "status": "active"
+  },
+  "-mem:lat": {
+    "description": "memory access latency (<first_chunk> <inter_chunk>)",
+    "value": "200 1",
+    "status": "active"
+  },
+  "-mem:width": {
+    "description": "memory access bus width (in bytes)",
+    "value": "8",
+    "status": "active"
+  },
+  "-tlb:itlb": {
+    "description": "instruction TLB config, i.e., {<config>|none}",
+    "value": "itlb:32:4096:4:l",
+    "status": "active"
+  },
+  "-tlb:dtlb": {
+    "description": "data TLB config, i.e., {<config>|none}",
+    "value": "dtlb:32:4096:4:l",
+    "status": "active"
+  },
+  "-tlb:lat": {
+    "description": "inst/data TLB miss latency (in cycles)",
+    "value": "30",
+    "status": "active"
+  },
+  "-res:ialu": {
+    "description": "total number of integer ALU's available",
+    "value": "1",
+    "status": "active"
+  },
+  "-res:imult": {
+    "description": "total number of integer multiplier/dividers available",
+    "value": "1",
+    "status": "active"
+  },
+  "-res:memport": {
+    "description": "total number of memory system ports available (to CPU)",
+    "value": "1",
+    "status": "active"
+  },
+  "-res:fpalu": {
+    "description": "total number of floating point ALU's available",
+    "value": "1",
+    "status": "active"
+  },
+  "-res:fpmult": {
+    "description": "total number of floating point multiplier/dividers available",
+    "value": "1",
+    "status": "active"
+  },
+  "-pcstat": {
+    "description": "profile stat(s) against text addr's (mult uses ok)",
+    "value": "<null>",
+    "status": "commented(unused)"
+  },
+  "-bugcompat": {
+    "description": "operate in backward-compatible bugs mode (for testing only)",
+    "value": "false",
+    "status": "active"
+  }
+}
