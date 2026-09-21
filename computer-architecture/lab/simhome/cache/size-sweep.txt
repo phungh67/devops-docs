@@ -1,0 +1,5 @@
+# Phase 1: Cache Size Sweep (Fixed: 1-way assoc, 32B block size)
+il1:128:32:1:l 1
+il1:256:32:1:l 1
+il1:512:32:1:l 2
+il1:1024:32:1:l 2

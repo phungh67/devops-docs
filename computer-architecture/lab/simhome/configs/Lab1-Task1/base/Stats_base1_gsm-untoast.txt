@@ -5,9 +5,9 @@ non-commercial use.  No portion of this work may be used by any commercial
 entity, or for any commercial purpose, without the prior written permission
 of SimpleScalar, LLC (info@simplescalar.com).
 
-sim: command line: ./bin/sim-outorder -config ./configs/Lab1-Task1/base1.txt -redir:sim ./configs/Lab1-Task1/Stats_base1_gsm-untoast.txt ./apps/gsm-untoast/untoast -fps -c ./apps/gsm-untoast/small.au.run.gsm 
+sim: command line: ./bin/sim-outorder -config ./configs/Lab1-Task1/base/base1.txt -redir:sim ./configs/Lab1-Task1/base/Stats_base1_gsm-untoast.txt ./apps/gsm-untoast/untoast -fps -c ./apps/gsm-untoast/small.au.run.gsm 
 
-sim: simulation started @ Thu Sep 17 11:59:44 2026, options follow:
+sim: simulation started @ Mon Sep 21 15:12:56 2026, options follow:
 
 sim-outorder: This simulator implements a very detailed out-of-order issue
 superscalar processor with a two-level memory system and speculative
@@ -23,7 +23,7 @@ latency of all pipeline operations.
 -seed                       1 # random number generator seed (0 for timer seed)
 # -q                    false # initialize and terminate immediately
 # -chkpt               <null> # restore EIO trace execution from <fname>
-# -redir:sim     ./configs/Lab1-Task1/Stats_base1_gsm-untoast.txt # redirect simulator output to file (non-interactive only)
+# -redir:sim     ./configs/Lab1-Task1/base/Stats_base1_gsm-untoast.txt # redirect simulator output to file (non-interactive only)
 # -redir:prog          <null> # redirect simulated program output to file
 -nice                       0 # simulator scheduling priority
 -max:inst                   0 # maximum number of inst's to execute
@@ -148,31 +148,31 @@ sim_total_refs              1431531 # total number of loads and stores executed
 sim_total_loads              948584 # total number of loads executed
 sim_total_stores        482947.0000 # total number of stores executed
 sim_total_branches          2083272 # total number of branches executed
-sim_cycle                  39543570 # total simulation time in cycles
+sim_cycle                  39543768 # total simulation time in cycles
 sim_IPC                      0.2960 # instructions per cycle
 sim_CPI                      3.3779 # cycles per instruction
 sim_exec_BW                  0.2960 # total instructions (mis-spec + committed) per cycle
 sim_IPB                      5.6193 # instruction per branch
-IFQ_count                  36183634 # cumulative IFQ occupancy
-IFQ_fcount                  2328377 # cumulative IFQ full count
+IFQ_count                  36184428 # cumulative IFQ occupancy
+IFQ_fcount                  2328577 # cumulative IFQ full count
 ifq_occupancy                0.9150 # avg IFQ occupancy (insn's)
 ifq_rate                     0.2960 # avg IFQ dispatch rate (insn/cycle)
-ifq_latency                  3.0909 # avg IFQ occupant latency (cycle's)
+ifq_latency                  3.0910 # avg IFQ occupant latency (cycle's)
 ifq_full                     0.0589 # fraction of time (cycle's) IFQ was full
-RUU_count                  43072044 # cumulative RUU occupancy
+RUU_count                  43073056 # cumulative RUU occupancy
 RUU_fcount                        0 # cumulative RUU full count
-ruu_occupancy                1.0892 # avg RUU occupancy (insn's)
+ruu_occupancy                1.0893 # avg RUU occupancy (insn's)
 ruu_rate                     0.2960 # avg RUU dispatch rate (insn/cycle)
-ruu_latency                  3.6793 # avg RUU occupant latency (cycle's)
+ruu_latency                  3.6794 # avg RUU occupant latency (cycle's)
 ruu_full                     0.0000 # fraction of time (cycle's) RUU was full
-LSQ_count                   7541509 # cumulative LSQ occupancy
+LSQ_count                   7541912 # cumulative LSQ occupancy
 LSQ_fcount                        0 # cumulative LSQ full count
 lsq_occupancy                0.1907 # avg LSQ occupancy (insn's)
 lsq_rate                     0.2960 # avg LSQ dispatch rate (insn/cycle)
-lsq_latency                  0.6442 # avg LSQ occupant latency (cycle's)
+lsq_latency                  0.6443 # avg LSQ occupant latency (cycle's)
 lsq_full                     0.0000 # fraction of time (cycle's) LSQ was full
-sim_slip                   63751542 # total number of slip cycles
-avg_sim_slip                 5.4458 # the average slip between issue and retirement
+sim_slip                   63752957 # total number of slip cycles
+avg_sim_slip                 5.4460 # the average slip between issue and retirement
 bpred_nottaken.lookups      2711976 # total number of bpred lookups
 bpred_nottaken.updates      2083272 # total number of updates
 bpred_nottaken.addr_hits       434691 # total number of address-predicted hits
@@ -202,9 +202,9 @@ il1.repl_rate                0.0055 # replacement rate (i.e., repls/ref)
 il1.wb_rate                  0.0000 # writeback rate (i.e., wrbks/ref)
 il1.inv_rate                 0.0000 # invalidation rate (i.e., invs/ref)
 dl1.accesses                1431531 # total number of accesses
-dl1.hits                    1422778 # total number of hits
-dl1.misses                     8753 # total number of misses
-dl1.replacements               8625 # total number of replacements
+dl1.hits                    1422777 # total number of hits
+dl1.misses                     8754 # total number of misses
+dl1.replacements               8626 # total number of replacements
 dl1.writebacks                 3308 # total number of writebacks
 dl1.invalidations                 0 # total number of invalidations
 dl1.miss_rate                0.0061 # miss rate (i.e., misses/ref)
@@ -244,6 +244,6 @@ ld_target_big_endian              0 # target executable endian-ness, non-zero if
 mem.page_count                   53 # total number of pages allocated
 mem.page_mem                   212k # total size of memory pages allocated
 mem.ptab_misses                  53 # total first level page table misses
-mem.ptab_accesses          75472432 # total page table accesses
+mem.ptab_accesses          75472442 # total page table accesses
 mem.ptab_miss_rate           0.0000 # first level page table miss rate
 
