@@ -11,7 +11,7 @@
   },
   "gsm-untoast": {
     "Instruction Count": 11706482,
-    "Execution Time in cycles": 33657301,
+    "Execution Time in cycles": 33657103,
     "CPI_base": 2.8751,
     "MPI I-L1": 0.00494,
     "MPI D-L1": 0.00075,
