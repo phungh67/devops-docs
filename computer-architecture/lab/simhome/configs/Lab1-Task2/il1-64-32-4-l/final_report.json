@@ -1,0 +1,32 @@
+{
+  "qsort": {
+    "Instruction Count": 41903758,
+    "Execution Time in cycles": 254101965,
+    "CPI_base": 6.0639,
+    "MPI I-L1": 0.00126,
+    "MPI D-L1": 0.03805,
+    "CPI_0": -1.7980999999999998,
+    "SP_ideal": -3.3723930815861194,
+    "Memory Stall %": 129.6525338478537
+  },
+  "gsm-untoast": {
+    "Instruction Count": 11706482,
+    "Execution Time in cycles": 35241340,
+    "CPI_base": 3.0104,
+    "MPI I-L1": 0.00582,
+    "MPI D-L1": 0.00075,
+    "CPI_0": 1.6964000000000004,
+    "SP_ideal": 1.7745814666352273,
+    "Memory Stall %": 43.64868456019133
+  },
+  "jpeg-cjpeg": {
+    "Instruction Count": 27273610,
+    "Execution Time in cycles": 101586664,
+    "CPI_base": 3.7247,
+    "MPI I-L1": 0.00116,
+    "MPI D-L1": 0.01065,
+    "CPI_0": 1.3626999999999998,
+    "SP_ideal": 2.7333235488368683,
+    "Memory Stall %": 63.41450318146429
+  }
+}

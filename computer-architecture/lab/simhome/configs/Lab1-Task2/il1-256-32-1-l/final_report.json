@@ -11,13 +11,13 @@
   },
   "gsm-untoast": {
     "Instruction Count": 11706482,
-    "Execution Time in cycles": 36631499,
-    "CPI_base": 3.1292,
+    "Execution Time in cycles": 36631301,
+    "CPI_base": 3.1291,
     "MPI I-L1": 0.00650,
     "MPI D-L1": 0.00075,
-    "CPI_0": 1.6792,
-    "SP_ideal": 1.8635064316341114,
-    "Memory Stall %": 46.33772210149559
+    "CPI_0": 1.6791000000000003,
+    "SP_ideal": 1.8635578583765111,
+    "Memory Stall %": 46.339202965708985
   },
   "jpeg-cjpeg": {
     "Instruction Count": 27273610,
