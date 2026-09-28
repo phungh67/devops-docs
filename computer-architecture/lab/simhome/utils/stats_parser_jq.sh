@@ -27,9 +27,9 @@ do
     sim_CPI=$(grep -m1 "sim_CPI" "$FILE" | awk '{print $2}')
     il1_misses=$(grep -m1 "il1.misses" "$FILE" | awk '{print $2}')
     dl1_misses=$(grep -m1 "dl1.misses" "$FILE" | awk '{print $2}')
-    bpred_bimod_misses=$(grep -m1 "bpred_bimod.misses" "$FILE" | awk '{print $2}')
-    bpred_dir_hit=$(grep -m1 "bpred_bimod.dir_hits" "$FILE" | awk '{print$2}')
-    bpred_addr_hit=$(grep -m1 "bpred_bimod.addr_hits" "$FILE" | awk '{print$2}')
+    bpred_bimod_misses=$(grep -m1 "bpred_2lev.misses" "$FILE" | awk '{print $2}')
+    bpred_dir_hit=$(grep -m1 "bpred_2lev.dir_hits" "$FILE" | awk '{print$2}')
+    bpred_addr_hit=$(grep -m1 "bpred_2lev.addr_hits" "$FILE" | awk '{print$2}')
 
     # Fallback to 0 if variables are empty to prevent jq tonumber errors
     sim_num_insn=${sim_num_insn:-0}
