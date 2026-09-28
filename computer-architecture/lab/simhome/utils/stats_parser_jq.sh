@@ -27,6 +27,9 @@ do
     sim_CPI=$(grep -m1 "sim_CPI" "$FILE" | awk '{print $2}')
     il1_misses=$(grep -m1 "il1.misses" "$FILE" | awk '{print $2}')
     dl1_misses=$(grep -m1 "dl1.misses" "$FILE" | awk '{print $2}')
+    bpred_bimod_misses=$(grep -m1 "bpred_bimod.misses" "$FILE" | awk '{print $2}')
+    bpred_dir_hit=$(grep -m1 "bpred_bimod.dir_hits" "$FILE" | awk '{print$2}')
+    bpred_addr_hit=$(grep -m1 "bpred_bimod.addr_hits" "$FILE" | awk '{print$2}')
 
     # Fallback to 0 if variables are empty to prevent jq tonumber errors
     sim_num_insn=${sim_num_insn:-0}
@@ -50,13 +53,19 @@ do
         --arg cpi "$sim_CPI" \
         --arg mpi_il1 "${mpi_il1/,/.}" \
         --arg mpi_dl1 "${mpi_dl1/,/.}" \
+        --arg bpred_misses "${bpred_bimod_misses}" \
+        --arg bpred_addr_hit "${bpred_addr_hit}" \
+        --arg bpred_dir_hit "${bpred_dir_hit}" \
         '{
             ($test): {
                 "sim_num_insn": ($insn | tonumber),
                 "sim_cycle": ($cyc | tonumber),
                 "sim_CPI": ($cpi | tonumber),
                 "mpi_il1": ($mpi_il1 | tonumber),
-                "mpi_dl1": ($mpi_dl1 | tonumber)
+                "mpi_dl1": ($mpi_dl1 | tonumber),
+                "bpred_misses": ($bpred_misses | tonumber),
+                "bpred_addr_hit": ($bpred_addr_hit | tonumber),
+                "bpred_dir_hit": ($bpred_dir_hit | tonumber),
             }
         }'
 done | jq -s 'add'
