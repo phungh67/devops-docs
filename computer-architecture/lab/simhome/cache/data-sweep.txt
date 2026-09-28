@@ -1,0 +1,5 @@
+# 32kB size D-Cache, 32B block size, sweep for all associativity
+dl1:1024:32:1:l 2
+dl1:512:32:2:l 3
+dl1:256:32:4:l 3
+dl1:128:32:8:l 4
