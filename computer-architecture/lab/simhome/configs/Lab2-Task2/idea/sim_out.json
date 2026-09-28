@@ -1,0 +1,32 @@
+{
+  "qsort": {
+    "sim_num_insn": 41903758,
+    "sim_cycle": 75135434,
+    "sim_CPI": 1.7930,
+    "mpi_il1": 0.00002,
+    "mpi_dl1": 0.02802,
+    "bpred_misses": 245246,
+    "bpred_addr_hit": 3809504,
+    "bpred_dir_hit": 6479498
+  },
+  "gsm-untoast": {
+    "sim_num_insn": 11706482,
+    "sim_cycle": 14146630,
+    "sim_CPI": 1.2084,
+    "mpi_il1": 0.00012,
+    "mpi_dl1": 0.00014,
+    "bpred_misses": 12754,
+    "bpred_addr_hit": 2032484,
+    "bpred_dir_hit": 2070518
+  },
+  "jpeg-cjpeg": {
+    "sim_num_insn": 27273610,
+    "sim_cycle": 38950829,
+    "sim_CPI": 1.4282,
+    "mpi_il1": 0.00011,
+    "mpi_dl1": 0.00228,
+    "bpred_misses": 281224,
+    "bpred_addr_hit": 3589899,
+    "bpred_dir_hit": 3857312
+  }
+}
