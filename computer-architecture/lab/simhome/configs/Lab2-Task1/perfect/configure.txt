@@ -110,7 +110,7 @@
 -cache:dl2lat                     4 
 
 # l1 inst cache config, i.e., {<config>|dl1|dl2|none}
--cache:il1 il1:128:32:8:l
+-cache:il1 il1:32:128:8:l
 
 # l1 instruction cache hit latency (in cycles)
 -cache:il1lat 4
