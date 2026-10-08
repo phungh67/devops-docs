@@ -28,7 +28,7 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   [[ -z "$line" || "$line" =~ ^# ]] && continue
 
   # Parse the columns
-  read -r DIR_NAME IN_ORDER DISPATCH COMMIT ROB RS LSQ L2_SIZE L2_ASSOC <<< "$line"
+  read -r DIR_NAME IN_ORDER DISPATCH COMMIT ROB RS LSQ L2_SIZE L2_ASSOC BLOCK_SIZE L1_SIZE <<< "$line"
 
   if [[ -z "$DIR_NAME" || -z "$LSQ" ]]; then
     echo -e "\e[33m[WARN] Skipping invalid line format: $line\e[0m"
@@ -62,6 +62,16 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   
   if [[ -n "$L2_ASSOC" ]]; then
     sed -i.bak -E '/^\[perf_model\/l2_cache\]/,/^\[/ s/^associativity[ \t]*=[ \t]*.*/associativity = '"$L2_ASSOC"'/' "$TARGET_CFG"
+  fi
+
+  if [[ -n "$BLOCK_SIZE" ]]; then
+    sed -i.bak -E "s/^cache_block_size[ \t]*=[ \t]*.*/cache_block_size = $BLOCK_SIZE/" "$TARGET_CFG"
+  fi
+
+  # Targeted L1 Size Update (Modifies both l1_dcache and l1_icache sections)
+  if [[ -n "$L1_SIZE" ]]; then
+    sed -i.bak -E '/^\[perf_model\/l1_dcache\]/,/^\[/ s/^cache_size[ \t]*=[ \t]*.*/cache_size = '"$L1_SIZE"'/' "$TARGET_CFG"
+    sed -i.bak -E '/^\[perf_model\/l1_icache\]/,/^\[/ s/^cache_size[ \t]*=[ \t]*.*/cache_size = '"$L1_SIZE"'/' "$TARGET_CFG"
   fi
   
   rm -f "$OUT_DIR/*.bak"

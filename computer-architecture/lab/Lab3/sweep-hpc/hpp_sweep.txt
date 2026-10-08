@@ -10,3 +10,8 @@
 07_L2_32K_1W        false    4        4      64   16  8    32       1
 08_L2_32K_8W        false    4        4      64   16  8    32       8
 09_L2_16K_4W        false    4        4      64   16  8    16       4
+
+# DIR_NAME             in_order dispatch commit ROB  RS  LSQ  L2_SIZE  L2_ASSOC  BLOCK_SIZE L1_SIZE
+10_BLK_16_L2_32K_8W    false    4        4      64   16  8    32       8         16         1
+11_BLK_32_L2_32K_8W    false    4        4      64   16  8    32       8         32         1
+12_BLK_64_L2_32K_8W    false    4        4      64   16  8    32       8         64         4
