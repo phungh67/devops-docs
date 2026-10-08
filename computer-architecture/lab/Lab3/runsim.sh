@@ -28,31 +28,31 @@ Config_file=$2   #The name of the configuration file (without ".cfg")
 Config="-n 1 -c gainestown -c ${Sim_DIR}/${Config_file}.cfg --power"
 
 
-chmod +x apps/dijkstra/dijkstra_small
+# chmod +x apps/dijkstra/dijkstra_small
 chmod +x apps/gsm-untoast/untoast
 chmod +x apps/qsort/qsort_small
 chmod +x apps/jpeg-cjpeg/cjpeg
-chmod +x apps/stringsearch/search_small 
+# chmod +x apps/stringsearch/search_small 
 
 OVERALL_STARTTIME=`date +%s.%N`
 
-STARTTIME=`date +%s.%N`
-echo running app dijkstra
-rm -rf ${Sim_DIR}/dijkstra
-mkdir -p ${Sim_DIR}/dijkstra
-${Sniper_Home}/run-sniper  ${Config} -d ${Sim_DIR}/dijkstra -- ${APP_Home}/dijkstra/dijkstra_small ${APP_Home}/dijkstra/input.dat > ${Sim_DIR}/dijkstra/#stdout_dijkstra.txt 
-ENDTIME=`date +%s.%N`
-RUNTIME=$(echo "$ENDTIME - $STARTTIME" | bc)
-echo -e "${COLOR_GREEN}dijkstra Simulation finished. Runtime: ${RUNTIME} seconds${COLOR_CLEAR}"
+# STARTTIME=`date +%s.%N`
+# echo running app dijkstra
+# rm -rf ${Sim_DIR}/dijkstra
+# mkdir -p ${Sim_DIR}/dijkstra
+# ${Sniper_Home}/run-sniper  ${Config} -d ${Sim_DIR}/dijkstra -- ${APP_Home}/dijkstra/dijkstra_small ${APP_Home}/dijkstra/input.dat > ${Sim_DIR}/dijkstra/#stdout_dijkstra.txt 
+# ENDTIME=`date +%s.%N`
+# RUNTIME=$(echo "$ENDTIME - $STARTTIME" | bc)
+# echo -e "${COLOR_GREEN}dijkstra Simulation finished. Runtime: ${RUNTIME} seconds${COLOR_CLEAR}"
 
 
-STARTTIME=`date +%s.%N`
-echo running app search_small
-mkdir -p ${Sim_DIR}/string_search
-${Sniper_Home}/run-sniper  ${Config} -d ${Sim_DIR}/string_search -- ${APP_Home}/stringsearch/search_small > ${Sim_DIR}/string_search/stdout_search.txt 
-ENDTIME=`date +%s.%N`
-RUNTIME=$(echo "$ENDTIME - $STARTTIME" | bc)
-echo -e "${COLOR_GREEN}search_small Simulation finished. Runtime: ${RUNTIME} seconds${COLOR_CLEAR}"
+# STARTTIME=`date +%s.%N`
+# echo running app search_small
+# mkdir -p ${Sim_DIR}/string_search
+# ${Sniper_Home}/run-sniper  ${Config} -d ${Sim_DIR}/string_search -- ${APP_Home}/stringsearch/search_small > ${Sim_DIR}/string_search/stdout_search.txt 
+# ENDTIME=`date +%s.%N`
+# RUNTIME=$(echo "$ENDTIME - $STARTTIME" | bc)
+# echo -e "${COLOR_GREEN}search_small Simulation finished. Runtime: ${RUNTIME} seconds${COLOR_CLEAR}"
 
 
 STARTTIME=`date +%s.%N` 
