@@ -1,0 +1,47 @@
+[SNIPER] Start
+[SNIPER] --------------------------------------------------------------------------------
+[SNIPER] Sniper using SIFT/trace-driven frontend
+[SNIPER] Running full application in DETAILED mode
+[SNIPER] --------------------------------------------------------------------------------
+[SNIPER] Enabling performance models
+[SNIPER] Setting instrumentation mode to DETAILED
+Shortest path is 1 in cost. Path is:  0 41 45 51 50
+Shortest path is 0 in cost. Path is:  1 58 57 20 40 17 65 73 36 46 10 38 41 45 51
+Shortest path is 1 in cost. Path is:  2 71 47 79 23 77 1 58 57 20 40 17 52
+Shortest path is 2 in cost. Path is:  3 53
+Shortest path is 1 in cost. Path is:  4 85 83 58 33 13 19 79 23 77 1 54
+Shortest path is 3 in cost. Path is:  5 26 23 77 1 58 99 3 21 70 55
+Shortest path is 3 in cost. Path is:  6 42 80 77 1 58 99 3 21 70 55 56
+Shortest path is 0 in cost. Path is:  7 17 65 73 36 46 10 58 57
+Shortest path is 0 in cost. Path is:  8 37 63 72 46 10 58
+Shortest path is 1 in cost. Path is:  9 33 13 19 79 23 77 1 59
+Shortest path is 0 in cost. Path is:  10 60
+Shortest path is 5 in cost. Path is:  11 22 20 40 17 65 73 36 46 10 29 61
+Shortest path is 0 in cost. Path is:  12 37 63 72 46 10 58 99 3 21 70 62
+Shortest path is 0 in cost. Path is:  13 19 79 23 77 1 58 99 3 21 70 55 12 37 63
+Shortest path is 1 in cost. Path is:  14 38 41 45 51 68 2 71 47 79 23 77 1 58 33 13 92 64
+Shortest path is 1 in cost. Path is:  15 13 92 94 11 22 20 40 17 65
+Shortest path is 3 in cost. Path is:  16 41 45 51 68 2 71 47 79 23 77 1 58 33 32 66
+Shortest path is 0 in cost. Path is:  17 65 73 36 46 10 58 33 13 19 79 23 91 67
+Shortest path is 1 in cost. Path is:  18 15 41 45 51 68
+Shortest path is 2 in cost. Path is:  19 69
+[TRACE:0] -- DONE --
+[RECORD-TRACE] Using the Pin frontend (sift/recorder)
+[SNIPER] Disabling performance models
+[SNIPER] Leaving ROI after 165.44 seconds
+[SNIPER] Simulated 44.2M instructions, 1661.0M cycles, 0.03 IPC
+[SNIPER] Simulation speed 267.4 KIPS (267.4 KIPS / target core - 3739.9ns/instr)
+[SNIPER] Setting instrumentation mode to FAST_FORWARD
+                     Power     Energy    Energy %
+  core-ifetch       0.06 W     0.05  J      1.12%
+  core-fp           0.08 W     0.07  J      1.59%
+  dram              4.72 W     3.92  J     95.23%
+  other             0.10 W     0.09  J      2.07%
+
+  core              0.13 W     0.11  J      2.71%
+  cache             0.00 W     0.00  J      0.00%
+  total             4.95 W     4.11  J    100.00%
+Warning: Unable to run gnuplot to create cpi stack graphs.  Maybe gnuplot is not installed?
+[SNIPER] End
+[SNIPER] Elapsed time: 165.41 seconds
+[SNIPER] Running McPAT

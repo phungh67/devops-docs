@@ -1,0 +1,61 @@
+[SNIPER] Start
+[SNIPER] --------------------------------------------------------------------------------
+[SNIPER] Sniper using SIFT/trace-driven frontend
+[SNIPER] Running full application in DETAILED mode
+[SNIPER] --------------------------------------------------------------------------------
+[SNIPER] Enabling performance models
+[SNIPER] Setting instrumentation mode to DETAILED
+A: Source/pin/elfio/img_elf.cpp: ProcessSectionHeaders: 809: unknown section type 0x13 for sec[42,.relr.dyn] in /lib64/ld-linux-x86-64.so.2
+
+################################################################################
+## STACK TRACE
+################################################################################
+??? at /chalmers/users/qisha/Project/sniper_2024/snipersim_neethu/Lab3/sniper/sift/recorder/obj-intel64/sift_recorder+0x00035a6c1 
+
+??? at /chalmers/users/qisha/Project/sniper_2024/snipersim_neethu/Lab3/sniper/sift/recorder/obj-intel64/sift_recorder+0x0003617fc 
+
+??? at /chalmers/users/qisha/Project/sniper_2024/snipersim_neethu/Lab3/sniper/sift/recorder/obj-intel64/sift_recorder+0x0002f2bcc 
+
+??? at /chalmers/users/qisha/Project/sniper_2024/snipersim_neethu/Lab3/sniper/sift/recorder/obj-intel64/sift_recorder+0x0002f54ed 
+
+??? at /chalmers/users/qisha/Project/sniper_2024/snipersim_neethu/Lab3/sniper/sift/recorder/obj-intel64/sift_recorder+0x0002f559f 
+
+??? at /chalmers/users/qisha/Project/sniper_2024/snipersim_neethu/Lab3/sniper/sift/recorder/obj-intel64/sift_recorder+0x00032fa4e 
+
+??? at /chalmers/users/qisha/Project/sniper_2024/snipersim_neethu/Lab3/sniper/sift/recorder/obj-intel64/sift_recorder+0x00033462c 
+
+??? at /chalmers/users/qisha/Project/sniper_2024/snipersim_neethu/Lab3/sniper/sift/recorder/obj-intel64/sift_recorder+0x00030fe07 
+
+LEVEL_INJECTOR::UNIX_INJECTEE::StartProgram+0x000000101 at /chalmers/users/qisha/Project/sniper_2024/snipersim_neethu/Lab3/sniper/pin_kit/intel64/bin/pinbin+0x000396a51 
+
+??? at /chalmers/users/qisha/Project/sniper_2024/snipersim_neethu/Lab3/sniper/sift/recorder/obj-intel64/sift_recorder+0x00030c81f 
+
+main+0x0000002e3 at /chalmers/users/qisha/Project/sniper_2024/snipersim_neethu/Lab3/sniper/sift/recorder/obj-intel64/sift_recorder+0x0000172f3 (/home/neethu/workspace/TA/dat105/simulators/snipersim/sift/recorder/sift_recorder.cc:300) 
+
+LEVEL_INJECTOR::UNIX_INJECTEE::StartTool+0x000000212 at /chalmers/users/qisha/Project/sniper_2024/snipersim_neethu/Lab3/sniper/pin_kit/intel64/bin/pinbin+0x000395392 
+
+LEVEL_INJECTOR::UNIX_INJECTEE::RunMainThreadOnPinStackAttach+0x000000429 at /chalmers/users/qisha/Project/sniper_2024/snipersim_neethu/Lab3/sniper/pin_kit/intel64/bin/pinbin+0x0003981e9 
+
+Pin: pin-3.11-97998-7ecce2dac
+Copyright 2002-2019 Intel Corporation.
+
+[TRACE:0] -- DONE --
+[RECORD-TRACE] Using the Pin frontend (sift/recorder)
+[SNIPER] Disabling performance models
+[SNIPER] Leaving ROI after 1.21 seconds
+[SNIPER] Simulated 0.0M instructions, 0.0M cycles, 0.00 IPC
+[SNIPER] Simulation speed 0.0 KIPS (0.0 KIPS / target core - 1211511254.3ns/instr)
+[SNIPER] Setting instrumentation mode to FAST_FORWARD
+                     Power     Energy    Energy %
+  core-ifetch       0.05 W     0.00  J      1.14%
+  core-fp           0.08 W     0.00  J      1.72%
+  l2                0.11 W     0.00  J      2.32%
+  dram              4.25 W     0.00  J     92.88%
+  other             0.09 W     0.00  J      1.95%
+
+  core              0.13 W     0.00  J      2.86%
+  cache             0.11 W     0.00  J      2.32%
+  total             4.58 W     0.00  J    100.00%
+[SNIPER] End
+[SNIPER] Elapsed time: 4.58 seconds
+[SNIPER] Running McPAT
