@@ -30,3 +30,5 @@ ethics-hacking-pentesting/wireguard.conf
 *.pdf
 
 ethics-hacking-pentesting/*
+
+computer-architecture/lab/Lab3/sniper/*
