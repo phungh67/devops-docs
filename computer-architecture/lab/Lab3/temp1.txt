@@ -1,0 +1,1 @@
+      Subthreshold Leakage = 0.191062 W

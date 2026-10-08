@@ -1,0 +1,7 @@
+Core:
+      Area = 4.28113 mm^2
+      Peak Dynamic = 0.326292 W
+      Subthreshold Leakage = 0.191062 W
+      Subthreshold Leakage with power gating = 0.0813032 W
+      Gate Leakage = 0.141077 W
+      Runtime Dynamic = 0.0200624 W
