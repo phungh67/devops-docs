@@ -10011,24 +10011,24 @@ Accept
 [TRACE:0] -- DONE --
 [RECORD-TRACE] Using the Pin frontend (sift/recorder)
 [SNIPER] Disabling performance models
-[SNIPER] Leaving ROI after 32.86 seconds
-[SNIPER] Simulated 15.2M instructions, 108.4M cycles, 0.14 IPC
-[SNIPER] Simulation speed 463.2 KIPS (463.2 KIPS / target core - 2158.7ns/instr)
+[SNIPER] Leaving ROI after 32.65 seconds
+[SNIPER] Simulated 14.9M instructions, 107.9M cycles, 0.14 IPC
+[SNIPER] Simulation speed 456.5 KIPS (456.5 KIPS / target core - 2190.8ns/instr)
 [SNIPER] Setting instrumentation mode to FAST_FORWARD
                      Power     Energy    Energy %
-  core-core         0.16 W     8.89 mJ      2.64%
-  core-ifetch       0.08 W     4.50 mJ      1.34%
-  core-alu          0.16 W     8.81 mJ      2.62%
-  core-int          0.14 W     7.44 mJ      2.21%
+  core-core         0.16 W     8.76 mJ      2.61%
+  core-ifetch       0.08 W     4.46 mJ      1.33%
+  core-alu          0.16 W     8.77 mJ      2.62%
+  core-int          0.14 W     7.39 mJ      2.21%
   core-fp           0.30 W     0.02  J      4.77%
   core-other        0.25 W     0.01  J      4.01%
-  dram              5.04 W     0.27  J     81.19%
-  other             0.08 W     4.11 mJ      1.22%
+  dram              5.05 W     0.27  J     81.22%
+  other             0.08 W     4.12 mJ      1.23%
 
-  core              1.09 W     0.06  J     17.59%
+  core              1.09 W     0.06  J     17.55%
   cache             0.00 W     0.00  J      0.00%
   total             6.21 W     0.34  J    100.00%
 Warning: Unable to run gnuplot to create cpi stack graphs.  Maybe gnuplot is not installed?
 [SNIPER] End
-[SNIPER] Elapsed time: 32.99 seconds
+[SNIPER] Elapsed time: 32.78 seconds
 [SNIPER] Running McPAT

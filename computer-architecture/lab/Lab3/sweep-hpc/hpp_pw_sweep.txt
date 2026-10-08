@@ -1,0 +1,4 @@
+# DIR_NAME             in_order dispatch commit ROB  RS  LSQ  L2_SIZE  L2_ASSOC  BLOCK_SIZE L1_SIZE
+13_HPP_PW_Base         false    4        4      64   16  8    32       8         64         4
+14_HPP_PW_Mod1         false    4        4      32   16  8    32       8         32         1
+15_HPP_PW_Mod2         false    4        4      32   8   8    16       4         32         1

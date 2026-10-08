@@ -29,9 +29,9 @@
 		<param name="virtual_address_width" value="64"/>
 		<param name="physical_address_width" value="52"/>
 		<param name="virtual_memory_page_size" value="4096"/>
-		<stat name="total_cycles" value="161852000"/>
+		<stat name="total_cycles" value="117089600"/>
 		<stat name="idle_cycles" value="0"/>
-		<stat name="busy_cycles"  value="161852000"/>
+		<stat name="busy_cycles"  value="117089600"/>
 			<!--This page size(B) is complete different from the page size in Main memo secction. this page size is the size of 
 			virtual memory from OS/Archi perspective; the page size in Main memo secction is the actuall physical line in a DRAM bank  -->
 		<!-- *********************** cores ******************* -->
@@ -131,9 +131,9 @@
 			<stat name="committed_instructions" value="6552370"/>
 			<stat name="committed_int_instructions" value="5638519"/>
 			<stat name="committed_fp_instructions" value="0"/>
-			<stat name="total_cycles" value="161852000"/>
-			<stat name="idle_cycles" value="178"/>
-			<stat name="busy_cycles"  value="161851822"/>
+			<stat name="total_cycles" value="117089600"/>
+			<stat name="idle_cycles" value="85"/>
+			<stat name="busy_cycles"  value="117089515"/>
 			<!-- instruction buffer stats -->
 			<!-- ROB stats, both RS and Phy based OoOs have ROB
 			performance simulator should capture the difference on accesses,
@@ -180,14 +180,14 @@
 			Future versions of McPAT may be able to reason the implicite access
 			based on param and stats of last level cache
 			The same rule applies to all cache access stats too!  -->
-			<stat name="IFU_duty_cycle" value="0.040484"/>
-			<stat name="LSU_duty_cycle" value="0.008282"/>
-			<stat name="MemManU_I_duty_cycle" value="0.040484"/>
-			<stat name="MemManU_D_duty_cycle" value="0.008282"/>
-			<stat name="ALU_duty_cycle" value="0.006747"/>
+			<stat name="IFU_duty_cycle" value="0.055960"/>
+			<stat name="LSU_duty_cycle" value="0.011448"/>
+			<stat name="MemManU_I_duty_cycle" value="0.055960"/>
+			<stat name="MemManU_D_duty_cycle" value="0.011448"/>
+			<stat name="ALU_duty_cycle" value="0.009327"/>
 			<stat name="MUL_duty_cycle" value="0.000000"/>
 			<stat name="FPU_duty_cycle" value="0.000000"/>
-			<stat name="ALU_cdb_duty_cycle" value="0.006747"/>
+			<stat name="ALU_cdb_duty_cycle" value="0.009327"/>
 			<stat name="MUL_cdb_duty_cycle" value="0.000000"/>
 			<stat name="FPU_cdb_duty_cycle" value="0.000000"/>
 			<param name="number_of_BPT" value="2"/>
@@ -216,13 +216,13 @@
 				<param name="buffer_sizes" value="16, 16, 16, 0"/>
 				<!-- cache controller buffer sizes: miss_buffer_size(MSHR),fill_buffer_size,prefetch_buffer_size,wb_buffer_size-->
 				<stat name="read_accesses" value="2478310"/>
-				<stat name="read_misses" value="1261195"/>
+				<stat name="read_misses" value="1193765"/>
 				<stat name="conflicts" value="0"/>
 			</component>
 			<component id="system.core0.dtlb" name="dtlb">
 				<param name="number_entries" value="256"/>
 				<stat name="total_accesses" value="1340405"/>
-				<stat name="total_misses" value="223608"/>
+				<stat name="total_misses" value="173803"/>
 				<stat name="conflicts" value="0"/>
 			</component>
 			<component id="system.core0.dcache" name="dcache">
@@ -232,8 +232,8 @@
 				<!-- cache controller buffer sizes: miss_buffer_size(MSHR),fill_buffer_size,prefetch_buffer_size,wb_buffer_size-->
 				<stat name="read_accesses" value="870184"/>
 				<stat name="write_accesses" value="470221"/>
-				<stat name="read_misses" value="156080"/>
-				<stat name="write_misses" value="67528"/>
+				<stat name="read_misses" value="101347"/>
+				<stat name="write_misses" value="72456"/>
 				<stat name="conflicts" value="0"/>
 			</component>
 			<component id="system.core0.BTB" name="BTB">
@@ -252,12 +252,12 @@
 				<param name="vdd" value="1.000000"/><!-- 0 means using ITRS default vdd -->
 				<param name="ports" value="1,1,1"/>
 				<param name="device_type" value="0"/>
-				<stat name="read_accesses" value="1417275"/>
-				<stat name="write_accesses" value="67528"/>
-				<stat name="read_misses" value="351724"/>
-				<stat name="write_misses" value="58063"/>
+				<stat name="read_accesses" value="1295112"/>
+				<stat name="write_accesses" value="72456"/>
+				<stat name="read_misses" value="226784"/>
+				<stat name="write_misses" value="61887"/>
 				<stat name="conflicts" value="0"/>
-				<stat name="duty_cycle" value="0.009174"/>
+				<stat name="duty_cycle" value="0.011680"/>
 		</component>
 			<!--**********************************************************************-->
 		<component id="system.NoC0" name="noc0">
@@ -296,9 +296,9 @@
 			<param name="databus_width" value="128"/>
 			<param name="addressbus_width" value="51"/>
 			<!-- McPAT will add the control bus width to the addressbus width automatically -->
-			<stat name="memory_accesses" value="431250"/>
-			<stat name="memory_reads" value="373211"/>
-			<stat name="memory_writes" value="58039"/>
+			<stat name="memory_accesses" value="313281"/>
+			<stat name="memory_reads" value="251439"/>
+			<stat name="memory_writes" value="61842"/>
 			<!-- McPAT does not track individual mc, instead, it takes the total accesses and calculate 
 			the average power per MC or per channel. This is sufficent for most application. 
 			Further trackdown can be easily added in later versions. -->

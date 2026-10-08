@@ -1,0 +1,38 @@
+{
+  "qsort": {
+    "Core_Model": "nehalem",
+    "Frequency_GHz": 2,
+    "Instructions": 14905536,
+    "Cycles": 65650200,
+    "CPI": 4.40442,
+    "Time_ns": 32825100.00000,
+    "Area": 10.344,
+    "Peak_Dynamic": 4.17885,
+    "Runtime_Dynamic": 0.719827,
+    "Subthreshold_Leakage": 0.604236
+  },
+  "gsm": {
+    "Core_Model": "nehalem",
+    "Frequency_GHz": 2,
+    "Instructions": 6552369,
+    "Cycles": 12483200,
+    "CPI": 1.90514,
+    "Time_ns": 6241600.00000,
+    "Area": 10.344,
+    "Peak_Dynamic": 4.47938,
+    "Runtime_Dynamic": 1.05692,
+    "Subthreshold_Leakage": 0.604236
+  },
+  "jpeg": {
+    "Core_Model": "nehalem",
+    "Frequency_GHz": 2,
+    "Instructions": 22383472,
+    "Cycles": 44621800,
+    "CPI": 1.99352,
+    "Time_ns": 22310900.00000,
+    "Area": 10.344,
+    "Peak_Dynamic": 4.55084,
+    "Runtime_Dynamic": 1.08495,
+    "Subthreshold_Leakage": 0.604236
+  }
+}
