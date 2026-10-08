@@ -1,0 +1,12 @@
+# DIR_NAME      in_order dispatch commit ROB  RS  LSQ
+01_OoO_Base     false    1        1      16   1   1
+02_Width_4      false    4        4      16   1   1
+03_Width_8      false    8        8      16   1   1
+04_ROB_64_RS_16 false    4        4      64   16  1
+05_LSQ_8        false    4        4      64   16  8
+
+# DIR_NAME          in_order dispatch commit ROB  RS  LSQ  L2_SIZE  L2_ASSOC
+06_L2_4K_1W         false    4        4      64   16  8    4        1
+07_L2_32K_1W        false    4        4      64   16  8    32       1
+08_L2_32K_8W        false    4        4      64   16  8    32       8
+09_L2_16K_4W        false    4        4      64   16  8    16       4
