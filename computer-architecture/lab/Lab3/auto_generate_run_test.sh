@@ -55,10 +55,16 @@ while IFS= read -r line || [[ -n "$line" ]]; do
   sed -i.bak -E "s/^outstanding_loads[ \t]*=[ \t]*.*/outstanding_loads = $LSQ/" "$TARGET_CFG"
   sed -i.bak -E "s/^outstanding_stores[ \t]*=[ \t]*.*/outstanding_stores = $LSQ/" "$TARGET_CFG"
   
-  sed -i.bak -E '/^\[perf_model\/l2_cache\]/,/^\[/ s/^cache_size[ \t]*=[ \t]*.*/cache_size = '"$L2_SIZE"'/' "$TARGET_CFG"
-  sed -i.bak -E '/^\[perf_model\/l2_cache\]/,/^\[/ s/^associativity[ \t]*=[ \t]*.*/associativity = '"$L2_ASSOC"'/' "$TARGET_CFG"
+  # NEW: Only modify L2 parameters if they were provided in the sweep text file
+  if [[ -n "$L2_SIZE" ]]; then
+    sed -i.bak -E '/^\[perf_model\/l2_cache\]/,/^\[/ s/^cache_size[ \t]*=[ \t]*.*/cache_size = '"$L2_SIZE"'/' "$TARGET_CFG"
+  fi
   
-  rm -f "$OUT_DIR/*.bak" 
+  if [[ -n "$L2_ASSOC" ]]; then
+    sed -i.bak -E '/^\[perf_model\/l2_cache\]/,/^\[/ s/^associativity[ \t]*=[ \t]*.*/associativity = '"$L2_ASSOC"'/' "$TARGET_CFG"
+  fi
+  
+  rm -f "$OUT_DIR/*.bak"
   echo "[INFO] Modifications applied successfully."
   
   # Step 4: Run the test
